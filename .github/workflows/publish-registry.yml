@@ -1,0 +1,48 @@
+# Publish this server to the official MCP Registry.
+#
+# Trigger from the browser: Actions → "Publish to MCP Registry" → Run
+# workflow. Authenticates via GitHub OIDC (no secrets, no PAT) for the
+# io.github.steven3265/* namespace, validates server.json with a dry
+# run, publishes, and verifies the listing through the registry API.
+#
+# Run it again after any release that changes server.json (e.g. a
+# version bump) — the registry keeps one latest record per name.
+#
+# Dependency-free beyond the official mcp-publisher binary, fetched
+# from the registry project's own releases.
+
+name: Publish to MCP Registry
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # OIDC token for registry authentication
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download mcp-publisher
+        run: |
+          curl -sL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+          ./mcp-publisher --version || true
+
+      - name: Authenticate (GitHub OIDC)
+        run: ./mcp-publisher login github-oidc
+
+      - name: Validate (dry run)
+        run: ./mcp-publisher publish --file server.json --dry-run
+
+      - name: Publish
+        run: ./mcp-publisher publish --file server.json
+
+      - name: Verify listing
+        run: |
+          sleep 5
+          curl -s "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.steven3265/homechecker-guides" | head -c 1200
+          echo ""
+          echo "Listed. The entry propagates to the GitHub MCP Registry and client directories that ingest the official registry."
