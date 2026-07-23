@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
-  "name": "io.github.steven3265/homechecker-guides",
+  "name": "io.github.Steven3265/homechecker-guides",
   "description": "Search and cite Homechecker's Australian home-buying guides. Read-only, free, sourced answers.",
   "repository": {
     "url": "https://github.com/Steven3265/homechecker-guides-mcp",
