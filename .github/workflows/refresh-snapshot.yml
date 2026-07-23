@@ -1,0 +1,71 @@
+# Refresh the bundled guide snapshot from the public Homechecker export.
+#
+# Trigger it from the browser: Actions → "Refresh guides snapshot" →
+# Run workflow. It fetches https://homechecker.com.au/guides/export.json,
+# rebuilds data/guides.json, runs the validator, core tests and retrieval
+# benchmark, and opens a pull request only if the content actually changed.
+#
+# ONE-TIME REPO SETTING: Settings → Actions → General →
+# "Allow GitHub Actions to create and approve pull requests" must be ticked,
+# or the final step cannot open the PR.
+#
+# Deliberately dependency-free: no npm install, no third-party actions
+# beyond checkout/setup-node. The snapshot pipeline runs on Node built-ins.
+
+name: Refresh guides snapshot
+
+on:
+  workflow_dispatch:
+    inputs:
+      export_url:
+        description: 'Guide export URL (leave blank for the live site)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Rebuild snapshot from the public export
+        run: |
+          if [ -n "${{ github.event.inputs.export_url }}" ]; then
+            node scripts/snapshot-guides.mjs --url "${{ github.event.inputs.export_url }}"
+          else
+            node scripts/snapshot-guides.mjs
+          fi
+
+      - name: Validate, test and benchmark
+        run: |
+          node scripts/validate-snapshot.mjs
+          node scripts/test-core.mjs
+          node scripts/run-benchmark.mjs
+
+      - name: Open a pull request if the snapshot changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- data/guides.json; then
+            echo "Snapshot already matches the export — nothing to do."
+            exit 0
+          fi
+          BRANCH="snapshot-refresh-$(date -u +%Y%m%d-%H%M%S)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add data/guides.json
+          git commit -m "Refresh guides snapshot from public export"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "Refresh guides snapshot" \
+            --head "$BRANCH" \
+            --body "Regenerated \`data/guides.json\` from the public Homechecker guide export. The snapshot validator, core test suite and retrieval benchmark all passed in this workflow run. Merging redeploys the connector on Vercel."
