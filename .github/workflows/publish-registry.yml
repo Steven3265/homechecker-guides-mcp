@@ -43,6 +43,6 @@ jobs:
       - name: Verify listing
         run: |
           sleep 5
-          curl -s "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.steven3265/homechecker-guides" | head -c 1200
+          curl -s "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.Steven3265/homechecker-guides" | head -c 1200
           echo ""
           echo "Listed. The entry propagates to the GitHub MCP Registry and client directories that ingest the official registry."
