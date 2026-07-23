@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-23T00:01:18.173Z",
+  "generatedAt": "2026-07-23T04:35:55.989Z",
   "source": {
     "name": "Homechecker guide registry",
-    "origin": "Moyne Ross portal content/guides/_registry.ts",
+    "origin": "https://homechecker.com.au/guides/export.json",
     "baseUrl": "https://homechecker.com.au",
     "contentCount": 34,
     "spokeCount": 33,
