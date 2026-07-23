@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "description": "Read-only MCP server for Homechecker's professionally authored Australian homebuyer guides.",
-  "license": "UNLICENSED",
+  "license": "SEE LICENSE IN LICENSE.md",
   "engines": {
     "node": ">=22"
   },
