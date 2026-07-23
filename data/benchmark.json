@@ -1,0 +1,16 @@
+[
+  { "query": "What should I look for in a Section 32 vendor statement in Victoria?", "expected": ["reading-a-section-32"] },
+  { "query": "How do I read a contract for sale when buying in New South Wales?", "expected": ["reading-a-contract-for-sale-nsw"] },
+  { "query": "What is the Queensland Form 2 seller disclosure?", "expected": ["seller-disclosure-qld"] },
+  { "query": "Should I get a building inspection before bidding at auction?", "expected": ["building-inspection-before-auction"] },
+  { "query": "How do I read an owners corporation report for an apartment?", "expected": ["reading-your-owners-corporation-report", "buying-an-apartment-strata"] },
+  { "query": "What are common issues in a 1970s house?", "expected": ["postwar-homes-1950s-70s", "red-flags-by-era"] },
+  { "query": "What should I know about buying a weatherboard house?", "expected": ["weatherboard-homes"] },
+  { "query": "Brick veneer versus double brick", "expected": ["brick-veneer-vs-double-brick"] },
+  { "query": "Are these cracks structural or cosmetic?", "expected": ["cracks-structural-or-cosmetic"] },
+  { "query": "How should I investigate damp and moisture?", "expected": ["damp-and-moisture-in-your-home"] },
+  { "query": "What cooling-off period applies when buying a home?", "expected": ["cooling-off-period-by-state"] },
+  { "query": "What maintenance prevents major repair bills?", "expected": ["the-maintenance-that-prevents-the-big-bills"] },
+  { "query": "What should I check in a modern home built after 2000?", "expected": ["modern-homes-2000s-on"] },
+  { "query": "How can the condition of a home affect insurance?", "expected": ["home-condition-and-insurance"] }
+]

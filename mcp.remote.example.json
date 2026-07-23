@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "homechecker-guides": {
+      "type": "streamable-http",
+      "url": "https://YOUR-PROJECT.vercel.app/mcp"
+    }
+  }
+}
