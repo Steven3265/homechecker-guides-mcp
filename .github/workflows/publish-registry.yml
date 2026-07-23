@@ -1,15 +1,16 @@
 # Publish this server to the official MCP Registry.
 #
 # Trigger from the browser: Actions → "Publish to MCP Registry" → Run
-# workflow. Authenticates via GitHub OIDC (no secrets, no PAT) for the
-# io.github.steven3265/* namespace, validates server.json with a dry
-# run, publishes, and verifies the listing through the registry API.
+# workflow. Authenticates via GitHub OIDC (no secrets, no PAT),
+# publishes server.json, and verifies the listing through the registry
+# API. Publishing is idempotent: if the current version is already in
+# the registry, the run reports that and succeeds.
 #
-# Run it again after any release that changes server.json (e.g. a
-# version bump) — the registry keeps one latest record per name.
+# Run it again after any release that bumps the version in server.json.
 #
-# Dependency-free beyond the official mcp-publisher binary, fetched
-# from the registry project's own releases.
+# Note: this CLI has no working dry-run — an earlier version of this
+# workflow used --dry-run and the flag published for real. One step,
+# honestly named.
 
 name: Publish to MCP Registry
 
@@ -29,20 +30,28 @@ jobs:
       - name: Download mcp-publisher
         run: |
           curl -sL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
-          ./mcp-publisher --version || true
 
       - name: Authenticate (GitHub OIDC)
         run: ./mcp-publisher login github-oidc
 
-      - name: Validate (dry run)
-        run: ./mcp-publisher publish --file server.json --dry-run
-
-      - name: Publish
-        run: ./mcp-publisher publish --file server.json
+      - name: Publish (idempotent)
+        run: |
+          set +e
+          OUT=$(./mcp-publisher publish --file server.json 2>&1)
+          CODE=$?
+          echo "$OUT"
+          set -e
+          if [ $CODE -ne 0 ]; then
+            if echo "$OUT" | grep -q "duplicate version"; then
+              echo "This version is already published — nothing to do."
+            else
+              exit $CODE
+            fi
+          fi
 
       - name: Verify listing
         run: |
           sleep 5
-          curl -s "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.Steven3265/homechecker-guides" | head -c 1200
+          curl -s "https://registry.modelcontextprotocol.io/v0/servers?search=io.github.Steven3265/homechecker-guides" | head -c 1200
           echo ""
-          echo "Listed. The entry propagates to the GitHub MCP Registry and client directories that ingest the official registry."
+          echo "Listed. The entry propagates to the GitHub MCP Registry and clients that ingest the official registry."
