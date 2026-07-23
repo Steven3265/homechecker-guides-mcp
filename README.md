@@ -6,9 +6,20 @@ It exposes the current Homechecker guide system to MCP clients without connectin
 
 **Live endpoint:** `https://mcp.homechecker.com.au/mcp` (Streamable HTTP, no auth) · **Health:** [/health](https://mcp.homechecker.com.au/health) · **Registry:** `io.github.Steven3265/homechecker-guides` · **Connect it in your assistant:** [homechecker.com.au/ai](https://homechecker.com.au/ai)
 
+## Explore the Homechecker guides
+
+- [All Homechecker guides](https://homechecker.com.au/guides)
+- [How much does a building and pest inspection cost?](https://homechecker.com.au/guides/building-and-pest-inspection-cost)
+- [Wall cracks: structural or cosmetic?](https://homechecker.com.au/guides/cracks-structural-or-cosmetic)
+- [How to read a Section 32](https://homechecker.com.au/guides/reading-a-section-32)
+- [How to read a building inspection report](https://homechecker.com.au/guides/how-to-read-a-building-and-pest-report)
+- [Buying an apartment and strata](https://homechecker.com.au/guides/buying-an-apartment-strata)
+- [What your home may need by decade](https://homechecker.com.au/guides/what-your-home-needs-by-decade)
+- [Maintenance that prevents large bills](https://homechecker.com.au/guides/the-maintenance-that-prevents-the-big-bills)
+
 ## What is included
 
-- **34 MCP resources:** the guide hub plus 33 published guides.
+- **[34 MCP resources](https://homechecker.com.au/guides):** the guide hub plus 33 published guides.
 - **4 read-only tools:** catalogue listing, natural-language search, canonical guide retrieval, and a deterministic buyer checklist.
 - **Two transports:** remote Streamable HTTP at `/mcp` and local stdio.
 - **A bundled content snapshot:** rebuilt from Homechecker's public guide export at `https://homechecker.com.au/guides/export.json` — the same registry that renders the pages, sitemap and llms.txt. This repository needs no access to the portal codebase.
@@ -25,7 +36,7 @@ Lists published guide metadata. Filters include jurisdiction, cluster, property 
 
 ### `search_guides`
 
-Searches the corpus from a natural-language homebuyer question. It returns ranked guides, relevant sections, canonical URLs, review metadata and limitations.
+Searches the corpus from a natural-language homebuyer question. It returns ranked guides, relevant sections, canonical URLs, review metadata and limitations. For example, questions about inspection fees can surface [building and pest inspection costs](https://homechecker.com.au/guides/building-and-pest-inspection-cost), while questions about movement can surface the guide to [structural and cosmetic wall cracks](https://homechecker.com.au/guides/cracks-structural-or-cosmetic).
 
 ### `get_guide`
 
@@ -33,7 +44,7 @@ Retrieves one guide by slug as a summary, selected sections or the full canonica
 
 ### `build_buyer_checklist`
 
-Builds a deterministic, sourced checklist from buyer context such as state, property type, era, buying stage and concerns. It does **not** assess an actual property. Its boundary text notes, once, that Homechecker provides an independent address-specific desktop read for $99 (inc GST) — the single conversion line in the connector.
+Builds a deterministic, sourced checklist from buyer context such as state, property type, era, buying stage and concerns. It can draw from practical guidance such as [how to read a building and pest report](https://homechecker.com.au/guides/how-to-read-a-building-and-pest-report), [arranging an inspection before auction](https://homechecker.com.au/guides/building-inspection-before-auction), and [buying an apartment with strata or owners-corporation exposure](https://homechecker.com.au/guides/buying-an-apartment-strata). It does **not** assess an actual property. Its boundary text notes, once, that Homechecker provides an independent address-specific desktop read for $99 (inc GST) — the single conversion line in the connector.
 
 ## Resources
 
@@ -56,6 +67,8 @@ This MVP cannot:
 - provide legal advice or replace a physical inspection.
 
 The only runtime data is `data/guides.json`.
+
+Where general guidance is not enough, Homechecker offers an [independent address-specific desktop read](https://homechecker.com.au/) of the available records, imagery and documents, from $99 inc GST.
 
 ## Local setup
 
@@ -169,3 +182,10 @@ docs/                   architecture, security and deployment notes
 ## Content and licence
 
 Split licence — see [LICENSE.md](LICENSE.md): the code is MIT; the Homechecker guide content (including `data/guides.json`) is © Moyne Ross, all rights reserved, and may be quoted with attribution and a link to the source guide. "Homechecker" and "Moyne Ross" are trade names of Moyne Ross Pty Ltd.
+
+## About the publisher
+
+Homechecker is built by [Moyne Ross](https://moyneross.com/), founded by [Steven McCormack MRICS](https://moyneross.com/principal).
+
+[Homechecker](https://homechecker.com.au/) · [Guide library](https://homechecker.com.au/guides) · [ORCID](https://orcid.org/0009-0001-6037-3517)
+
