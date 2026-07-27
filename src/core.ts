@@ -314,13 +314,46 @@ export function getGuide(slug: string): GuideRecord | undefined {
 // scripts/run-benchmark.mjs after any substantial change to the guide set
 // and re-check that the two bands still separate.
 export const MIN_RESULT_SCORE = 12;
-export const WEAK_MATCH_CEILING = 58;
 const RELATIVE_FLOOR = 0.18;
 
-/** True when results exist but none of them strongly answers the query. */
-export function isWeakMatch(results: GuideSearchResult[]): boolean {
+// Query-level bands are measured PER SIGNIFICANT TERM, not on the raw
+// score. Raw score grows with query length: every word that incidentally
+// matches adds points, so a verbose off-topic question accumulates enough
+// to look confident. "How much capital gains tax will I pay when I sell my
+// investment property" scored 58 raw — above an absolute ceiling tuned on
+// terse queries — purely from "sell", "pay" and "property". Real clients
+// send verbose natural language, so the absolute measure was calibrated on
+// the wrong shape of input.
+export const MIN_RELEVANCE_PER_TERM = 3.5;
+export const WEAK_RELEVANCE_PER_TERM = 12;
+
+/** Significant terms in the raw query — not synonym-expanded, which would inflate the divisor. */
+export function significantTermCount(query: string): number {
+  const terms = query.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((t) => t.length > 2);
+  return Math.max(1, terms.length);
+}
+
+/** Top score expressed per significant query term. */
+export function relevanceDensity(query: string, results: GuideSearchResult[]): number {
   const top = results[0];
-  return top !== undefined && top.score < WEAK_MATCH_CEILING;
+  if (top === undefined) return 0;
+  return top.score / significantTermCount(query);
+}
+
+/**
+ * True when results exist but none strongly answers the query.
+ *
+ * Calibration accepts two deliberate false flags rather than any false
+ * confidence. "Should I buy or rent a home in Australia in 2026" scores
+ * 11.63 per term — higher than the genuine benchmark question about
+ * weatherboard houses at 8.54 — because it is built entirely from corpus
+ * vocabulary. No keyword threshold separates those two, so the ceiling is
+ * set above both: the weatherboard question gets hedged, and nothing
+ * off-topic reaches "strong". A hedge on a correct answer costs a sentence;
+ * false confidence gets Homechecker cited on tax.
+ */
+export function isWeakMatch(query: string, results: GuideSearchResult[]): boolean {
+  return results.length > 0 && relevanceDensity(query, results) < WEAK_RELEVANCE_PER_TERM;
 }
 
 export function searchGuides(options: SearchOptions): GuideSearchResult[] {
@@ -338,7 +371,7 @@ export function searchGuides(options: SearchOptions): GuideSearchResult[] {
     return true;
   });
 
-  return candidates
+  const ranked = candidates
     .map((guide) => {
       const { score, matchedTerms } = scoreGuide(guide, normalizedOptions, terms);
       const matchedSections = guide.sections
@@ -381,6 +414,11 @@ export function searchGuides(options: SearchOptions): GuideSearchResult[] {
       return top === undefined || result.score >= top.score * RELATIVE_FLOOR;
     })
     .slice(0, limit);
+
+  // Query-level suppression: if even the best hit is thin relative to how
+  // much was asked, the corpus does not address the question.
+  if (relevanceDensity(query, ranked) < MIN_RELEVANCE_PER_TERM) return [];
+  return ranked;
 }
 
 function candidateScore(text: string, terms: string[], section: string): number {
@@ -512,11 +550,11 @@ export function guideSummary(guide: GuideRecord): Record<string, unknown> {
   };
 }
 
-export function renderSearchResults(results: GuideSearchResult[]): string {
+export function renderSearchResults(results: GuideSearchResult[], query = ''): string {
   if (!results.length) {
     return 'No Homechecker guide addresses that question. The corpus covers buying process, state disclosure rules, reading building and strata reports, building fabric and condition, and owning or changing a home. It does not cover finance, tax, valuation or agent selection.';
   }
-  const preamble = isWeakMatch(results)
+  const preamble = isWeakMatch(query, results)
     ? 'No guide strongly matches that question. The closest available are below and may not address it directly.\n\n'
     : '';
   return preamble + results.map((result, index) => {

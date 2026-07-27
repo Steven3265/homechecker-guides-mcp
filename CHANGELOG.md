@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.2.3
+
+### Fixed
+- Relevance bands are now measured per significant query term rather than on
+  raw score. Raw score grows with query length, so a verbose off-topic
+  question accumulated enough incidental points to read as confident: "how
+  much capital gains tax will I pay when I sell my investment property"
+  scored 58 and passed an absolute ceiling that had been calibrated on terse
+  queries. Real MCP clients send verbose natural language, so the original
+  calibration was tuned on the wrong shape of input.
+
+### Notes
+- Two genuine questions are now hedged as `weak` rather than `strong`. This
+  is deliberate. "Should I buy or rent a home in Australia in 2026" is built
+  entirely from corpus vocabulary and scores higher per term than a real
+  benchmark question about weatherboard houses, so no keyword threshold
+  separates them. The ceiling is set above both: nothing off-topic reaches
+  `strong`, at the cost of hedging two correct answers.
+- Verified across 34 queries — 12 verbose off-topic, 22 on-topic including
+  the full benchmark set. Zero off-topic leaked as strong, zero on-topic
+  lost.
+
 ## 0.2.2
 
 ### Added

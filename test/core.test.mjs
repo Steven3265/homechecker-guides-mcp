@@ -7,10 +7,11 @@ import {
   isWeakMatch,
   listGuides,
   MIN_RESULT_SCORE,
+  relevanceDensity,
   renderSearchResults,
   searchGuides,
   snapshot,
-  WEAK_MATCH_CEILING,
+  WEAK_RELEVANCE_PER_TERM,
 } from '../.core-dist/src/core.js';
 
 test('snapshot contains the full published guide system', () => {
@@ -122,7 +123,8 @@ test('off-topic finance questions return nothing at all', () => {
 });
 
 test('an empty result set says what the corpus does not cover', () => {
-  const rendered = renderSearchResults(searchGuides({ query: 'what is negative gearing' }));
+  const q = 'what is negative gearing';
+  const rendered = renderSearchResults(searchGuides({ query: q }), q);
   assert.match(rendered, /No Homechecker guide addresses that question/i);
   assert.match(rendered, /does not cover finance, tax, valuation/i);
 });
@@ -130,8 +132,8 @@ test('an empty result set says what the corpus does not cover', () => {
 test('marginal off-topic questions are returned but flagged weak', () => {
   const results = searchGuides({ query: 'how much stamp duty do i pay in victoria' });
   assert.ok(results.length > 0, 'marginal queries still return context');
-  assert.equal(isWeakMatch(results), true);
-  assert.match(renderSearchResults(results), /No guide strongly matches that question/i);
+  assert.equal(isWeakMatch('how much stamp duty do i pay in victoria', results), true);
+  assert.match(renderSearchResults(results, 'how much stamp duty do i pay in victoria'), /No guide strongly matches that question/i);
 });
 
 test('genuine questions are not suppressed and are not flagged weak', () => {
@@ -144,7 +146,7 @@ test('genuine questions are not suppressed and are not flagged weak', () => {
   for (const [query, expected] of strong) {
     const results = searchGuides({ query });
     assert.equal(results[0]?.slug, expected, `wrong top result for: ${query}`);
-    assert.equal(isWeakMatch(results), false, `unexpectedly flagged weak: ${query}`);
+    assert.equal(isWeakMatch(query, results), false, `unexpectedly flagged weak: ${query}`);
   }
 });
 
@@ -164,10 +166,35 @@ test('no returned result ever falls below the absolute floor', () => {
   }
 });
 
-test('the weak band sits below the benchmark floor', () => {
-  // Guards the calibration itself: if scoring changes such that a
-  // benchmark-grade query lands under the ceiling, this fails loudly.
-  assert.ok(MIN_RESULT_SCORE < WEAK_MATCH_CEILING);
-  const benchmarkGrade = searchGuides({ query: 'What should I know about buying a weatherboard house?' });
-  assert.equal(isWeakMatch(benchmarkGrade), false);
+test('verbose off-topic questions never reach a strong match', () => {
+  // Raw score grows with query length, so a wordy off-topic question used to
+  // accumulate enough incidental points to look confident. Per-term
+  // normalisation is what stops that; these are the cases that exposed it.
+  const verbose = [
+    'how much capital gains tax will i pay when i sell my investment property',
+    'what is negative gearing and how does it work',
+    'should i buy or rent a home in australia in 2026',
+    'how do i get pre approval for a home loan from my bank',
+    'what is the best mortgage interest rate available in australia right now',
+    'which suburbs in sydney are the best for property investment growth',
+    'how much stamp duty do i pay in victoria when buying a house',
+  ];
+  for (const query of verbose) {
+    const results = searchGuides({ query });
+    if (results.length === 0) continue;
+    assert.equal(isWeakMatch(query, results), true, `leaked as a strong match: ${query}`);
+  }
+});
+
+test('relevance is measured per term, so length cannot fake confidence', () => {
+  const terse = 'capital gains tax on investment property';
+  const wordy = 'how much capital gains tax will i pay when i sell my investment property';
+  for (const query of [terse, wordy]) {
+    const results = searchGuides({ query });
+    assert.ok(
+      results.length === 0 || relevanceDensity(query, results) < WEAK_RELEVANCE_PER_TERM,
+      `${query} should not read as a strong match`,
+    );
+  }
+  assert.ok(MIN_RESULT_SCORE > 0 && WEAK_RELEVANCE_PER_TERM > 0);
 });

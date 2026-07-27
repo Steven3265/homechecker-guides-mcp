@@ -112,7 +112,7 @@ export function createMcpServer(): McpServer {
       // matchStrength lets the caller distinguish "this is the answer" from
       // "this is the closest thing we have". Without it a weak keyword hit
       // is indistinguishable from a strong one, and gets cited the same way.
-      const matchStrength = results.length === 0 ? 'none' : isWeakMatch(results) ? 'weak' : 'strong';
+      const matchStrength = results.length === 0 ? 'none' : isWeakMatch(args.query, results) ? 'weak' : 'strong';
       logUse('search_guides', {
         query: args.query.slice(0, 200),
         jurisdiction: args.jurisdiction,
@@ -133,7 +133,7 @@ export function createMcpServer(): McpServer {
                 ? 'No guide strongly matches this question. Treat the results as background only, and say so rather than presenting them as an answer. Results are general guidance and do not establish the condition, compliance, liability or legal effect of anything at a specific property.'
                 : 'Results are general guidance and do not establish the condition, compliance, liability or legal effect of anything at a specific property.',
         },
-        renderSearchResults(results),
+        renderSearchResults(results, args.query),
       );
     },
   );
