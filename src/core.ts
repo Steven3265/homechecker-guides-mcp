@@ -128,6 +128,13 @@ function detectJurisdiction(query: string): string | undefined {
   return undefined;
 }
 
+function canonicalJurisdiction(value?: string): string | undefined {
+  if (!value?.trim()) return undefined;
+  const normalized = normalize(value);
+  if (normalized === 'australia' || normalized === 'au') return 'Australia';
+  return detectJurisdiction(value) ?? value.trim();
+}
+
 function detectEra(query: string): string | undefined {
   const q = normalize(query);
   if (/pre 1920|victorian era|edwardian era/.test(q)) return 'pre-1920s';
@@ -226,7 +233,7 @@ function scoreGuide(guide: GuideRecord, options: SearchOptions, terms: string[])
     if (termMatched) matchedTerms.add(term);
   }
 
-  const inferredJurisdiction = options.jurisdiction ?? detectJurisdiction(options.query);
+  const inferredJurisdiction = canonicalJurisdiction(options.jurisdiction) ?? detectJurisdiction(options.query);
   const inferredEra = options.era ?? detectEra(options.query);
   const inferredPropertyType = options.propertyType ?? detectPropertyType(options.query);
 
@@ -252,9 +259,10 @@ function scoreGuide(guide: GuideRecord, options: SearchOptions, terms: string[])
 }
 
 export function listGuides(filters: Omit<SearchOptions, 'query'> = {}): GuideRecord[] {
+  const jurisdiction = canonicalJurisdiction(filters.jurisdiction);
   return guides.filter((guide) => {
     if (!filters.includePillar && guide.pillar) return false;
-    if (filters.jurisdiction && !(guide.jurisdiction.includes(filters.jurisdiction) || guide.jurisdiction.includes('Australia'))) return false;
+    if (jurisdiction && !(guide.jurisdiction.includes(jurisdiction) || guide.jurisdiction.includes('Australia'))) return false;
     if (filters.cluster && guide.cluster?.id !== filters.cluster) return false;
     if (!propertyTypeMatches(guide.propertyTypes, filters.propertyType)) return false;
     if (!metadataMatches(guide.eras, filters.era)) return false;
@@ -272,17 +280,19 @@ export function searchGuides(options: SearchOptions): GuideSearchResult[] {
   const query = options.query.trim();
   if (!query) return [];
   const terms = expandedTerms(query);
+  const jurisdiction = canonicalJurisdiction(options.jurisdiction);
+  const normalizedOptions: SearchOptions = jurisdiction ? { ...options, jurisdiction } : options;
 
   const candidates = guides.filter((guide) => {
     if (!(options.includePillar ?? false) && guide.pillar) return false;
     if (options.cluster && guide.cluster?.id !== options.cluster) return false;
-    if (options.jurisdiction && !(guide.jurisdiction.includes(options.jurisdiction) || guide.jurisdiction.includes('Australia'))) return false;
+    if (jurisdiction && !(guide.jurisdiction.includes(jurisdiction) || guide.jurisdiction.includes('Australia'))) return false;
     return true;
   });
 
   return candidates
     .map((guide) => {
-      const { score, matchedTerms } = scoreGuide(guide, options, terms);
+      const { score, matchedTerms } = scoreGuide(guide, normalizedOptions, terms);
       const matchedSections = guide.sections
         .map((section) => ({
           id: section.id,

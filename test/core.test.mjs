@@ -20,14 +20,28 @@ test('gets a canonical guide by slug and route', () => {
 
 test('filters the catalogue by state and cluster', () => {
   const vicStateRules = listGuides({ jurisdiction: 'VIC', cluster: 'state-rules' });
+  const victoriaStateRules = listGuides({ jurisdiction: 'Victoria', cluster: 'state-rules' });
   assert.ok(vicStateRules.some((guide) => guide.slug === 'reading-a-section-32'));
   assert.ok(vicStateRules.every((guide) => guide.cluster?.id === 'state-rules'));
+  assert.deepEqual(
+    victoriaStateRules.map((guide) => guide.slug),
+    vicStateRules.map((guide) => guide.slug),
+  );
 });
 
 test('search selects the Victorian Section 32 guide', () => {
   const results = searchGuides({ query: 'What should I look for in a Section 32 vendor statement in Victoria?' });
   assert.equal(results[0]?.slug, 'reading-a-section-32');
   assert.ok((results[0]?.matchedSections.length ?? 0) > 0);
+});
+
+test('jurisdiction parameter accepts codes, lowercase codes and full names', () => {
+  const variants = ['WA', 'wa', 'Western Australia'].map((jurisdiction) =>
+    searchGuides({ query: 'cooling off period', jurisdiction, limit: 5 })
+      .map((result) => ({ slug: result.slug, score: result.score })),
+  );
+  assert.deepEqual(variants[1], variants[0]);
+  assert.deepEqual(variants[2], variants[0]);
 });
 
 test('search selects construction-era and fabric guides', () => {
@@ -59,4 +73,20 @@ test('buyer checklist is deterministic, sourced and bounded', () => {
   assert.ok(first.items.some((item) => item.guideSlug === 'cracks-structural-or-cosmetic'));
   assert.ok(first.items.some((item) => item.guideSlug === 'damp-and-moisture-in-your-home'));
   assert.match(first.guidanceBoundary, /does not assess the actual property/i);
+});
+
+test('buyer checklist accepts a full jurisdiction name', () => {
+  const byCode = buildBuyerChecklist(
+    { jurisdiction: 'VIC', buyingStage: 'contract review', concerns: ['Section 32'] },
+    8,
+  );
+  const byName = buildBuyerChecklist(
+    { jurisdiction: 'Victoria', buyingStage: 'contract review', concerns: ['Section 32'] },
+    8,
+  );
+  assert.deepEqual(
+    byName.matchedGuides.map((guide) => guide.slug),
+    byCode.matchedGuides.map((guide) => guide.slug),
+  );
+  assert.ok(byName.matchedGuides.some((guide) => guide.slug === 'reading-a-section-32'));
 });

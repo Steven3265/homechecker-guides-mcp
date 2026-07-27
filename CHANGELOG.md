@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1 — 25 July 2026
+
+- Normalised jurisdiction filter values so codes, lowercase codes and full state or territory names produce the same catalogue, search and checklist results.
+- Added regression coverage for `Victoria`, `WA`, `wa` and `Western Australia`.
+
 ## 0.2.0 — 23 July 2026
 
 - Inverted the content pipeline: the snapshot now rebuilds from the public Homechecker guide export (`/guides/export.json`) instead of compiling portal source. The repository needs no access to the portal codebase at all.

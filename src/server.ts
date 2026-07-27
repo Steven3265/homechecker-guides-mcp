@@ -14,7 +14,7 @@ import {
 } from './core.js';
 
 const SERVER_NAME = 'homechecker-guides';
-const SERVER_VERSION = '0.2.0';
+const SERVER_VERSION = '0.2.1';
 
 const readOnlyAnnotations = {
   readOnlyHint: true,
@@ -65,7 +65,7 @@ export function createMcpServer(): McpServer {
       description:
         'List the published Homechecker guide catalogue, optionally filtered by jurisdiction, guide cluster, property type, construction era, or buying stage. Returns metadata only.',
       inputSchema: {
-        jurisdiction: z.string().optional().describe('Australia or a state/territory code such as VIC, NSW or QLD.'),
+        jurisdiction: z.string().optional().describe('Australia or a state/territory code or name, such as VIC, vic or Victoria.'),
         cluster: z.enum(['how-to-buy', 'state-rules', 'read-building', 'shared-buildings', 'own-change']).optional(),
         propertyType: z.string().optional().describe('For example house, apartment, or townhouse or unit.'),
         era: z.string().optional().describe('For example pre-1920s, 1950s-1970s, or 2000s-on.'),
@@ -97,7 +97,7 @@ export function createMcpServer(): McpServer {
         'Search professionally authored Australian homebuyer guidance using a natural-language question. Use this for general property, inspection, disclosure, apartment, condition, maintenance, era and buying-process questions. It does not assess an actual property.',
       inputSchema: {
         query: z.string().min(2).max(800).describe('The homebuyer question or issue to search for.'),
-        jurisdiction: z.string().optional().describe('Optional state/territory code such as VIC, NSW or QLD.'),
+        jurisdiction: z.string().optional().describe('Optional state/territory code or name, such as WA, wa or Western Australia.'),
         propertyType: z.string().optional(),
         era: z.string().optional(),
         buyingStage: z.string().optional(),
@@ -177,7 +177,7 @@ export function createMcpServer(): McpServer {
       description:
         'Build a deterministic, sourced checklist from the Homechecker guide corpus for a buyer context. This assembles general questions and checks; it does not analyse a listing, document or actual building.',
       inputSchema: {
-        jurisdiction: z.string().optional().describe('Australia or a state/territory code such as VIC, NSW or QLD.'),
+        jurisdiction: z.string().optional().describe('Australia or a state/territory code or name, such as NSW, nsw or New South Wales.'),
         propertyType: z.string().optional().describe('For example house, apartment, or townhouse or unit.'),
         era: z.string().optional().describe('For example 1950s-1970s or 2000s-on.'),
         buyingStage: z.string().optional().describe('For example research, before offer or auction, contract review, or physical inspection.'),
