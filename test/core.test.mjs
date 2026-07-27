@@ -1,6 +1,17 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildBuyerChecklist, getGuide, guides, listGuides, searchGuides, snapshot } from '../.core-dist/src/core.js';
+import {
+  buildBuyerChecklist,
+  getGuide,
+  guides,
+  isWeakMatch,
+  listGuides,
+  MIN_RESULT_SCORE,
+  renderSearchResults,
+  searchGuides,
+  snapshot,
+  WEAK_MATCH_CEILING,
+} from '../.core-dist/src/core.js';
 
 test('snapshot contains the full published guide system', () => {
   assert.equal(snapshot.source.contentCount, 34);
@@ -89,4 +100,74 @@ test('buyer checklist accepts a full jurisdiction name', () => {
     byCode.matchedGuides.map((guide) => guide.slug),
   );
   assert.ok(byName.matchedGuides.some((guide) => guide.slug === 'reading-a-section-32'));
+});
+
+// ── Relevance floors ──────────────────────────────────────────────────
+// The corpus covers property condition and buying process. It does not
+// cover finance, tax or valuation. Before the floors existed, every one
+// of these returned a confident-looking guide with a canonical URL.
+
+test('off-topic finance questions return nothing at all', () => {
+  const offTopic = [
+    'what is negative gearing',
+    'rental yield calculator',
+    'capital gains tax on investment property',
+    'how do i refinance my loan',
+    'solar panel feed in tariff',
+    'interest rates rba forecast',
+  ];
+  for (const query of offTopic) {
+    assert.equal(searchGuides({ query }).length, 0, `expected no results for: ${query}`);
+  }
+});
+
+test('an empty result set says what the corpus does not cover', () => {
+  const rendered = renderSearchResults(searchGuides({ query: 'what is negative gearing' }));
+  assert.match(rendered, /No Homechecker guide addresses that question/i);
+  assert.match(rendered, /does not cover finance, tax, valuation/i);
+});
+
+test('marginal off-topic questions are returned but flagged weak', () => {
+  const results = searchGuides({ query: 'how much stamp duty do i pay in victoria' });
+  assert.ok(results.length > 0, 'marginal queries still return context');
+  assert.equal(isWeakMatch(results), true);
+  assert.match(renderSearchResults(results), /No guide strongly matches that question/i);
+});
+
+test('genuine questions are not suppressed and are not flagged weak', () => {
+  const strong = [
+    ['what is a section 32', 'reading-a-section-32'],
+    ['is the crack in my wall a big deal', 'cracks-structural-or-cosmetic'],
+    ['asbestos 1980s home', 'homes-1980s-90s'],
+    ['heritage overlay victoria', 'living-in-a-heritage-overlay'],
+  ];
+  for (const [query, expected] of strong) {
+    const results = searchGuides({ query });
+    assert.equal(results[0]?.slug, expected, `wrong top result for: ${query}`);
+    assert.equal(isWeakMatch(results), false, `unexpectedly flagged weak: ${query}`);
+  }
+});
+
+test('an indirect but genuine question still returns the right guide', () => {
+  // Shares almost no vocabulary with the guide, so it scores low and is
+  // flagged weak — but it must still retrieve, and retrieve correctly.
+  const results = searchGuides({ query: 'can i pull out after signing' });
+  assert.equal(results[0]?.slug, 'cooling-off-period-by-state');
+});
+
+test('no returned result ever falls below the absolute floor', () => {
+  const queries = ['damp', 'strata', 'auction', 'brick veneer', 'pest', 'section 32'];
+  for (const query of queries) {
+    for (const result of searchGuides({ query, limit: 10 })) {
+      assert.ok(result.score >= MIN_RESULT_SCORE, `${query}: ${result.slug} scored ${result.score}`);
+    }
+  }
+});
+
+test('the weak band sits below the benchmark floor', () => {
+  // Guards the calibration itself: if scoring changes such that a
+  // benchmark-grade query lands under the ceiling, this fails loudly.
+  assert.ok(MIN_RESULT_SCORE < WEAK_MATCH_CEILING);
+  const benchmarkGrade = searchGuides({ query: 'What should I know about buying a weatherboard house?' });
+  assert.equal(isWeakMatch(benchmarkGrade), false);
 });

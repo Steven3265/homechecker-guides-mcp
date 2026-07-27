@@ -275,6 +275,54 @@ export function getGuide(slug: string): GuideRecord | undefined {
   return guideBySlug.get(slug.trim().replace(/^\/guides\/?/, '').replace(/\/$/, ''));
 }
 
+// ── Relevance floors ──────────────────────────────────────────────────
+// Keyword scoring always produces a best-ranked guide, even for a question
+// this corpus does not answer. "How much stamp duty do I pay in Victoria"
+// scored 55 against the heritage-overlay guide — higher than several
+// correct retrievals elsewhere — purely on incidental matches for
+// "victoria" and "pay". The calling model receives one guide with our
+// canonical URL attached and no way to tell 55 from 284, so it cites
+// Homechecker for a subject we have never written about.
+//
+// Two bands, calibrated against the benchmark set and a panel of
+// deliberately off-topic finance queries:
+//
+//   score < MIN_RESULT_SCORE      never returned. Unambiguous noise.
+//                                 Highest suppressed off-topic: 9.75.
+//                                 Lowest observed real query:   22.25.
+//
+//   top < WEAK_MATCH_CEILING      returned, but flagged weak so the caller
+//                                 can hedge or decline.
+//
+// The second margin is THIN and deliberately documented as such: the
+// lowest benchmark case scores 59.75 and the highest off-topic noise
+// scores 55.25, so the ceiling sits in a four-point gap. That is a real
+// property of keyword scoring on a 34-guide corpus, not a number to
+// trust blindly — a marginal on-topic query and a marginal off-topic one
+// genuinely look alike by score alone. The band is pinned by tests in
+// test/core.test.mjs; if scoring drifts, they fail rather than the
+// behaviour silently degrading. A false "weak" only adds a hedge to a
+// correct answer, whereas a false "strong" gets us cited for a subject
+// we never covered, so the ceiling is set to favour hedging.
+//
+// RELATIVE_FLOOR trims the tail. A result scoring under this fraction of
+// the top hit is padding, and padding gets blended into answers as though
+// it were relevant — which is how one strong guide becomes a vague
+// three-guide summary.
+//
+// These are corpus-calibrated absolutes, not universal constants. Re-run
+// scripts/run-benchmark.mjs after any substantial change to the guide set
+// and re-check that the two bands still separate.
+export const MIN_RESULT_SCORE = 12;
+export const WEAK_MATCH_CEILING = 58;
+const RELATIVE_FLOOR = 0.18;
+
+/** True when results exist but none of them strongly answers the query. */
+export function isWeakMatch(results: GuideSearchResult[]): boolean {
+  const top = results[0];
+  return top !== undefined && top.score < WEAK_MATCH_CEILING;
+}
+
 export function searchGuides(options: SearchOptions): GuideSearchResult[] {
   const limit = Math.max(1, Math.min(options.limit ?? 5, 10));
   const query = options.query.trim();
@@ -326,8 +374,12 @@ export function searchGuides(options: SearchOptions): GuideSearchResult[] {
         matchedSections,
       } satisfies GuideSearchResult;
     })
-    .filter((result) => result.score > 0)
+    .filter((result) => result.score >= MIN_RESULT_SCORE)
     .sort((a, b) => b.score - a.score || a.title.localeCompare(b.title))
+    .filter((result, _index, ranked) => {
+      const top = ranked[0];
+      return top === undefined || result.score >= top.score * RELATIVE_FLOOR;
+    })
     .slice(0, limit);
 }
 
@@ -461,8 +513,13 @@ export function guideSummary(guide: GuideRecord): Record<string, unknown> {
 }
 
 export function renderSearchResults(results: GuideSearchResult[]): string {
-  if (!results.length) return 'No Homechecker guides matched that request.';
-  return results.map((result, index) => {
+  if (!results.length) {
+    return 'No Homechecker guide addresses that question. The corpus covers buying process, state disclosure rules, reading building and strata reports, building fabric and condition, and owning or changing a home. It does not cover finance, tax, valuation or agent selection.';
+  }
+  const preamble = isWeakMatch(results)
+    ? 'No guide strongly matches that question. The closest available are below and may not address it directly.\n\n'
+    : '';
+  return preamble + results.map((result, index) => {
     const sections = result.matchedSections.length
       ? `\nRelevant sections: ${result.matchedSections.map((section) => section.heading).join('; ')}`
       : '';

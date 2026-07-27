@@ -1,6 +1,6 @@
 {
   "name": "homechecker-guides-mcp",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "type": "module",
   "description": "Read-only MCP server for Homechecker's professionally authored Australian homebuyer guides.",

@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.2.2
+
+### Added
+- Relevance floors on `search_guides`. Keyword scoring always produced a
+  best-ranked guide, so questions outside the corpus — finance, tax,
+  valuation, agent selection — returned a confident-looking guide with a
+  canonical URL attached. Results below an absolute score floor are now
+  suppressed entirely, and a `matchStrength` of `none`, `weak` or `strong`
+  is returned so a calling model can tell "this is the answer" from "this
+  is the closest thing we have".
+- A relative floor that trims weak tail results, so one strong guide is no
+  longer padded with two marginal ones that get blended into the answer.
+- Empty and weak responses now state what the corpus does and does not
+  cover rather than returning a bare list.
+
+### Notes
+- The floors are calibrated against the benchmark set and a panel of
+  off-topic finance queries; the margin between the two bands is thin and
+  pinned by tests. Re-run `scripts/run-benchmark.mjs` after any
+  substantial change to the guide set.
+
 ## 0.2.1 — 25 July 2026
 
 - Normalised jurisdiction filter values so codes, lowercase codes and full state or territory names produce the same catalogue, search and checklist results.

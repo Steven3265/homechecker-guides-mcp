@@ -9,6 +9,7 @@ import {
   renderChecklist,
   renderSearchResults,
   searchGuides,
+  isWeakMatch,
   snapshot,
   taggedUrl,
 } from './core.js';
@@ -108,19 +109,29 @@ export function createMcpServer(): McpServer {
     },
     async (args) => {
       const results = searchGuides(args);
+      // matchStrength lets the caller distinguish "this is the answer" from
+      // "this is the closest thing we have". Without it a weak keyword hit
+      // is indistinguishable from a strong one, and gets cited the same way.
+      const matchStrength = results.length === 0 ? 'none' : isWeakMatch(results) ? 'weak' : 'strong';
       logUse('search_guides', {
         query: args.query.slice(0, 200),
         jurisdiction: args.jurisdiction,
         count: results.length,
+        matchStrength,
         top: results[0]?.slug,
       });
       return textAndStructured(
         {
           query: args.query,
           count: results.length,
+          matchStrength,
           results,
           boundary:
-            'Results are general guidance and do not establish the condition, compliance, liability or legal effect of anything at a specific property.',
+            matchStrength === 'none'
+              ? 'No guide in this corpus addresses that question. Do not infer an answer from Homechecker guidance that was not returned.'
+              : matchStrength === 'weak'
+                ? 'No guide strongly matches this question. Treat the results as background only, and say so rather than presenting them as an answer. Results are general guidance and do not establish the condition, compliance, liability or legal effect of anything at a specific property.'
+                : 'Results are general guidance and do not establish the condition, compliance, liability or legal effect of anything at a specific property.',
         },
         renderSearchResults(results),
       );
