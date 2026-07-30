@@ -9,8 +9,8 @@
 # "Allow GitHub Actions to create and approve pull requests" must be ticked,
 # or the final step cannot open the PR.
 #
-# Deliberately dependency-free: no npm install, no third-party actions
-# beyond checkout/setup-node. The snapshot pipeline runs on Node built-ins.
+# The refresh itself uses Node built-ins. Project dependencies are installed so
+# the complete TypeScript build and protocol regression suite run before a PR opens.
 
 name: Refresh guides snapshot
 
@@ -36,6 +36,9 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
       - name: Rebuild snapshot from the public export
         run: |
           if [ -n "${{ github.event.inputs.export_url }}" ]; then
@@ -44,11 +47,9 @@ jobs:
             node scripts/snapshot-guides.mjs
           fi
 
-      - name: Validate, test and benchmark
+      - name: Validate complete repository
         run: |
-          node scripts/validate-snapshot.mjs
-          node scripts/test-core.mjs
-          node scripts/run-benchmark.mjs
+          npm run check
 
       - name: Open a pull request if the snapshot changed
         env:
@@ -68,4 +69,4 @@ jobs:
           gh pr create \
             --title "Refresh guides snapshot" \
             --head "$BRANCH" \
-            --body "Regenerated \`data/guides.json\` from the public Homechecker guide export. The snapshot validator, core test suite and retrieval benchmark all passed in this workflow run. Merging redeploys the connector on Vercel."
+            --body "Regenerated \`data/guides.json\` from the public Homechecker guide export. The complete release validation suite passed in this workflow run. Merging redeploys the connector on Vercel."
