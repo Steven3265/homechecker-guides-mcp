@@ -1,5 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/server';
 import * as z from 'zod/v4';
+import { SERVER_NAME, SERVER_VERSION } from './identity.js';
 import {
   buildBuyerChecklist,
   getGuide,
@@ -13,9 +14,6 @@ import {
   snapshot,
   taggedUrl,
 } from './core.js';
-
-export const SERVER_NAME = 'homechecker-guides';
-export const SERVER_VERSION = '1.0.0';
 
 const readOnlyAnnotations = {
   readOnlyHint: true,
@@ -31,9 +29,9 @@ function textAndStructured(structuredContent: Record<string, unknown>, text: str
   };
 }
 
-// Anonymous usage telemetry, written to stderr so hosted logs capture it
-// without corrupting the stdio protocol channel (no auth exists, so there is nothing identifying to log).
-// Queries are truncated; logging must never break a response.
+// Privacy-minimised operational telemetry, written to stderr so hosted logs
+// capture it without corrupting the stdio protocol channel. Raw search text,
+// headers, addresses and client identifiers are never logged.
 function logUse(tool: string, detail: Record<string, unknown>): void {
   try {
     console.error(JSON.stringify({ evt: 'tool_call', tool, ...detail, at: new Date().toISOString() }));
@@ -121,7 +119,7 @@ export function createMcpServer(): McpServer {
       // is indistinguishable from a strong one, and gets cited the same way.
       const matchStrength = results.length === 0 ? 'none' : isWeakMatch(args.query, results) ? 'weak' : 'strong';
       logUse('search_guides', {
-        query: args.query.slice(0, 200),
+        queryLength: args.query.length,
         jurisdiction: args.jurisdiction,
         count: results.length,
         matchStrength,

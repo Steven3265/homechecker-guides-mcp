@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.1 — 30 July 2026
+
+### Hardening
+- Added an automatic release-validation workflow on pushes and pull requests.
+- Added protocol-level regression coverage for MCP `2026-07-28`, 2025-era initialization, tools, resources, CORS and routing-header validation.
+- Gated snapshot refresh and Registry publication on the complete validation suite.
+- Removed raw search text from telemetry; logs now retain only query length, coarse filters, result counts and returned guide identifiers.
+- Updated Registry metadata to the `2025-12-11` schema and added a human-readable title.
+- Added `.gitignore`, exact top-level dependency versions and release-metadata consistency checks; removed the unused `tsx` dependency and an unused handler shutdown export.
+- Corrected the documented resource count to 35: one catalogue plus 34 guide resources.
+- Committed the dependency lockfile and moved CI, publication and deployment installs to `npm ci --ignore-scripts`, so every environment builds the identical pinned tree.
+
 ## 1.0.0 — 29 July 2026
 
 ### Protocol
@@ -11,7 +23,7 @@
 
 ### Engineering
 - Migrated tool schemas to Zod v4 Standard Schema objects.
-- Moved anonymous telemetry from stdout to stderr so it cannot corrupt stdio JSON-RPC.
+- Moved operational telemetry from stdout to stderr so it cannot corrupt stdio JSON-RPC.
 - Added protocol-support and release documentation plus a full validation workflow.
 - Preserved every tool name, resource URI, structured result, canonical URL and product boundary.
 

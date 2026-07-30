@@ -8,11 +8,7 @@
     "rootDir": ".",
     "strict": true,
     "noUncheckedIndexedAccess": true,
-    // Relaxed from true in v0.2.0: SDK 1.29's option and Transport types
-    // (sessionIdGenerator: undefined for stateless mode, optional onclose)
-    // and zod's optional outputs are not authored for exactOptionalPropertyTypes.
-    // v0.1.0 was never compiled against the installed SDK, so this surfaced
-    // on the first real typecheck.
+    // Zod's optional output types are not authored for exactOptionalPropertyTypes.
     "exactOptionalPropertyTypes": false,
     "esModuleInterop": true,
     "resolveJsonModule": true,

@@ -81,6 +81,3 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
   }
 }
 
-export async function closeMcpHandler(): Promise<void> {
-  await mcpHandler.close();
-}

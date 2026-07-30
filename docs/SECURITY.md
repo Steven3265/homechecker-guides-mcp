@@ -18,13 +18,13 @@ It has:
 
 ## Content pipeline
 
-The bundled snapshot is rebuilt from `https://homechecker.com.au/guides/export.json` — a public publication of already-public guide content. This repository holds no credentials for, and requires no access to, the portal codebase or any private system. The refresh workflow runs on Node built-ins with no `npm install`, keeping the CI supply-chain surface at zero third-party packages.
+The bundled snapshot is rebuilt from `https://homechecker.com.au/guides/export.json` — a public publication of already-public guide content. This repository holds no credentials for, and requires no access to, the portal codebase or any private system. The refresh itself uses Node built-ins. CI installs the locked project dependencies with `npm ci --ignore-scripts` before running the full build and protocol regression suite, so a changed snapshot cannot bypass dependency-backed validation or pull an unpinned tree.
 
 ## Usage telemetry
 
-Each tool call writes one JSON line to stderr (`evt: "tool_call"`) containing the tool name, the search query truncated to 200 characters or the requested slug, coarse profile fields (state, property type, era, buying stage), result counts and a timestamp. The platform's function logs capture these lines under the platform's standard log retention.
+Each tool call writes one JSON line to stderr (`evt: "tool_call"`) containing the tool name, query length or requested guide slug, coarse profile fields (state, property type, era, buying stage), result counts and a timestamp. Raw search text is not logged. The platform's function logs capture these lines under the platform's standard log retention.
 
-There is no authentication, so no user identifier exists to log. No IP addresses, session identifiers or headers are recorded by the application. The purpose is aggregate product intelligence: which questions buyers actually ask, and which guides answer them. Logging is wrapped so that a telemetry failure can never affect a response.
+There is no authentication, and the application does not record IP addresses, session identifiers, headers or client identity. The purpose is aggregate operational intelligence: which tools are used, whether retrieval succeeds, and which guides are returned. Logging is wrapped so that a telemetry failure can never affect a response.
 
 ## Input controls
 

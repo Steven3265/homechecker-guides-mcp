@@ -8,9 +8,9 @@ It exposes the current Homechecker guide system to MCP clients without connectin
 
 ## Protocol foundation
 
-Version 1.0.0 uses the MCP TypeScript SDK v2 server package and the `2026-07-28` protocol revision. The official `createMcpHandler` entry supplies stateless per-request serving, `server/discover`, standard routing headers, server identity and cache fields. It also retains stateless compatibility for 2025-era HTTP clients during rollout.
+Version 1.0.1 uses the MCP TypeScript SDK v2 server package and the `2026-07-28` protocol revision. The official `createMcpHandler` entry supplies stateless per-request serving, `server/discover`, standard routing headers, server identity and cache fields. It also retains stateless compatibility for 2025-era HTTP clients during rollout.
 
-The protocol shell can evolve independently of the durable parts of the product: the reviewed snapshot, deterministic retrieval, tool contracts and professional boundaries. See [`docs/PROTOCOL-SUPPORT.md`](docs/PROTOCOL-SUPPORT.md) and [`docs/RELEASE-1.0.md`](docs/RELEASE-1.0.md).
+The protocol shell can evolve independently of the durable parts of the product: the reviewed snapshot, deterministic retrieval, tool contracts and professional boundaries. See [`docs/PROTOCOL-SUPPORT.md`](docs/PROTOCOL-SUPPORT.md), [`docs/RELEASE-1.0.md`](docs/RELEASE-1.0.md) and [`docs/RELEASE-1.0.1.md`](docs/RELEASE-1.0.1.md).
 
 ## Explore the Homechecker guides
 
@@ -25,13 +25,13 @@ The protocol shell can evolve independently of the durable parts of the product:
 
 ## What is included
 
-- **[34 MCP resources](https://homechecker.com.au/guides):** the guide hub plus 33 published guides.
+- **[35 MCP resources](https://homechecker.com.au/guides):** one machine-readable catalogue, the guide hub, and 33 published guides.
 - **4 read-only tools:** catalogue listing, natural-language search, canonical guide retrieval, and a deterministic buyer checklist.
 - **Two transports:** stateless remote Streamable HTTP at `/mcp` and modern/legacy-compatible local stdio.
 - **A bundled content snapshot:** rebuilt from Homechecker's public guide export at `https://homechecker.com.au/guides/export.json` — the same registry that renders the pages, sitemap and llms.txt. This repository needs no access to the portal codebase.
 - **A browser-triggered refresh workflow:** Actions → "Refresh guides snapshot" regenerates, tests and opens a pull request. No local environment required.
 - **Referral-tagged renders:** URLs in rendered text carry `utm_source=homechecker-mcp` so site analytics can distinguish AI-connector referrals. Structured content always keeps clean canonical URLs.
-- **Anonymous usage telemetry:** each tool call writes a single JSON line to stderr, which is captured by hosted logs without corrupting stdio. See `docs/SECURITY.md`.
+- **Privacy-minimised operational telemetry:** each tool call writes a single JSON line to stderr with the tool, result counts and coarse filters. Raw search text, headers and client identifiers are not logged. See `docs/SECURITY.md`.
 - **Tests and benchmark:** snapshot integrity tests, search tests, and 14 representative buyer questions.
 
 ## Tools
@@ -84,7 +84,7 @@ Requirements: Node.js 22 or later.
 npm install
 npm test
 npm run benchmark
-npm run build
+npm run check
 npx vercel dev
 ```
 
@@ -173,14 +173,15 @@ The initial benchmark contains 14 representative Australian buyer questions. All
 
 ```text
 api/                    Vercel serverless entry points
+src/identity.ts         server and protocol version identity
 src/core.ts             deterministic search and checklist logic
-src/server.ts           MCP tools, resources and usage telemetry
+src/server.ts           MCP tools, resources and privacy-minimised telemetry
 src/http-handler.ts     MCP 2026-07-28 stateless Web API handler
 src/stdio.ts            modern/legacy-compatible stdio entry
 data/guides.json        bundled canonical guide snapshot
 data/benchmark.json     retrieval benchmark cases
 scripts/                snapshot, validation and benchmark utilities
-.github/workflows/      browser-triggered snapshot refresh
+.github/workflows/      release validation, snapshot refresh and registry publication
 docs/                   architecture, protocol, security, deployment and release notes
 ```
 

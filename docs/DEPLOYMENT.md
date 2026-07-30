@@ -8,7 +8,7 @@
 ## Before deployment
 
 - [ ] Run the **Refresh guides snapshot** workflow once against the live export and merge its pull request, so `data/guides.json` records the export as its origin.
-- [ ] Confirm the workflow's validate/test/benchmark steps passed.
+- [ ] Confirm **Validate MCP release** passed: snapshot, core tests, benchmark, TypeScript build and protocol regression suite.
 - [ ] Confirm the repository contains no `.env` file or portal credentials.
 - [ ] Review `npm audit` after installing dependencies.
 - [ ] One-time repo setting: Settings → Actions → General → tick **Allow GitHub Actions to create and approve pull requests**.
@@ -31,11 +31,11 @@
 ## Client acceptance tests
 
 - [ ] The client lists exactly four tools.
-- [ ] The client lists the catalogue and guide resources.
+- [ ] The client lists 35 resources: the catalogue plus 34 guide resources.
 - [ ] `search_guides("Section 32 Victoria")` returns `reading-a-section-32` first.
 - [ ] `get_guide("reading-a-section-32")` returns the full guide; its rendered footer carries `?utm_source=homechecker-mcp` while the structured `canonicalUrl` stays clean.
 - [ ] A buyer checklist includes the non-assessment boundary and the single $99 address-specific line.
-- [ ] Tool calls appear as `evt: "tool_call"` JSON lines in the Vercel function logs.
+- [ ] Tool calls appear as `evt: "tool_call"` JSON lines in Vercel logs without raw search text.
 - [ ] No tool requests payment, authentication or customer information.
 
 ## After deployment

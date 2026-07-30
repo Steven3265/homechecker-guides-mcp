@@ -1,6 +1,6 @@
 {
   "name": "homechecker-guides-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "description": "Protocol implementation of Homechecker's governed Australian residential-building guidance corpus.",
@@ -13,18 +13,19 @@
     "start:stdio": "node dist/src/stdio.js",
     "validate:snapshot": "node scripts/validate-snapshot.mjs",
     "test:core": "node scripts/test-core.mjs",
-    "test": "npm run validate:snapshot && npm run test:core",
+    "test": "npm run validate:metadata && npm run validate:snapshot && npm run test:core",
     "benchmark": "node scripts/run-benchmark.mjs",
     "snapshot": "node scripts/snapshot-guides.mjs",
-    "check": "npm test && npm run benchmark && npm run build"
+    "check": "npm test && npm run benchmark && npm run build && npm run test:protocol",
+    "test:protocol": "node scripts/test-protocol.mjs",
+    "validate:metadata": "node scripts/validate-release-metadata.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.0.0",
-    "zod": "^4.0.0"
+    "zod": "4.4.3"
   },
   "devDependencies": {
-    "@types/node": "^22.15.0",
-    "tsx": "^4.20.0",
-    "typescript": "^5.9.0"
+    "@types/node": "22.20.1",
+    "typescript": "5.9.2"
   }
 }
