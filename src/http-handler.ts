@@ -1,89 +1,86 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { createMcpHandler } from '@modelcontextprotocol/server';
 import { createMcpServer } from './server.js';
 
-const MAX_BODY_BYTES = 1_000_000;
+const mcpHandler = createMcpHandler(createMcpServer, {
+  // Serve the 2026-07-28 stateless protocol while retaining the SDK's
+  // stateless compatibility path for 2025-era clients during rollout.
+  legacy: 'stateless',
+});
 
-function setCommonHeaders(res: ServerResponse): void {
-  const allowedOrigin = process.env.ALLOWED_ORIGIN?.trim() || '*';
-  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, MCP-Protocol-Version, Mcp-Session-Id, Last-Event-ID, Authorization');
-  res.setHeader('Access-Control-Expose-Headers', 'Mcp-Session-Id, MCP-Protocol-Version');
-  res.setHeader('Cache-Control', 'no-store');
-  res.setHeader('X-Content-Type-Options', 'nosniff');
+const ALLOWED_HEADERS = [
+  'Content-Type',
+  'Accept',
+  'Authorization',
+  'MCP-Protocol-Version',
+  'Mcp-Method',
+  'Mcp-Name',
+  'Mcp-Session-Id',
+  'Last-Event-ID',
+].join(', ');
+
+const EXPOSED_HEADERS = [
+  'MCP-Protocol-Version',
+  'Mcp-Method',
+  'Mcp-Name',
+  'Mcp-Session-Id',
+].join(', ');
+
+function corsHeaders(): Headers {
+  const headers = new Headers();
+  headers.set('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGIN?.trim() || '*');
+  headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  headers.set('Access-Control-Allow-Headers', ALLOWED_HEADERS);
+  headers.set('Access-Control-Expose-Headers', EXPOSED_HEADERS);
+  headers.set('Cache-Control', 'no-store');
+  headers.set('X-Content-Type-Options', 'nosniff');
+  return headers;
 }
 
-async function readJsonBody(req: IncomingMessage): Promise<unknown> {
-  const chunks: Buffer[] = [];
-  let total = 0;
-  for await (const chunk of req) {
-    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
-    total += buffer.length;
-    if (total > MAX_BODY_BYTES) throw new Error('Request body is too large.');
-    chunks.push(buffer);
+function withCommonHeaders(response: Response): Response {
+  const headers = new Headers(response.headers);
+  for (const [name, value] of corsHeaders()) headers.set(name, value);
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
+export async function handleMcpRequest(request: Request): Promise<Response> {
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: corsHeaders() });
   }
-  if (!chunks.length) return undefined;
-  const raw = Buffer.concat(chunks).toString('utf8');
+
+  if (request.method !== 'POST') {
+    const headers = corsHeaders();
+    headers.set('Allow', 'POST, OPTIONS');
+    headers.set('Content-Type', 'application/json; charset=utf-8');
+    return new Response(
+      JSON.stringify({
+        error: 'Method not allowed',
+        message: 'This stateless MCP endpoint accepts POST requests. Use an MCP client rather than opening it as a webpage.',
+      }),
+      { status: 405, headers },
+    );
+  }
+
   try {
-    return JSON.parse(raw);
-  } catch {
-    throw new Error('Request body must be valid JSON.');
-  }
-}
-
-function json(res: ServerResponse, statusCode: number, payload: unknown): void {
-  if (res.writableEnded) return;
-  res.statusCode = statusCode;
-  res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  res.end(JSON.stringify(payload));
-}
-
-export async function handleMcpRequest(req: IncomingMessage, res: ServerResponse): Promise<void> {
-  setCommonHeaders(res);
-
-  if (req.method === 'OPTIONS') {
-    res.statusCode = 204;
-    res.end();
-    return;
-  }
-
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST, OPTIONS');
-    json(res, 405, {
-      error: 'Method not allowed',
-      message: 'This stateless MCP endpoint accepts POST requests. Use an MCP client rather than opening it as a webpage.',
-    });
-    return;
-  }
-
-  try {
-    const body = await readJsonBody(req);
-    const server = createMcpServer();
-    const transport = new StreamableHTTPServerTransport({
-      sessionIdGenerator: undefined,
-      enableJsonResponse: true,
-    });
-
-    transport.onerror = (error) => {
-      console.error('[homechecker-mcp] transport error', error);
-    };
-    res.on('close', () => {
-      void transport.close();
-      void server.close();
-    });
-
-    await server.connect(transport);
-    await transport.handleRequest(req, res, body);
+    return withCommonHeaders(await mcpHandler.fetch(request));
   } catch (error) {
     console.error('[homechecker-mcp] request failed', error);
-    json(res, 400, {
-      jsonrpc: '2.0',
-      id: null,
-      error: {
-        code: -32700,
-        message: error instanceof Error ? error.message : 'Invalid MCP request.',
-      },
-    });
+    const headers = corsHeaders();
+    headers.set('Content-Type', 'application/json; charset=utf-8');
+    return new Response(
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: null,
+        error: { code: -32603, message: 'Internal MCP server error.' },
+      }),
+      { status: 500, headers },
+    );
   }
+}
+
+export async function closeMcpHandler(): Promise<void> {
+  await mcpHandler.close();
 }

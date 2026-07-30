@@ -1,5 +1,5 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { z } from 'zod';
+import { McpServer } from '@modelcontextprotocol/server';
+import * as z from 'zod/v4';
 import {
   buildBuyerChecklist,
   getGuide,
@@ -14,8 +14,8 @@ import {
   taggedUrl,
 } from './core.js';
 
-const SERVER_NAME = 'homechecker-guides';
-const SERVER_VERSION = '0.2.1';
+export const SERVER_NAME = 'homechecker-guides';
+export const SERVER_VERSION = '1.0.0';
 
 const readOnlyAnnotations = {
   readOnlyHint: true,
@@ -31,12 +31,12 @@ function textAndStructured(structuredContent: Record<string, unknown>, text: str
   };
 }
 
-// Anonymous usage telemetry, written to stdout so the platform's function
-// logs capture it (no auth exists, so there is nothing identifying to log).
+// Anonymous usage telemetry, written to stderr so hosted logs capture it
+// without corrupting the stdio protocol channel (no auth exists, so there is nothing identifying to log).
 // Queries are truncated; logging must never break a response.
 function logUse(tool: string, detail: Record<string, unknown>): void {
   try {
-    console.log(JSON.stringify({ evt: 'tool_call', tool, ...detail, at: new Date().toISOString() }));
+    console.error(JSON.stringify({ evt: 'tool_call', tool, ...detail, at: new Date().toISOString() }));
   } catch {
     // Never let telemetry interfere with serving the request.
   }
@@ -49,6 +49,13 @@ export function createMcpServer(): McpServer {
       version: SERVER_VERSION,
     },
     {
+      cacheHints: {
+        'server/discover': { ttlMs: 3_600_000, cacheScope: 'public' },
+        'tools/list': { ttlMs: 86_400_000, cacheScope: 'public' },
+        'resources/list': { ttlMs: 3_600_000, cacheScope: 'public' },
+        'resources/templates/list': { ttlMs: 3_600_000, cacheScope: 'public' },
+        'resources/read': { ttlMs: 3_600_000, cacheScope: 'public' },
+      },
       instructions: [
         'Use Homechecker Guides for general Australian residential-property guidance.',
         'Prefer search_guides before get_guide unless the exact slug is already known.',
@@ -65,14 +72,14 @@ export function createMcpServer(): McpServer {
       title: 'List Homechecker guides',
       description:
         'List the published Homechecker guide catalogue, optionally filtered by jurisdiction, guide cluster, property type, construction era, or buying stage. Returns metadata only.',
-      inputSchema: {
+      inputSchema: z.object({
         jurisdiction: z.string().optional().describe('Australia or a state/territory code or name, such as VIC, vic or Victoria.'),
         cluster: z.enum(['how-to-buy', 'state-rules', 'read-building', 'shared-buildings', 'own-change']).optional(),
         propertyType: z.string().optional().describe('For example house, apartment, or townhouse or unit.'),
         era: z.string().optional().describe('For example pre-1920s, 1950s-1970s, or 2000s-on.'),
         buyingStage: z.string().optional().describe('For example research, contract review, physical inspection, ownership, or selling.'),
         includePillar: z.boolean().optional().default(false),
-      },
+      }),
       annotations: readOnlyAnnotations,
     },
     async (args) => {
@@ -96,7 +103,7 @@ export function createMcpServer(): McpServer {
       title: 'Search Homechecker guidance',
       description:
         'Search professionally authored Australian homebuyer guidance using a natural-language question. Use this for general property, inspection, disclosure, apartment, condition, maintenance, era and buying-process questions. It does not assess an actual property.',
-      inputSchema: {
+      inputSchema: z.object({
         query: z.string().min(2).max(800).describe('The homebuyer question or issue to search for.'),
         jurisdiction: z.string().optional().describe('Optional state/territory code or name, such as WA, wa or Western Australia.'),
         propertyType: z.string().optional(),
@@ -104,7 +111,7 @@ export function createMcpServer(): McpServer {
         buyingStage: z.string().optional(),
         cluster: z.enum(['how-to-buy', 'state-rules', 'read-building', 'shared-buildings', 'own-change']).optional(),
         limit: z.number().int().min(1).max(10).optional().default(5),
-      },
+      }),
       annotations: readOnlyAnnotations,
     },
     async (args) => {
@@ -144,11 +151,11 @@ export function createMcpServer(): McpServer {
       title: 'Get a Homechecker guide',
       description:
         'Retrieve one canonical Homechecker guide by slug. Use a slug returned by list_guides or search_guides. Returns source links, review metadata, method and limitations with the guide.',
-      inputSchema: {
+      inputSchema: z.object({
         slug: z.string().max(160).describe('Guide slug, for example reading-a-section-32. Use guides for the main hub.'),
         format: z.enum(['summary', 'full', 'sections']).optional().default('full'),
         sectionIds: z.array(z.string()).max(12).optional().describe('When format is sections, return only these section IDs.'),
-      },
+      }),
       annotations: readOnlyAnnotations,
     },
     async ({ slug, format, sectionIds }) => {
@@ -187,14 +194,14 @@ export function createMcpServer(): McpServer {
       title: 'Build a Homechecker buyer checklist',
       description:
         'Build a deterministic, sourced checklist from the Homechecker guide corpus for a buyer context. This assembles general questions and checks; it does not analyse a listing, document or actual building.',
-      inputSchema: {
+      inputSchema: z.object({
         jurisdiction: z.string().optional().describe('Australia or a state/territory code or name, such as NSW, nsw or New South Wales.'),
         propertyType: z.string().optional().describe('For example house, apartment, or townhouse or unit.'),
         era: z.string().optional().describe('For example 1950s-1970s or 2000s-on.'),
         buyingStage: z.string().optional().describe('For example research, before offer or auction, contract review, or physical inspection.'),
         concerns: z.array(z.string().min(2).max(120)).max(10).optional().default([]),
         limit: z.number().int().min(4).max(20).optional().default(12),
-      },
+      }),
       annotations: readOnlyAnnotations,
     },
     async ({ limit, ...profile }) => {
@@ -218,6 +225,7 @@ export function createMcpServer(): McpServer {
       title: 'Homechecker Guide Catalogue',
       description: 'Machine-readable catalogue of all published Homechecker guides and their canonical URLs.',
       mimeType: 'application/json',
+      cacheHint: { ttlMs: 3_600_000, cacheScope: 'public' },
     },
     async (uri) => ({
       contents: [
@@ -247,6 +255,7 @@ export function createMcpServer(): McpServer {
         title: guide.title,
         description: guide.summary,
         mimeType: 'text/markdown',
+        cacheHint: { ttlMs: 3_600_000, cacheScope: 'public' },
       },
       async (uri) => ({
         contents: [

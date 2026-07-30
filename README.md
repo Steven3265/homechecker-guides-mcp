@@ -1,10 +1,16 @@
 # Homechecker Guides MCP
 
-A standalone, public, read-only Model Context Protocol server for Homechecker's professionally authored Australian homebuyer guidance.
+The maintained protocol implementation of Homechecker's governed Australian residential-building guidance corpus. Public, read-only and deliberately separated from customer and assessment systems.
 
 It exposes the current Homechecker guide system to MCP clients without connecting to the Moyne Ross portal, Supabase, customer records, payments, uploaded documents, or the Homechecker assessment engine.
 
-**Live endpoint:** `https://mcp.homechecker.com.au/mcp` (Streamable HTTP, no auth) · **Health:** [/health](https://mcp.homechecker.com.au/health) · **Registry:** `io.github.Steven3265/homechecker-guides` · **Connect it in your assistant:** [homechecker.com.au/ai](https://homechecker.com.au/ai)
+**Protocol:** MCP `2026-07-28` with stateless 2025-era compatibility · **Live endpoint:** `https://mcp.homechecker.com.au/mcp` (Streamable HTTP, no auth) · **Health:** [/health](https://mcp.homechecker.com.au/health) · **Registry:** `io.github.Steven3265/homechecker-guides` · **Connect it in your assistant:** [homechecker.com.au/ai](https://homechecker.com.au/ai)
+
+## Protocol foundation
+
+Version 1.0.0 uses the MCP TypeScript SDK v2 server package and the `2026-07-28` protocol revision. The official `createMcpHandler` entry supplies stateless per-request serving, `server/discover`, standard routing headers, server identity and cache fields. It also retains stateless compatibility for 2025-era HTTP clients during rollout.
+
+The protocol shell can evolve independently of the durable parts of the product: the reviewed snapshot, deterministic retrieval, tool contracts and professional boundaries. See [`docs/PROTOCOL-SUPPORT.md`](docs/PROTOCOL-SUPPORT.md) and [`docs/RELEASE-1.0.md`](docs/RELEASE-1.0.md).
 
 ## Explore the Homechecker guides
 
@@ -21,11 +27,11 @@ It exposes the current Homechecker guide system to MCP clients without connectin
 
 - **[34 MCP resources](https://homechecker.com.au/guides):** the guide hub plus 33 published guides.
 - **4 read-only tools:** catalogue listing, natural-language search, canonical guide retrieval, and a deterministic buyer checklist.
-- **Two transports:** remote Streamable HTTP at `/mcp` and local stdio.
+- **Two transports:** stateless remote Streamable HTTP at `/mcp` and modern/legacy-compatible local stdio.
 - **A bundled content snapshot:** rebuilt from Homechecker's public guide export at `https://homechecker.com.au/guides/export.json` — the same registry that renders the pages, sitemap and llms.txt. This repository needs no access to the portal codebase.
 - **A browser-triggered refresh workflow:** Actions → "Refresh guides snapshot" regenerates, tests and opens a pull request. No local environment required.
 - **Referral-tagged renders:** URLs in rendered text carry `utm_source=homechecker-mcp` so site analytics can distinguish AI-connector referrals. Structured content always keeps clean canonical URLs.
-- **Anonymous usage telemetry:** each tool call writes a single JSON line to stdout (captured by the host platform's function logs). See `docs/SECURITY.md`.
+- **Anonymous usage telemetry:** each tool call writes a single JSON line to stderr, which is captured by hosted logs without corrupting stdio. See `docs/SECURITY.md`.
 - **Tests and benchmark:** snapshot integrity tests, search tests, and 14 representative buyer questions.
 
 ## Tools
@@ -79,7 +85,7 @@ npm install
 npm test
 npm run benchmark
 npm run build
-npm start
+npx vercel dev
 ```
 
 The remote MCP endpoint will be available at:
@@ -126,7 +132,7 @@ This repository is already configured for a standalone Vercel project.
 5. Attach the `mcp.homechecker.com.au` domain to the project and add the CNAME record Vercel shows at the DNS host.
 6. Use `https://mcp.homechecker.com.au/mcp` as the remote MCP endpoint.
 
-The root route returns service metadata and `/health` confirms the bundled guide count. The MCP route is stateless, JSON-response Streamable HTTP and accepts `POST` requests.
+The root route returns service metadata and `/health` confirms the bundled guide count. The MCP route is stateless Streamable HTTP, serves MCP `2026-07-28`, retains the official SDK's stateless legacy compatibility path, and accepts `POST` requests.
 
 `ALLOWED_ORIGIN` is optional. It defaults to `*` because the connector is public and read-only. Set it only when a client requires a restricted browser origin.
 
@@ -169,14 +175,13 @@ The initial benchmark contains 14 representative Australian buyer questions. All
 api/                    Vercel serverless entry points
 src/core.ts             deterministic search and checklist logic
 src/server.ts           MCP tools, resources and usage telemetry
-src/http-handler.ts     stateless Streamable HTTP adapter
-src/http.ts             local HTTP server
-src/stdio.ts            local stdio transport
+src/http-handler.ts     MCP 2026-07-28 stateless Web API handler
+src/stdio.ts            modern/legacy-compatible stdio entry
 data/guides.json        bundled canonical guide snapshot
 data/benchmark.json     retrieval benchmark cases
 scripts/                snapshot, validation and benchmark utilities
 .github/workflows/      browser-triggered snapshot refresh
-docs/                   architecture, security and deployment notes
+docs/                   architecture, protocol, security, deployment and release notes
 ```
 
 ## Content and licence

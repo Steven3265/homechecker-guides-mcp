@@ -1,31 +1,30 @@
 {
   "name": "homechecker-guides-mcp",
-  "version": "0.2.3",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Read-only MCP server for Homechecker's professionally authored Australian homebuyer guides.",
+  "description": "Protocol implementation of Homechecker's governed Australian residential-building guidance corpus.",
   "license": "SEE LICENSE IN LICENSE.md",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "dev": "tsx src/http.ts",
-    "start": "node dist/src/http.js",
     "start:stdio": "node dist/src/stdio.js",
     "validate:snapshot": "node scripts/validate-snapshot.mjs",
     "test:core": "node scripts/test-core.mjs",
     "test": "npm run validate:snapshot && npm run test:core",
     "benchmark": "node scripts/run-benchmark.mjs",
-    "snapshot": "node scripts/snapshot-guides.mjs"
+    "snapshot": "node scripts/snapshot-guides.mjs",
+    "check": "npm test && npm run benchmark && npm run build"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.29.0",
-    "zod": "3.25.76"
+    "@modelcontextprotocol/server": "2.0.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",
     "tsx": "^4.20.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.0"
   }
 }

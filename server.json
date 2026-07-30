@@ -1,12 +1,12 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
   "name": "io.github.Steven3265/homechecker-guides",
-  "description": "Search and cite Homechecker's Australian home-buying guides. Read-only, free, sourced answers.",
+  "description": "Read-only Homechecker guidance for Australian residential buildings, served over MCP 2026-07-28 with legacy compatibility.",
   "repository": {
     "url": "https://github.com/Steven3265/homechecker-guides-mcp",
     "source": "github"
   },
-  "version": "0.2.3",
+  "version": "1.0.0",
   "websiteUrl": "https://homechecker.com.au/ai",
   "remotes": [
     {

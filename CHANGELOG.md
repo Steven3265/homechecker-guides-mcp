@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.0.0 — 29 July 2026
+
+### Protocol
+- Migrated from the monolithic MCP TypeScript SDK v1 to stable `@modelcontextprotocol/server` v2.
+- Added MCP `2026-07-28` stateless serving through `createMcpHandler`, including `server/discover`, server identity, standard routing-header validation and required cache fields. Vercel now consumes the SDK's web-standard handler directly, avoiding an unnecessary runtime adapter.
+- Retained the official SDK's stateless compatibility path for 2025-era HTTP clients.
+- Migrated stdio to `serveStdio`, which supports the modern protocol while retaining legacy compatibility.
+- Added public cache hints for discovery, tool lists, resource lists and resource reads.
+
+### Engineering
+- Migrated tool schemas to Zod v4 Standard Schema objects.
+- Moved anonymous telemetry from stdout to stderr so it cannot corrupt stdio JSON-RPC.
+- Added protocol-support and release documentation plus a full validation workflow.
+- Preserved every tool name, resource URI, structured result, canonical URL and product boundary.
+
 ## 0.2.3
 
 ### Fixed
