@@ -10,6 +10,7 @@
 - Updated Registry metadata to the `2025-12-11` schema and added a human-readable title.
 - Added `.gitignore`, exact top-level dependency versions and release-metadata consistency checks; removed the unused `tsx` dependency and an unused handler shutdown export.
 - Corrected the documented resource count to 35: one catalogue plus 34 guide resources.
+- Shortened the Registry description to meet the 100-character schema limit and taught the metadata validator the Registry field limits, so a publish-time 422 becomes a CI failure.
 - Committed the dependency lockfile and moved CI, publication and deployment installs to `npm ci --ignore-scripts`, so every environment builds the identical pinned tree.
 
 ## 1.0.0 — 29 July 2026
