@@ -1,19 +1,27 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const [packageText, serverText, identityText] = await Promise.all([
+const [packageText, serverText, identityText, glamaText, contentTermsText] = await Promise.all([
   readFile(new URL('../package.json', import.meta.url), 'utf8'),
   readFile(new URL('../server.json', import.meta.url), 'utf8'),
   readFile(new URL('../src/identity.ts', import.meta.url), 'utf8'),
+  readFile(new URL('../glama.json', import.meta.url), 'utf8'),
+  readFile(new URL('../data/TERMS.md', import.meta.url), 'utf8'),
 ]);
 
 const packageJson = JSON.parse(packageText);
 const serverJson = JSON.parse(serverText);
+const glamaJson = JSON.parse(glamaText);
 const versionMatch = identityText.match(/SERVER_VERSION\s*=\s*'([^']+)'/);
 const protocolMatch = identityText.match(/MODERN_PROTOCOL_VERSION\s*=\s*'([^']+)'/);
 
 assert.ok(versionMatch, 'src/identity.ts must declare SERVER_VERSION');
 assert.ok(protocolMatch, 'src/identity.ts must declare MODERN_PROTOCOL_VERSION');
+
+assert.equal(packageJson.license, 'MIT', 'package.json must expose the code licence in SPDX form');
+assert.equal(glamaJson.$schema, 'https://glama.ai/mcp/schemas/server.json');
+assert.deepEqual(glamaJson.maintainers, ['Steven3265']);
+assert.match(contentTermsText, /data\/guides\.json/, 'content terms must explicitly cover the bundled guide snapshot');
 assert.equal(packageJson.version, serverJson.version, 'package.json and server.json versions must match');
 assert.equal(packageJson.version, versionMatch[1], 'package.json and MCP server identity versions must match');
 assert.equal(protocolMatch[1], '2026-07-28', 'unexpected modern MCP protocol version');

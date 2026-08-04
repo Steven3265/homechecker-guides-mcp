@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "description": "Protocol implementation of Homechecker's governed Australian residential-building guidance corpus.",
-  "license": "SEE LICENSE IN LICENSE.md",
+  "license": "MIT",
   "engines": {
     "node": ">=22"
   },

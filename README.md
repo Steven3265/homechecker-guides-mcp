@@ -4,7 +4,7 @@ The maintained protocol implementation of Homechecker's governed Australian resi
 
 It exposes the current Homechecker guide system to MCP clients without connecting to the Moyne Ross portal, Supabase, customer records, payments, uploaded documents, or the Homechecker assessment engine.
 
-**Protocol:** MCP `2026-07-28` with stateless 2025-era compatibility · **Live endpoint:** `https://mcp.homechecker.com.au/mcp` (Streamable HTTP, no auth) · **Health:** [/health](https://mcp.homechecker.com.au/health) · **Registry:** `io.github.Steven3265/homechecker-guides` · **Connect it in your assistant:** [homechecker.com.au/ai](https://homechecker.com.au/ai)
+**Protocol:** MCP `2026-07-28` with stateless 2025-era compatibility · **Live endpoint:** `https://mcp.homechecker.com.au/mcp` (Streamable HTTP, no auth) · **Health:** [/health](https://mcp.homechecker.com.au/health) · **Registry:** `io.github.Steven3265/homechecker-guides` · **Directory:** [Glama](https://glama.ai/mcp/servers/Steven3265/homechecker-guides-mcp) · **Connect it in your assistant:** [homechecker.com.au/ai](https://homechecker.com.au/ai)
 
 ## Protocol foundation
 
@@ -173,12 +173,15 @@ The initial benchmark contains 14 representative Australian buyer questions. All
 
 ```text
 api/                    Vercel serverless entry points
+Dockerfile              container entry for Glama deployment
+glama.json              Glama maintainer metadata
 src/identity.ts         server and protocol version identity
 src/core.ts             deterministic search and checklist logic
 src/server.ts           MCP tools, resources and privacy-minimised telemetry
 src/http-handler.ts     MCP 2026-07-28 stateless Web API handler
 src/stdio.ts            modern/legacy-compatible stdio entry
 data/guides.json        bundled canonical guide snapshot
+data/TERMS.md           separate terms for the editorial corpus
 data/benchmark.json     retrieval benchmark cases
 scripts/                snapshot, validation and benchmark utilities
 .github/workflows/      release validation, snapshot refresh and registry publication
@@ -187,11 +190,11 @@ docs/                   architecture, protocol, security, deployment and release
 
 ## Content and licence
 
-Split licence — see [LICENSE.md](LICENSE.md): the code is MIT; the Homechecker guide content (including `data/guides.json`) is © Moyne Ross, all rights reserved, and may be quoted with attribution and a link to the source guide. "Homechecker" and "Moyne Ross" are trade names of Moyne Ross Pty Ltd.
+The software and configuration code are MIT-licensed under [LICENSE.md](LICENSE.md). The Homechecker editorial corpus, including `data/guides.json` and guide material reproduced elsewhere in this repository, remains © Moyne Ross Pty Ltd and is governed separately by [data/TERMS.md](data/TERMS.md). Reasonable extracts may be quoted with attribution and a link to the canonical guide. "Homechecker" and "Moyne Ross" are trade names of Moyne Ross Pty Ltd.
 
 ## About the publisher
 
-Homechecker is built by [Moyne Ross](https://moyneross.com/), founded by [Steven McCormack MRICS](https://moyneross.com/principal).
+Homechecker is a residential guidance and assessment service operated by Moyne Ross Pty Ltd.
 
-[Homechecker](https://homechecker.com.au/) · [Guide library](https://homechecker.com.au/guides) · [ORCID](https://orcid.org/0009-0001-6037-3517)
+[Homechecker](https://homechecker.com.au/) · [Guide library](https://homechecker.com.au/guides) · [Moyne Ross](https://moyneross.com/)
 
