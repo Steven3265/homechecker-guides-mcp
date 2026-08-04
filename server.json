@@ -2,12 +2,12 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.Steven3265/homechecker-guides",
   "title": "Homechecker Guides",
-  "description": "Read-only Homechecker guidance for Australian residential buildings: search, guides, checklists.",
+  "description": "Homechecker's professionally authored Australian homebuyer guides: search, cite, build checklists.",
   "repository": {
     "url": "https://github.com/Steven3265/homechecker-guides-mcp",
     "source": "github"
   },
-  "version": "1.0.1",
+  "version": "1.0.2",
   "websiteUrl": "https://homechecker.com.au/ai",
   "remotes": [
     {

@@ -10,7 +10,7 @@ export default function handler(_req: IncomingMessage, res: ServerResponse): voi
     name: 'Homechecker Guides MCP',
     version: SERVER_VERSION,
     protocol: MODERN_PROTOCOL_VERSION,
-    description: 'Read-only Australian homebuyer guidance from Homechecker.',
+    description: "Homechecker's professionally authored Australian homebuyer guides: search, cite, build checklists.",
     mcpEndpoint: '/mcp',
     healthEndpoint: '/health',
     guides: snapshot.source.contentCount,

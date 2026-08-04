@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.2 — 4 August 2026
+
+### Positioning
+- Unified the public description to one canonical sentence across the Registry record (`server.json`), package metadata, the root service route and the README opening, so directory scrapers propagate consistent entity language.
+- Rewrote the README opening paragraph in buyer-facing language; protocol and boundary detail is unchanged below it.
+- No protocol, tool, resource or snapshot changes.
+
 ## 1.0.1 — 30 July 2026
 
 ### Hardening

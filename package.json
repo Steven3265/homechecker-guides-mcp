@@ -1,9 +1,9 @@
 {
   "name": "homechecker-guides-mcp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "type": "module",
-  "description": "Protocol implementation of Homechecker's governed Australian residential-building guidance corpus.",
+  "description": "Homechecker's professionally authored Australian homebuyer guides: search, cite, build checklists.",
   "license": "MIT",
   "engines": {
     "node": ">=22"

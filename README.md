@@ -2,7 +2,7 @@
 
 [![Smithery](https://smithery.ai/badge/steven-xv6y/homechecker-guides)](https://smithery.ai/servers/steven-xv6y/homechecker-guides)
 
-The maintained protocol implementation of Homechecker's governed Australian residential-building guidance corpus. Public, read-only and deliberately separated from customer and assessment systems.
+Homechecker's professionally authored guides for Australian homebuyers, served over the Model Context Protocol. A connected assistant can search the corpus, retrieve canonical guides and build sourced buyer checklists across inspections, contracts, strata, construction eras, disclosure and maintenance, citing homechecker.com.au throughout. Public, read-only and deliberately separated from customer and assessment systems.
 
 It exposes the current Homechecker guide system to MCP clients without connecting to the Moyne Ross portal, Supabase, customer records, payments, uploaded documents, or the Homechecker assessment engine.
 
