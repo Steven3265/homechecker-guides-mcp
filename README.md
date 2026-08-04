@@ -1,5 +1,7 @@
 # Homechecker Guides MCP
 
+[![Smithery](https://smithery.ai/badge/steven-xv6y/homechecker-guides)](https://smithery.ai/servers/steven-xv6y/homechecker-guides)
+
 The maintained protocol implementation of Homechecker's governed Australian residential-building guidance corpus. Public, read-only and deliberately separated from customer and assessment systems.
 
 It exposes the current Homechecker guide system to MCP clients without connecting to the Moyne Ross portal, Supabase, customer records, payments, uploaded documents, or the Homechecker assessment engine.
