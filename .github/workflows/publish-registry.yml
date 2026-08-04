@@ -1,11 +1,7 @@
 # Publish Homechecker Guides to the official MCP Registry.
 #
-# Trigger from the browser:
+# Trigger from:
 # GitHub → Actions → Publish to MCP Registry → Run workflow
-#
-# The server is remote and publicly accessible, so no npm publication is
-# required. GitHub OIDC authenticates the io.github.Steven3265 namespace;
-# no registry secret or personal access token is needed.
 
 name: Publish to MCP Registry
 
@@ -46,14 +42,34 @@ jobs:
         run: ./mcp-publisher login github-oidc
 
       - name: Publish server metadata
-        run: ./mcp-publisher publish
+        run: |
+          set +e
+          OUTPUT=$(./mcp-publisher publish 2>&1)
+          EXIT_CODE=$?
+          set -e
+
+          echo "$OUTPUT"
+
+          if [ "$EXIT_CODE" -ne 0 ]; then
+            if echo "$OUTPUT" | grep -qi "duplicate version"; then
+              echo "Version 1.0.1 is already published in the MCP Registry."
+            else
+              exit "$EXIT_CODE"
+            fi
+          fi
 
       - name: Verify official listing
         run: |
           sleep 5
+
           RESPONSE=$(curl --fail --silent --show-error \
             "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.Steven3265/homechecker-guides")
+
           echo "$RESPONSE" | head -c 2000
           echo ""
-          echo "$RESPONSE" | grep -F 'io.github.Steven3265/homechecker-guides' >/dev/null
+
+          echo "$RESPONSE" \
+            | grep -F 'io.github.Steven3265/homechecker-guides' \
+            >/dev/null
+
           echo "Homechecker Guides is listed in the official MCP Registry."
