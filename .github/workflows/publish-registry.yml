@@ -1,16 +1,11 @@
-# Publish this server to the official MCP Registry.
+# Publish Homechecker Guides to the official MCP Registry.
 #
-# Trigger from the browser: Actions → "Publish to MCP Registry" → Run
-# workflow. Authenticates via GitHub OIDC (no secrets, no PAT),
-# publishes server.json, and verifies the listing through the registry
-# API. Publishing is idempotent: if the current version is already in
-# the registry, the run reports that and succeeds.
+# Trigger from the browser:
+# GitHub → Actions → Publish to MCP Registry → Run workflow
 #
-# Run it again after any release that bumps the version in server.json.
-#
-# Note: this CLI has no working dry-run — an earlier version of this
-# workflow used --dry-run and the flag published for real. One step,
-# honestly named.
+# The server is remote and publicly accessible, so no npm publication is
+# required. GitHub OIDC authenticates the io.github.Steven3265 namespace;
+# no registry secret or personal access token is needed.
 
 name: Publish to MCP Registry
 
@@ -18,16 +13,19 @@ on:
   workflow_dispatch:
 
 permissions:
-  id-token: write   # OIDC token for registry authentication
+  id-token: write
   contents: read
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
         with:
           node-version: 22
 
@@ -37,31 +35,25 @@ jobs:
       - name: Validate release before publication
         run: npm run check
 
-      - name: Download mcp-publisher
+      - name: Install mcp-publisher
         run: |
-          curl --fail --location --silent --show-error "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+          curl --fail --location --silent --show-error \
+            "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" \
+            | tar xz mcp-publisher
+          ./mcp-publisher --help >/dev/null
 
-      - name: Authenticate (GitHub OIDC)
+      - name: Authenticate to MCP Registry
         run: ./mcp-publisher login github-oidc
 
-      - name: Publish (idempotent)
-        run: |
-          set +e
-          OUT=$(./mcp-publisher publish --file server.json 2>&1)
-          CODE=$?
-          echo "$OUT"
-          set -e
-          if [ $CODE -ne 0 ]; then
-            if echo "$OUT" | grep -q "duplicate version"; then
-              echo "This version is already published — nothing to do."
-            else
-              exit $CODE
-            fi
-          fi
+      - name: Publish server metadata
+        run: ./mcp-publisher publish
 
-      - name: Verify listing
+      - name: Verify official listing
         run: |
           sleep 5
-          curl -s "https://registry.modelcontextprotocol.io/v0/servers?search=io.github.Steven3265/homechecker-guides" | head -c 1200
+          RESPONSE=$(curl --fail --silent --show-error \
+            "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.Steven3265/homechecker-guides")
+          echo "$RESPONSE" | head -c 2000
           echo ""
-          echo "Listed. The entry propagates to the GitHub MCP Registry and clients that ingest the official registry."
+          echo "$RESPONSE" | grep -F 'io.github.Steven3265/homechecker-guides' >/dev/null
+          echo "Homechecker Guides is listed in the official MCP Registry."
