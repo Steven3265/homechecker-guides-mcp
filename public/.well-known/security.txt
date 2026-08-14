@@ -1,0 +1,5 @@
+Contact: mailto:hello@homechecker.com.au
+Canonical: https://mcp.homechecker.com.au/.well-known/security.txt
+Policy: https://homechecker.com.au/privacy
+Preferred-Languages: en
+Expires: 2027-08-14T00:00:00Z
