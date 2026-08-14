@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "homechecker-guides": {
+      "type": "http",
+      "url": "https://mcp.homechecker.com.au/mcp"
+    }
+  }
+}
