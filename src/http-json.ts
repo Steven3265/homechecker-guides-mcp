@@ -58,8 +58,12 @@ export function optionalParam(url: URL, name: string): string | undefined {
 }
 
 export function intParam(url: URL, name: string, fallback: number, min: number, max: number): number {
-  const raw = Number(url.searchParams.get(name));
+  const value = url.searchParams.get(name);
+  if (value === null || value.trim() === '') return fallback;
+
+  const raw = Number(value);
   if (!Number.isFinite(raw)) return fallback;
+
   return Math.max(min, Math.min(max, Math.trunc(raw)));
 }
 
