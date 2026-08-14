@@ -52,7 +52,7 @@ jobs:
 
           if [ "$EXIT_CODE" -ne 0 ]; then
             if echo "$OUTPUT" | grep -qi "duplicate version"; then
-              echo "Version 1.0.1 is already published in the MCP Registry."
+              echo "This package version is already published in the MCP Registry."
             else
               exit "$EXIT_CODE"
             fi
