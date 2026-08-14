@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0 — Machine discovery surface
+
+- Adds a first-party MCP server card, public read-only REST facade and OpenAPI 3.1 description.
+- Adds privacy-minimised MCP transport telemetry without raw parameters, IP addresses, headers or client identifiers.
+- Adds four portable Agent Skills and first-party Claude Code plugin packaging.
+- Adds OpenAI public-plugin submission assets and GitHub Agent Finder contribution records.
+- Opens crawler access to public descriptors while keeping the MCP POST endpoint out of ordinary crawling.
+
 ## 1.0.2 — 4 August 2026
 
 ### Positioning

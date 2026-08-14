@@ -18,6 +18,30 @@
     {
       "source": "/health",
       "destination": "/api/health"
+    },
+    {
+      "source": "/server-card.json",
+      "destination": "/api/server-card"
+    },
+    {
+      "source": "/openapi.json",
+      "destination": "/api/openapi"
+    },
+    {
+      "source": "/v1/guides",
+      "destination": "/api/v1/guides"
+    },
+    {
+      "source": "/v1/search",
+      "destination": "/api/v1/search"
+    },
+    {
+      "source": "/v1/guide",
+      "destination": "/api/v1/guide"
+    },
+    {
+      "source": "/v1/checklist",
+      "destination": "/api/v1/checklist"
     }
   ]
 }

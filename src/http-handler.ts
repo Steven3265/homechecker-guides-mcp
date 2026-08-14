@@ -46,6 +46,24 @@ function withCommonHeaders(response: Response): Response {
   });
 }
 
+function rpcMethods(request: Request): string[] {
+  // Modern MCP clients advertise the routed JSON-RPC method in the
+  // Mcp-Method header. Read telemetry from that header only so observability
+  // never clones, parses or otherwise touches the protocol request body.
+  // Legacy clients may therefore produce an empty methods array, which is
+  // preferable to increasing the request path's blast radius for logging.
+  const method = request.headers.get('Mcp-Method')?.trim();
+  return method ? [method] : [];
+}
+
+function logRequest(methods: string[], status: number, durationMs: number): void {
+  try {
+    console.error(JSON.stringify({ evt: 'mcp_request', methods, status, durationMs, at: new Date().toISOString() }));
+  } catch {
+    // Never let telemetry interfere with protocol handling.
+  }
+}
+
 export async function handleMcpRequest(request: Request): Promise<Response> {
   if (request.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers: corsHeaders() });
@@ -64,9 +82,15 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
     );
   }
 
+  const started = Date.now();
+  const methods = rpcMethods(request);
+
   try {
-    return withCommonHeaders(await mcpHandler.fetch(request));
+    const response = withCommonHeaders(await mcpHandler.fetch(request));
+    logRequest(methods, response.status, Date.now() - started);
+    return response;
   } catch (error) {
+    logRequest(methods, 500, Date.now() - started);
     console.error('[homechecker-mcp] request failed', error);
     const headers = corsHeaders();
     headers.set('Content-Type', 'application/json; charset=utf-8');

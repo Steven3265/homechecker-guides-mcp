@@ -8,6 +8,26 @@ It exposes the current Homechecker guide system to MCP clients without connectin
 
 **Protocol:** MCP `2026-07-28` with stateless 2025-era compatibility · **Live endpoint:** `https://mcp.homechecker.com.au/mcp` (Streamable HTTP, no auth) · **Health:** [/health](https://mcp.homechecker.com.au/health) · **Registry:** `io.github.Steven3265/homechecker-guides` · **Directory:** [Glama](https://glama.ai/mcp/servers/Steven3265/homechecker-guides-mcp) · **Connect it in your assistant:** [homechecker.com.au/ai](https://homechecker.com.au/ai)
 
+## Machine discovery surface
+
+This repository is also a portable **Agent Plugins 1.0.0** package: `plugin.json` identifies the package, `skills/` carries the open Agent Skills, and `mcp.json` points compatible clients at the hosted Streamable HTTP MCP server.
+
+Homechecker publishes the same read-only corpus through several interoperable discovery and execution surfaces:
+
+- MCP: `https://mcp.homechecker.com.au/mcp`
+- First-party MCP card: `https://mcp.homechecker.com.au/server-card.json`
+- Read-only REST API: `https://mcp.homechecker.com.au/v1/*`
+- OpenAPI 3.1: `https://mcp.homechecker.com.au/openapi.json`
+- ARD catalogue: `https://homechecker.com.au/.well-known/ai-catalog.json`
+- Agent Skills: `skills/*/SKILL.md`
+- Claude Code plugin: `.claude-plugin/plugin.json` + `.mcp.json`
+- GitHub Copilot CLI marketplace: `.github/plugin/marketplace.json`
+- OpenAI submission package: `distribution/openai/homechecker/`
+- GitHub Agent Finder contribution pack: `distribution/github-agentfinder/`
+
+The implementation keeps one deterministic guide snapshot and one retrieval core; the additional surfaces are adapters, not separate knowledge systems.
+
+
 ## Protocol foundation
 
 Version 1.0.1 uses the MCP TypeScript SDK v2 server package and the `2026-07-28` protocol revision. The official `createMcpHandler` entry supplies stateless per-request serving, `server/discover`, standard routing headers, server identity and cache fields. It also retains stateless compatibility for 2025-era HTTP clients during rollout.
