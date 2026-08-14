@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "homechecker",
+  "displayName": "Homechecker",
+  "version": "1.1.0",
+  "description": "Australian residential-property due-diligence skills backed by the read-only Homechecker Guides MCP.",
+  "author": {
+    "name": "Homechecker by Moyne Ross",
+    "email": "hello@homechecker.com.au",
+    "url": "https://homechecker.com.au"
+  },
+  "homepage": "https://homechecker.com.au/ai",
+  "repository": "https://github.com/Steven3265/homechecker-guides-mcp",
+  "license": "MIT",
+  "keywords": [
+    "australia",
+    "property",
+    "homebuyer",
+    "due-diligence",
+    "building",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}
