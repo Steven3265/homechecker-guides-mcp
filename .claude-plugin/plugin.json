@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "homechecker",
   "displayName": "Homechecker",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Australian residential-property due-diligence skills backed by the read-only Homechecker Guides MCP.",
   "author": {
     "name": "Homechecker by Moyne Ross",
