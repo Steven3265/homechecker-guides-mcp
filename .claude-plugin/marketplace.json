@@ -8,7 +8,7 @@
     {
       "name": "homechecker",
       "description": "Australian residential-property due-diligence skills backed by the read-only Homechecker Guides MCP.",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "source": "."
     }
   ]
