@@ -135,8 +135,47 @@ function canonicalJurisdiction(value?: string): string | undefined {
   return detectJurisdiction(value) ?? value.trim();
 }
 
+const CONSTRUCTION_ERA_GUIDE: Record<string, string> = {
+  'pre-1920s': 'period-homes-pre-1920s',
+  '1920s-1940s': 'interwar-homes-1920s-40s',
+  '1950s-1970s': 'postwar-homes-1950s-70s',
+  '1980s-1990s': 'homes-1980s-90s',
+  '2000s-on': 'modern-homes-2000s-on',
+};
+
+function eraForConstructionYear(year: number): string | undefined {
+  if (year < 1800 || year > 2035) return undefined;
+  if (year < 1920) return 'pre-1920s';
+  if (year < 1950) return '1920s-1940s';
+  if (year < 1980) return '1950s-1970s';
+  if (year < 2000) return '1980s-1990s';
+  return '2000s-on';
+}
+
+function detectConstructionYear(query: string): number | undefined {
+  const q = normalize(query);
+  const match = q.match(
+    /\b(?:built|constructed|completed|completed in|built in|constructed in|circa|dating from|from)\s+(?:in\s+)?(18\d{2}|19\d{2}|20\d{2})\b/,
+  ) ?? q.match(
+    /\b(18\d{2}|19\d{2}|20\d{2})\s+(?:house|home|apartment|unit)(?!\s+(?:price|prices|market|loan|sales?))\b/,
+  );
+  if (!match?.[1]) return undefined;
+  const year = Number(match[1]);
+  return Number.isInteger(year) ? year : undefined;
+}
+
 function detectEra(query: string): string | undefined {
   const q = normalize(query);
+
+  // A bare year can be the current year or a price/review reference, so only
+  // infer an era when the user ties it to construction/completion or directly
+  // describes a property as, for example, a "1935 house".
+  const constructionYear = detectConstructionYear(query);
+  if (constructionYear !== undefined) {
+    const era = eraForConstructionYear(constructionYear);
+    if (era) return era;
+  }
+
   if (/pre 1920|victorian era|edwardian era/.test(q)) return 'pre-1920s';
   if (/1920|1930|1940|interwar/.test(q)) return '1920s-1940s';
   if (/1950|1960|1970|postwar/.test(q)) return '1950s-1970s';
@@ -243,8 +282,10 @@ function scoreGuide(guide: GuideRecord, options: SearchOptions, terms: string[])
     else score -= 8;
   }
   if (inferredEra) {
-    if (metadataMatches(guide.eras, inferredEra)) score += 22;
-    else if (guide.eras.length && !guide.eras.includes('all eras')) score -= 18;
+    if (metadataMatches(guide.eras, inferredEra)) {
+      score += 22;
+      if (detectConstructionYear(options.query) !== undefined && CONSTRUCTION_ERA_GUIDE[inferredEra] === guide.slug) score += 20;
+    } else if (guide.eras.length && !guide.eras.includes('all eras')) score -= 18;
   }
   if (inferredPropertyType) {
     if (metadataMatches(guide.propertyTypes, inferredPropertyType)) score += 14;
@@ -352,8 +393,61 @@ export function relevanceDensity(query: string, results: GuideSearchResult[]): n
  * off-topic reaches "strong". A hedge on a correct answer costs a sentence;
  * false confidence gets Homechecker cited on tax.
  */
+const OUTSIDE_ANSWERABLE_SCOPE_PATTERNS: RegExp[] = [
+  // Financial, tax, valuation and investment outcomes. Homechecker may have
+  // relevant building context, but it is not the authority for the outcome.
+  /\b(?:capital gains(?: tax)?|negative gearing|stamp duty|mortgage|home loan|borrowing capacity|interest rate|rental yield|market rent|rental income|property value|market value|valuation|capital growth|investment return)\b/i,
+  /\b(?:how much tax|tax treatment|tax deduction|tax deductible|claim .{0,30} on tax|claim .{0,30} as a deduction)\b/i,
+  /\b(?:how much rent|rent (?:can|could|should) i charge)\b/i,
+  /\b(?:house|home|property|apartment|unit)\b.{0,20}\bworth\b/i,
+
+  // Transaction decisions: due-diligence material may inform the decision,
+  // but the corpus cannot tell a buyer what price to bid/offer or whether to buy.
+  /\b(?:how much|what) should i (?:bid|offer)\b/i,
+  /\bshould i (?:buy|purchase|bid on|make an offer on)\b/i,
+  /\bis (?:this|that|the) (?:house|home|property|apartment|unit) (?:a )?good investment\b/i,
+
+  // Legal conclusions. Document-reading guides remain useful background only.
+  /\b(?:is|are) .{0,60}\b(?:legally binding|enforceable|valid contract|void|illegal)\b/i,
+  /\b(?:can|should) i sue\b/i,
+
+  // Live/local provider selection requires information this frozen corpus does not hold.
+  /\b(?:best|recommend|find me|who is) .{0,40}\b(?:building inspector|building and pest inspector|inspector|engineer|surveyor)\b/i,
+
+  // Repair-price estimates are outside the corpus unless Homechecker has written
+  // the dedicated cost guide. Keep this deliberately narrow so the published
+  // inspection/biologist cost guides remain answerable.
+  /\b(?:underpinning|restumping|re stumping|rewiring|roof replacement|re roofing|foundation repair|structural repair)\b.{0,40}\b(?:cost|price|how much)\b/i,
+  /\b(?:cost|price|how much)\b.{0,40}\b(?:underpinning|restumping|re stumping|rewiring|roof replacement|re roofing|foundation repair|structural repair)\b/i,
+];
+
+/**
+ * True when a query is property-adjacent but asks Homechecker to determine an
+ * outcome its frozen editorial corpus is not designed to determine. Results
+ * can still be returned as useful background; they simply must not be labelled
+ * a strong answer. Keep this list narrow and explicit rather than attempting a
+ * general-purpose intent classifier.
+ */
+export function isOutsideAnswerableScope(query: string): boolean {
+  return OUTSIDE_ANSWERABLE_SCOPE_PATTERNS.some((pattern) => pattern.test(query));
+}
+
+function hasStrongStructuredMatch(query: string, results: GuideSearchResult[]): boolean {
+  const top = results[0];
+  if (!top) return false;
+
+  // Explicit construction-era language is a high-confidence structured signal.
+  // Do not let generic words such as "inspect" dilute a correctly matched era
+  // guide below the lexical strong-match threshold.
+  const era = detectEra(query);
+  return Boolean(era && metadataMatches(top.eras, era));
+}
+
 export function isWeakMatch(query: string, results: GuideSearchResult[]): boolean {
-  return results.length > 0 && relevanceDensity(query, results) < WEAK_RELEVANCE_PER_TERM;
+  if (results.length === 0) return false;
+  if (isOutsideAnswerableScope(query)) return true;
+  if (hasStrongStructuredMatch(query, results)) return false;
+  return relevanceDensity(query, results) < WEAK_RELEVANCE_PER_TERM;
 }
 
 export function searchGuides(options: SearchOptions): GuideSearchResult[] {
@@ -361,7 +455,7 @@ export function searchGuides(options: SearchOptions): GuideSearchResult[] {
   const query = options.query.trim();
   if (!query) return [];
   const terms = expandedTerms(query);
-  const jurisdiction = canonicalJurisdiction(options.jurisdiction);
+  const jurisdiction = canonicalJurisdiction(options.jurisdiction) ?? detectJurisdiction(query);
   const normalizedOptions: SearchOptions = jurisdiction ? { ...options, jurisdiction } : options;
 
   const candidates = guides.filter((guide) => {
@@ -417,7 +511,7 @@ export function searchGuides(options: SearchOptions): GuideSearchResult[] {
 
   // Query-level suppression: if even the best hit is thin relative to how
   // much was asked, the corpus does not address the question.
-  if (relevanceDensity(query, ranked) < MIN_RELEVANCE_PER_TERM) return [];
+  if (relevanceDensity(query, ranked) < MIN_RELEVANCE_PER_TERM && !hasStrongStructuredMatch(query, ranked)) return [];
   return ranked;
 }
 

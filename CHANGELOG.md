@@ -12,6 +12,8 @@
 - Strengthens snapshot validation for section IDs, dates, source URLs, guide relationships, cluster membership and secret-like material; normalises blank related-guide entries.
 - Pins current GitHub Actions by immutable commit SHA, pins and checksum-verifies the Registry publisher, and schedules a daily public-export refresh check.
 - Adds adapter/contract regression checks covering the hardened interfaces.
+- Tightens retrieval answerability so property-adjacent tax, finance, valuation, legal-outcome, live-provider and unsupported repair-cost questions can return background without being labelled strong.
+- Infers construction era from explicit build years (including natural forms such as "1935 house"), prioritises the canonical era guide, and uses jurisdiction named in the query to exclude other states' dedicated rule guides.
 
 ## 1.1.0 — Machine discovery surface
 

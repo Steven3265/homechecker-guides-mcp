@@ -198,3 +198,67 @@ test('relevance is measured per term, so length cannot fake confidence', () => {
   }
   assert.ok(MIN_RESULT_SCORE > 0 && WEAK_RELEVANCE_PER_TERM > 0);
 });
+
+test('specific construction years infer the correct era without treating the current year as an era', () => {
+  const cases = [
+    ['house built in 1910', 'period-homes-pre-1920s'],
+    ['what should I inspect in a 1935 house', 'interwar-homes-1920s-40s'],
+    ['house built in 1965', 'postwar-homes-1950s-70s'],
+    ['what problems are typical in a home constructed in 1987', 'homes-1980s-90s'],
+    ['house completed in 2015', 'modern-homes-2000s-on'],
+    ['home built in 2022', 'modern-homes-2000s-on'],
+  ];
+  for (const [query, expected] of cases) {
+    const results = searchGuides({ query, limit: 5 });
+    assert.ok(results.slice(0, 3).some((result) => result.slug === expected), `${query}: expected ${expected} in top 3`);
+  }
+
+  const currentYearContext = searchGuides({ query: 'should i buy or rent a home in australia in 2026' });
+  assert.equal(isWeakMatch('should i buy or rent a home in australia in 2026', currentYearContext), true);
+});
+
+test('property-adjacent outcomes outside the corpus can return background but never a strong match', () => {
+  const outsideScope = [
+    'what rent can i charge for a two bedroom apartment',
+    'can i claim this renovation on tax',
+    'how much does underpinning cost',
+    'is my contract enforceable',
+    'how much should i bid for this house',
+    'recommend the best building inspector in carlton',
+    'what is the market value of this property',
+  ];
+
+  for (const query of outsideScope) {
+    const results = searchGuides({ query });
+    if (results.length === 0) continue;
+    assert.equal(isWeakMatch(query, results), true, `outside-scope query leaked as strong: ${query}`);
+  }
+});
+
+
+test('jurisdiction inferred from the query excludes other states' dedicated rule guides', () => {
+  const sa = searchGuides({ query: 'What seller disclosure do I get when buying in South Australia?', limit: 10 });
+  assert.ok(sa.every((result) => !['reading-a-section-32', 'reading-a-contract-for-sale-nsw', 'seller-disclosure-qld'].includes(result.slug)));
+  assert.equal(isWeakMatch('What seller disclosure do I get when buying in South Australia?', sa), true);
+
+  const wa = searchGuides({ query: 'What contract disclosures apply when buying in Western Australia?', limit: 10 });
+  assert.ok(wa.every((result) => !['reading-a-section-32', 'reading-a-contract-for-sale-nsw', 'seller-disclosure-qld'].includes(result.slug)));
+  assert.equal(isWeakMatch('What contract disclosures apply when buying in Western Australia?', wa), true);
+});
+
+test('answerability guard does not weaken topics Homechecker explicitly covers', () => {
+  const answerable = [
+    'how much does a building and pest inspection cost',
+    'how much does a building biologist cost',
+    'what should i check before buying an apartment',
+    'does a renovation need planning checks before i start',
+    'how can home condition affect insurance',
+    'what should i inspect in a house built in 1965',
+  ];
+
+  for (const query of answerable) {
+    const results = searchGuides({ query });
+    assert.ok(results.length > 0, `expected results for: ${query}`);
+    assert.equal(isWeakMatch(query, results), false, `answerable query unexpectedly weak: ${query}`);
+  }
+});
