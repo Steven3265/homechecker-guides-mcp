@@ -226,6 +226,12 @@ test('property-adjacent outcomes outside the corpus can return background but ne
     'how much should i bid for this house',
     'recommend the best building inspector in carlton',
     'what is the market value of this property',
+    'what is the exact price to rewire a 1960s house',
+    'will this crack definitely cause the building to collapse',
+    'is this apartment compliant with the building code',
+    'will council approve my extension',
+    'should i rent or buy in australia in 2026',
+    'what are today\'s auction clearance rates',
   ];
 
   for (const query of outsideScope) {
@@ -236,7 +242,7 @@ test('property-adjacent outcomes outside the corpus can return background but ne
 });
 
 
-test('jurisdiction inferred from the query excludes other states' dedicated rule guides', () => {
+test("jurisdiction inferred from the query excludes other states' dedicated rule guides", () => {
   const sa = searchGuides({ query: 'What seller disclosure do I get when buying in South Australia?', limit: 10 });
   assert.ok(sa.every((result) => !['reading-a-section-32', 'reading-a-contract-for-sale-nsw', 'seller-disclosure-qld'].includes(result.slug)));
   assert.equal(isWeakMatch('What seller disclosure do I get when buying in South Australia?', sa), true);

@@ -417,8 +417,16 @@ const OUTSIDE_ANSWERABLE_SCOPE_PATTERNS: RegExp[] = [
   // Repair-price estimates are outside the corpus unless Homechecker has written
   // the dedicated cost guide. Keep this deliberately narrow so the published
   // inspection/biologist cost guides remain answerable.
-  /\b(?:underpinning|restumping|re stumping|rewiring|roof replacement|re roofing|foundation repair|structural repair)\b.{0,40}\b(?:cost|price|how much)\b/i,
-  /\b(?:cost|price|how much)\b.{0,40}\b(?:underpinning|restumping|re stumping|rewiring|roof replacement|re roofing|foundation repair|structural repair)\b/i,
+  /\b(?:underpinning|restumping|re stumping|rewire|rewiring|roof replacement|re roofing|foundation repair|structural repair)\b.{0,40}\b(?:cost|price|how much)\b/i,
+  /\b(?:cost|price|how much)\b.{0,40}\b(?:underpinning|restumping|re stumping|rewire|rewiring|roof replacement|re roofing|foundation repair|structural repair)\b/i,
+
+  // Live market metrics, binary financial choices and property-specific
+  // regulatory/outcome determinations require current or address-specific evidence.
+  /\b(?:auction clearance rate|auction clearance rates|clearance rate)\b/i,
+  /\bshould i (?:rent or buy|buy or rent)\b/i,
+  /\b(?:will|would|can) (?:the )?(?:council|planning authority) .{0,30}\b(?:approve|accept|permit)\b/i,
+  /\b(?:is|are) (?:this|that|the|my) .{0,60}\b(?:compliant|code compliant)\b/i,
+  /\b(?:will|could) (?:this|that|the|my) .{0,50}\b(?:collapse|fall down|structurally fail)\b/i,
 ];
 
 /**
