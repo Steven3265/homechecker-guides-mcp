@@ -33,30 +33,31 @@ There is no authentication, and the application does not record IP addresses, se
 - Checklist concerns are count- and length-limited.
 - HTTP request bodies are limited to 1 MB.
 - Only `POST` and `OPTIONS` are accepted at `/mcp`.
-- Responses set `Cache-Control: no-store` and `X-Content-Type-Options: nosniff`.
+- MCP responses remain non-mutable; public read-only REST/discovery responses use bounded cache headers where appropriate and all JSON responses set `X-Content-Type-Options: nosniff`.
 
 ## Content controls
 
 The snapshot validator checks:
 
-- unique guide slugs and resource URIs;
-- canonical Homechecker URLs;
-- complete guide metadata and sections;
+- unique guide slugs, resource URIs and section IDs;
+- canonical Homechecker URLs and HTTPS source links;
+- complete guide metadata, sections and valid review/publication dates;
+- related-guide and cluster references resolve to published guides;
 - the expected guide count;
-- common production-secret marker strings.
+- common production-secret marker strings across the complete serialized snapshot.
 
 ## Referral tagging
 
 URLs in rendered text carry `utm_source=homechecker-mcp` for analytics attribution. Structured content always returns clean canonical URLs, and the guide pages declare their own `rel=canonical`, so the parameter has no indexing effect.
 
-## Operational controls recommended before public directory submission
+## Operational controls
 
-- Add platform rate limiting and basic abuse monitoring.
+- Keep platform/edge rate limiting and basic abuse monitoring enabled; do not add stateful in-process throttling to the stateless read service.
 - Run `npm audit` and dependency review on every release.
-- Add uptime monitoring for `/health`.
-- Publish a Homechecker privacy policy and support contact.
-- Add a security contact or `SECURITY.md` reporting address before making the repository public.
-- Review tool descriptions and annotations against each target platform's current connector requirements.
+- Keep uptime monitoring on `/health`.
+- Keep the Homechecker privacy policy and support route current.
+- Maintain a public security reporting route.
+- Review tool descriptions and annotations when target-platform connector requirements change.
 
 ## Product boundary
 

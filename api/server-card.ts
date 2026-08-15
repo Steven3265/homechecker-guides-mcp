@@ -1,83 +1,22 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { snapshot } from '../src/core.js';
+import { TOOL_CONTRACTS } from '../src/contracts.js';
 import { requireGet, sendJson } from '../src/http-json.js';
 import { MODERN_PROTOCOL_VERSION, SERVER_VERSION } from '../src/identity.js';
 
-const clusterEnum = ['how-to-buy', 'state-rules', 'read-building', 'shared-buildings', 'own-change'];
-
-const tools = [
-  {
-    name: 'list_guides',
-    description: 'List published Homechecker guidance by jurisdiction, topic cluster, property type, era or buying stage.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        jurisdiction: { type: 'string' },
-        cluster: { type: 'string', enum: clusterEnum },
-        propertyType: { type: 'string' },
-        era: { type: 'string' },
-        buyingStage: { type: 'string' },
-        includePillar: { type: 'boolean', default: false },
-      },
-    },
-    readOnly: true,
-  },
-  {
-    name: 'search_guides',
-    description: 'Search the professionally authored Australian residential-property guide corpus with a natural-language question.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        query: { type: 'string', minLength: 2, maxLength: 800 },
-        jurisdiction: { type: 'string' },
-        propertyType: { type: 'string' },
-        era: { type: 'string' },
-        buyingStage: { type: 'string' },
-        cluster: { type: 'string', enum: clusterEnum },
-        limit: { type: 'integer', minimum: 1, maximum: 10, default: 5 },
-      },
-      required: ['query'],
-    },
-    readOnly: true,
-  },
-  {
-    name: 'get_guide',
-    description: 'Retrieve one canonical Homechecker guide with review metadata, sources, method and limitations.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        slug: { type: 'string', maxLength: 160 },
-        format: { type: 'string', enum: ['summary', 'full', 'sections'], default: 'full' },
-        sectionIds: { type: 'array', items: { type: 'string' }, maxItems: 12 },
-      },
-      required: ['slug'],
-    },
-    readOnly: true,
-  },
-  {
-    name: 'build_buyer_checklist',
-    description: 'Build a deterministic sourced checklist from the guide corpus for a buyer context.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        jurisdiction: { type: 'string' },
-        propertyType: { type: 'string' },
-        era: { type: 'string' },
-        buyingStage: { type: 'string' },
-        concerns: { type: 'array', items: { type: 'string', minLength: 2, maxLength: 120 }, maxItems: 10 },
-        limit: { type: 'integer', minimum: 4, maximum: 20, default: 12 },
-      },
-    },
-    readOnly: true,
-  },
-];
+const tools = Object.entries(TOOL_CONTRACTS).map(([name, contract]) => ({
+  name,
+  description: contract.description,
+  inputSchema: contract.jsonInputSchema,
+  readOnly: true,
+}));
 
 export default function handler(req: IncomingMessage, res: ServerResponse): void {
   if (!requireGet(req, res)) return;
   sendJson(res, 200, {
     name: 'Homechecker Guides',
     version: SERVER_VERSION,
-    description: "Professionally authored Australian residential-property guidance for buyers and owners.",
+    description: 'Professionally authored Australian residential-property guidance for buyers and owners.',
     tools,
     protocol: {
       name: 'Model Context Protocol',
@@ -101,6 +40,7 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
     },
     corpus: {
       guides: snapshot.source.contentCount,
+      snapshotGeneratedAt: snapshot.generatedAt,
       latestGuideUpdate: snapshot.source.latestUpdated,
       catalogue: 'https://homechecker.com.au/guides/export.json',
     },

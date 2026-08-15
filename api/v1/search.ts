@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { isWeakMatch, searchGuides } from '../../src/core.js';
-import { addReferralUrls, intParam, logApi, optionalParam, referralSource, requestUrl, requireGet, sendJson } from '../../src/http-json.js';
+import { CLUSTER_IDS, searchGuidanceBoundary } from '../../src/contracts.js';
+import { addReferralUrls, enumParam, intParam, logApi, optionalParam, referralSource, requestUrl, requireGet, sendJson } from '../../src/http-json.js';
 
 export default function handler(req: IncomingMessage, res: ServerResponse): void {
   if (!requireGet(req, res)) return;
@@ -14,14 +15,18 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
     sendJson(res, 400, { error: 'query must be 800 characters or fewer' }, 'no-store');
     return;
   }
+  const limit = intParam(url, res, 'limit', 5, 1, 10);
+  if (limit === undefined) return;
+  const cluster = enumParam(url, res, 'cluster', CLUSTER_IDS);
+  if (cluster === null) return;
   const results = searchGuides({
     query,
     jurisdiction: optionalParam(url, 'jurisdiction'),
     propertyType: optionalParam(url, 'propertyType'),
     era: optionalParam(url, 'era'),
     buyingStage: optionalParam(url, 'buyingStage'),
-    cluster: optionalParam(url, 'cluster'),
-    limit: intParam(url, 'limit', 5, 1, 10),
+    cluster: cluster ?? undefined,
+    limit,
   });
   const matchStrength = results.length === 0 ? 'none' : isWeakMatch(query, results) ? 'weak' : 'strong';
   logApi('search', { queryLength: query.length, count: results.length, matchStrength, top: results[0]?.slug });
@@ -31,8 +36,6 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
     count: results.length,
     matchStrength,
     results,
-    boundary: matchStrength === 'none'
-      ? 'No guide in this corpus addresses that question. Do not infer an answer from Homechecker guidance that was not returned.'
-      : 'General guidance only. Results do not establish the condition, compliance, liability or legal effect of anything at a specific property.',
+    boundary: searchGuidanceBoundary(matchStrength),
   }, source), 'public, max-age=60, s-maxage=300');
 }

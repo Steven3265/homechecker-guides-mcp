@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.1.1 — Infrastructure hardening — 15 August 2026
+
+- Corrects the public publisher/legal-entity wording to the current sole-trader operator.
+- Centralises MCP tool schemas and descriptions in one shared contract module used by MCP, server-card and REST documentation.
+- Aligns weak/none search guidance boundaries across MCP and REST and removes the unsupported checklist `cluster` parameter from OpenAPI.
+- Replaces placeholder OpenAPI response objects with typed guide, search, checklist and error schemas.
+- Makes invalid REST query parameters fail with HTTP 400 instead of silently clamping, truncating or falling back, including limits, cluster IDs, booleans and checklist concerns.
+- Expands health metadata with snapshot generation time, latest guide update and a deterministic content hash, with consistent GET/HEAD/OPTIONS handling.
+- Warns callers when `get_guide(format="sections")` receives unknown section IDs.
+- Strengthens snapshot validation for section IDs, dates, source URLs, guide relationships, cluster membership and secret-like material; normalises blank related-guide entries.
+- Pins current GitHub Actions by immutable commit SHA, pins and checksum-verifies the Registry publisher, and schedules a daily public-export refresh check.
+- Adds adapter/contract regression checks covering the hardened interfaces.
+
 ## 1.1.0 — Machine discovery surface
 
 - Adds a first-party MCP server card, public read-only REST facade and OpenAPI 3.1 description.

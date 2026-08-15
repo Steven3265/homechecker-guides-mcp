@@ -8,7 +8,7 @@ Public, read-only and deliberately separated from customer and assessment system
 
 The service exposes the current Homechecker guide system without connecting to the Moyne Ross portal, Supabase, customer records, payments, uploaded documents or the Homechecker assessment engine.
 
-**Version:** `1.1.0` · **Protocol:** MCP `2026-07-28` with stateless 2025-era compatibility · **Live endpoint:** `https://mcp.homechecker.com.au/mcp` · **Health:** [mcp.homechecker.com.au/health](https://mcp.homechecker.com.au/health) · **Official Registry:** `io.github.Steven3265/homechecker-guides` · **Connect it:** [homechecker.com.au/ai](https://homechecker.com.au/ai)
+**Version:** `1.1.1` · **Protocol:** MCP `2026-07-28` with stateless 2025-era compatibility · **Live endpoint:** `https://mcp.homechecker.com.au/mcp` · **Health:** [mcp.homechecker.com.au/health](https://mcp.homechecker.com.au/health) · **Official Registry:** `io.github.Steven3265/homechecker-guides` · **Connect it:** [homechecker.com.au/ai](https://homechecker.com.au/ai)
 
 ## Machine discovery surface
 
@@ -45,7 +45,7 @@ The authoritative server identity remains `io.github.Steven3265/homechecker-guid
 
 ## Protocol foundation
 
-Version 1.1.0 uses the MCP TypeScript SDK v2 server package and the `2026-07-28` protocol revision.
+Version 1.1.1 uses the MCP TypeScript SDK v2 server package and the `2026-07-28` protocol revision.
 
 The official `createMcpHandler` entry provides stateless per-request serving, `server/discover`, modern MCP routing headers, server identity and cache fields while retaining stateless compatibility for 2025-era HTTP clients during rollout.
 
@@ -315,7 +315,7 @@ Release publication is automated through:
 
 The workflow installs dependencies, runs the release checks, authenticates with GitHub OIDC, publishes the current `server.json` metadata and verifies that the official Registry can resolve the Homechecker server.
 
-Version `1.1.0` is published to the official MCP Registry.
+Release versions are published to the official MCP Registry through the pinned GitHub OIDC publication workflow.
 
 ## Updating the guides snapshot
 
@@ -407,14 +407,14 @@ vercel.json                production routing
 
 The software and configuration code are MIT-licensed under [LICENSE.md](LICENSE.md).
 
-The Homechecker editorial corpus, including `data/guides.json` and guide material reproduced elsewhere in this repository, remains © Moyne Ross Pty Ltd and is governed separately by [data/TERMS.md](data/TERMS.md).
+The Homechecker editorial corpus, including `data/guides.json` and guide material reproduced elsewhere in this repository, remains © Steven McCormack, trading as Moyne Ross, and is governed separately by [data/TERMS.md](data/TERMS.md).
 
 Reasonable extracts may be quoted with attribution and a link to the canonical guide.
 
-"Homechecker" and "Moyne Ross" are trade names of Moyne Ross Pty Ltd.
+"Homechecker" and "Moyne Ross" are trading names used by Steven McCormack (ABN 18 890 160 412).
 
 ## About the publisher
 
-Homechecker is a residential guidance and assessment service operated by Moyne Ross Pty Ltd.
+Homechecker is a residential guidance and assessment service operated by Steven McCormack (ABN 18 890 160 412), trading as Moyne Ross.
 
 [Homechecker](https://homechecker.com.au/) · [Guide library](https://homechecker.com.au/guides) · [AI & connector](https://homechecker.com.au/ai) · [Moyne Ross](https://moyneross.com/)

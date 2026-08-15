@@ -1,6 +1,6 @@
 {
   "name": "homechecker-guides-mcp",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "type": "module",
   "description": "Homechecker's professionally authored Australian homebuyer guides: search, cite, build checklists.",

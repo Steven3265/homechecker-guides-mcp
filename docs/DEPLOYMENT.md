@@ -18,7 +18,7 @@
 - [ ] Create a standalone Vercel project (never attach the portal's environment variables).
 - [ ] Set the project's Node.js version to **22** — the source uses JSON import attributes and will not build on 20.
 - [ ] Deploy the repository root.
-- [ ] Open `/health` and confirm `guides: 34`.
+- [ ] Open `/health` and confirm `guides: 34`, version `1.1.1`, a 64-character `contentHash`, and the expected snapshot/latest-guide timestamps.
 - [ ] Open `/` and confirm the public service metadata.
 - [ ] Test `https://<project>.vercel.app/mcp` with an MCP client or the MCP Inspector.
 
@@ -40,8 +40,10 @@
 
 ## After deployment
 
-- [ ] Add uptime monitoring to `/health`.
-- [ ] Record the deployed endpoint and snapshot timestamp.
+- [ ] Confirm uptime monitoring is active on `/health`.
+- [ ] Confirm the scheduled **Refresh guides snapshot** workflow is enabled and succeeding daily.
+- [ ] Confirm platform/edge abuse protection or rate limiting is enabled for `/mcp` and `/v1/*`.
+- [ ] Record the deployed endpoint, snapshot timestamp and content hash.
 - [ ] Confirm `utm_source=homechecker-mcp` visits appear in site analytics after real client testing.
 - [ ] Test from each intended MCP host separately.
 - [ ] Keep directory submission until after real client testing and documentation review.

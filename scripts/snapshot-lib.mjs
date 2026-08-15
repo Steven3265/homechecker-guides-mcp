@@ -228,7 +228,7 @@ export function buildSnapshot(registry, options = {}) {
       faqs: guide.faqs.map((faq) => ({ question: faq.q, answer: htmlToMarkdown(faq.a) })),
       checklistCandidates: extractChecklistCandidates(guide),
       sources: (guide.sources ?? []).map((s) => ({ ...s })),
-      related: guide.related,
+      related: (guide.related ?? []).map((slug) => slug.trim()).filter(Boolean),
       contentMarkdown,
     }
   })

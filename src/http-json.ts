@@ -57,14 +57,64 @@ export function optionalParam(url: URL, name: string): string | undefined {
   return value || undefined;
 }
 
-export function intParam(url: URL, name: string, fallback: number, min: number, max: number): number {
+export function enumParam(url: URL, res: ServerResponse, name: string, allowed: readonly string[]): string | undefined | null {
+  const value = optionalParam(url, name);
+  if (value === undefined) return undefined;
+  if (!allowed.includes(value)) {
+    sendJson(res, 400, { error: `${name} must be one of: ${allowed.join(', ')}` }, 'no-store');
+    return null;
+  }
+  return value;
+}
+
+export function booleanParam(url: URL, res: ServerResponse, name: string, fallback: boolean): boolean | undefined {
+  const value = url.searchParams.get(name);
+  if (value === null || value.trim() === '') return fallback;
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'true') return true;
+  if (normalized === 'false') return false;
+  sendJson(res, 400, { error: `${name} must be true or false` }, 'no-store');
+  return undefined;
+}
+
+export function repeatedStringParam(
+  url: URL,
+  res: ServerResponse,
+  name: string,
+  options: { maxItems: number; minLength: number; maxLength: number },
+): string[] | undefined {
+  const raw = url.searchParams.getAll(name);
+  if (raw.length > options.maxItems) {
+    sendJson(res, 400, { error: `${name} may be supplied at most ${options.maxItems} times` }, 'no-store');
+    return undefined;
+  }
+  const values = raw.map((value) => value.trim()).filter(Boolean);
+  for (const value of values) {
+    if (value.length < options.minLength || value.length > options.maxLength) {
+      sendJson(res, 400, { error: `${name} values must be between ${options.minLength} and ${options.maxLength} characters` }, 'no-store');
+      return undefined;
+    }
+  }
+  return values;
+}
+
+export function intParam(url: URL, res: ServerResponse, name: string, fallback: number, min: number, max: number): number | undefined {
   const value = url.searchParams.get(name);
   if (value === null || value.trim() === '') return fallback;
 
-  const raw = Number(value);
-  if (!Number.isFinite(raw)) return fallback;
+  const trimmed = value.trim();
+  if (!/^-?\d+$/.test(trimmed)) {
+    sendJson(res, 400, { error: `${name} must be an integer between ${min} and ${max}` }, 'no-store');
+    return undefined;
+  }
 
-  return Math.max(min, Math.min(max, Math.trunc(raw)));
+  const raw = Number(trimmed);
+  if (!Number.isSafeInteger(raw) || raw < min || raw > max) {
+    sendJson(res, 400, { error: `${name} must be an integer between ${min} and ${max}` }, 'no-store');
+    return undefined;
+  }
+
+  return raw;
 }
 
 export function referralSource(req: IncomingMessage): string {

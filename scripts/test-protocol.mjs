@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { handleMcpRequest } from '../dist/src/http-handler.js';
+import { TOOL_CONTRACTS } from '../dist/src/contracts.js';
 
 const ENDPOINT = 'https://test.local/mcp';
 const MODERN_VERSION = '2026-07-28';
@@ -89,6 +90,27 @@ async function main() {
   );
   assert.ok(tools.payload.result.tools.every((tool) => tool.annotations?.readOnlyHint === true));
   assert.equal(tools.payload.result.cacheScope, 'public');
+  for (const tool of tools.payload.result.tools) {
+    const expected = TOOL_CONTRACTS[tool.name]?.jsonInputSchema;
+    assert.ok(expected, `missing shared contract for ${tool.name}`);
+    assert.deepEqual(
+      Object.keys(tool.inputSchema?.properties ?? {}).sort(),
+      Object.keys(expected.properties ?? {}).sort(),
+      `${tool.name} MCP input fields drifted from the shared contract`,
+    );
+    assert.deepEqual(
+      [...(tool.inputSchema?.required ?? [])].sort(),
+      [...(expected.required ?? [])].sort(),
+      `${tool.name} MCP required fields drifted from the shared contract`,
+    );
+    for (const [field, expectedSchema] of Object.entries(expected.properties ?? {})) {
+      const actualSchema = tool.inputSchema.properties[field];
+      for (const key of ['type', 'minimum', 'maximum', 'minLength', 'maxLength', 'maxItems']) {
+        if (key in expectedSchema) assert.deepEqual(actualSchema?.[key], expectedSchema[key], `${tool.name}.${field} ${key} drifted`);
+      }
+      if ('enum' in expectedSchema) assert.deepEqual(actualSchema?.enum, expectedSchema.enum, `${tool.name}.${field} enum drifted`);
+    }
+  }
 
   const search = await postModern({
     id: 'search',
@@ -105,6 +127,19 @@ async function main() {
     search.payload.result.structuredContent.results[0].canonicalUrl,
     'https://homechecker.com.au/guides/reading-a-section-32',
   );
+
+  const sectionWarning = await postModern({
+    id: 'section-warning',
+    method: 'tools/call',
+    name: 'get_guide',
+    params: {
+      name: 'get_guide',
+      arguments: { slug: 'reading-a-section-32', format: 'sections', sectionIds: ['not-a-real-section'] },
+    },
+  });
+  assert.equal(sectionWarning.response.status, 200);
+  assert.deepEqual(sectionWarning.payload.result.structuredContent.missingSectionIds, ['not-a-real-section']);
+  assert.match(sectionWarning.payload.result.structuredContent.warning, /Unknown section IDs were ignored/);
 
   const resources = await postModern({ id: 'resources', method: 'resources/list' });
   assert.equal(resources.response.status, 200);

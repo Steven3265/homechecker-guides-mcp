@@ -1,6 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/server';
-import * as z from 'zod/v4';
 import { SERVER_NAME, SERVER_VERSION } from './identity.js';
+import { TOOL_CONTRACTS, searchGuidanceBoundary } from './contracts.js';
 import {
   buildBuyerChecklist,
   getGuide,
@@ -67,17 +67,9 @@ export function createMcpServer(): McpServer {
   server.registerTool(
     'list_guides',
     {
-      title: 'List Homechecker guides',
-      description:
-        'List the published Homechecker guide catalogue, optionally filtered by jurisdiction, guide cluster, property type, construction era, or buying stage. Returns metadata only.',
-      inputSchema: z.object({
-        jurisdiction: z.string().optional().describe('Australia or a state/territory code or name, such as VIC, vic or Victoria.'),
-        cluster: z.enum(['how-to-buy', 'state-rules', 'read-building', 'shared-buildings', 'own-change']).optional(),
-        propertyType: z.string().optional().describe('For example house, apartment, or townhouse or unit.'),
-        era: z.string().optional().describe('For example pre-1920s, 1950s-1970s, or 2000s-on.'),
-        buyingStage: z.string().optional().describe('For example research, contract review, physical inspection, ownership, or selling.'),
-        includePillar: z.boolean().optional().default(false),
-      }),
+      title: TOOL_CONTRACTS.list_guides.title,
+      description: TOOL_CONTRACTS.list_guides.description,
+      inputSchema: TOOL_CONTRACTS.list_guides.inputSchema,
       annotations: readOnlyAnnotations,
     },
     async (args) => {
@@ -98,18 +90,9 @@ export function createMcpServer(): McpServer {
   server.registerTool(
     'search_guides',
     {
-      title: 'Search Homechecker guidance',
-      description:
-        'Search professionally authored Australian homebuyer guidance using a natural-language question. Use this for general property, inspection, disclosure, apartment, condition, maintenance, era and buying-process questions. It does not assess an actual property.',
-      inputSchema: z.object({
-        query: z.string().min(2).max(800).describe('The homebuyer question or issue to search for.'),
-        jurisdiction: z.string().optional().describe('Optional state/territory code or name, such as WA, wa or Western Australia.'),
-        propertyType: z.string().optional(),
-        era: z.string().optional(),
-        buyingStage: z.string().optional(),
-        cluster: z.enum(['how-to-buy', 'state-rules', 'read-building', 'shared-buildings', 'own-change']).optional(),
-        limit: z.number().int().min(1).max(10).optional().default(5),
-      }),
+      title: TOOL_CONTRACTS.search_guides.title,
+      description: TOOL_CONTRACTS.search_guides.description,
+      inputSchema: TOOL_CONTRACTS.search_guides.inputSchema,
       annotations: readOnlyAnnotations,
     },
     async (args) => {
@@ -131,12 +114,7 @@ export function createMcpServer(): McpServer {
           count: results.length,
           matchStrength,
           results,
-          boundary:
-            matchStrength === 'none'
-              ? 'No guide in this corpus addresses that question. Do not infer an answer from Homechecker guidance that was not returned.'
-              : matchStrength === 'weak'
-                ? 'No guide strongly matches this question. Treat the results as background only, and say so rather than presenting them as an answer. Results are general guidance and do not establish the condition, compliance, liability or legal effect of anything at a specific property.'
-                : 'Results are general guidance and do not establish the condition, compliance, liability or legal effect of anything at a specific property.',
+          boundary: searchGuidanceBoundary(matchStrength),
         },
         renderSearchResults(results, args.query),
       );
@@ -146,14 +124,9 @@ export function createMcpServer(): McpServer {
   server.registerTool(
     'get_guide',
     {
-      title: 'Get a Homechecker guide',
-      description:
-        'Retrieve one canonical Homechecker guide by slug. Use a slug returned by list_guides or search_guides. Returns source links, review metadata, method and limitations with the guide.',
-      inputSchema: z.object({
-        slug: z.string().max(160).describe('Guide slug, for example reading-a-section-32. Use guides for the main hub.'),
-        format: z.enum(['summary', 'full', 'sections']).optional().default('full'),
-        sectionIds: z.array(z.string()).max(12).optional().describe('When format is sections, return only these section IDs.'),
-      }),
+      title: TOOL_CONTRACTS.get_guide.title,
+      description: TOOL_CONTRACTS.get_guide.description,
+      inputSchema: TOOL_CONTRACTS.get_guide.inputSchema,
       annotations: readOnlyAnnotations,
     },
     async ({ slug, format, sectionIds }) => {
@@ -174,8 +147,21 @@ export function createMcpServer(): McpServer {
       if (format === 'sections') {
         const wanted = new Set(sectionIds ?? []);
         const sections = wanted.size ? guide.sections.filter((section) => wanted.has(section.id)) : guide.sections;
-        const text = [`# ${guide.title}`, ...sections.map((section) => `## ${section.heading}\n${section.markdown}`), `Canonical guide: ${taggedUrl(guide.canonicalUrl)}`].join('\n\n');
-        return textAndStructured({ guide: { ...guideSummary(guide), sections } }, text);
+        const foundIds = new Set(sections.map((section) => section.id));
+        const missingSectionIds = [...wanted].filter((id) => !foundIds.has(id));
+        const warning = missingSectionIds.length
+          ? `Unknown section IDs were ignored: ${missingSectionIds.join(', ')}.`
+          : undefined;
+        const text = [
+          `# ${guide.title}`,
+          warning ? `Note: ${warning}` : '',
+          ...sections.map((section) => `## ${section.heading}\n${section.markdown}`),
+          `Canonical guide: ${taggedUrl(guide.canonicalUrl)}`,
+        ].filter(Boolean).join('\n\n');
+        return textAndStructured(
+          { guide: { ...guideSummary(guide), sections }, ...(warning ? { warning, missingSectionIds } : {}) },
+          text,
+        );
       }
 
       const fullText = guide.contentMarkdown.replace(
@@ -189,17 +175,9 @@ export function createMcpServer(): McpServer {
   server.registerTool(
     'build_buyer_checklist',
     {
-      title: 'Build a Homechecker buyer checklist',
-      description:
-        'Build a deterministic, sourced checklist from the Homechecker guide corpus for a buyer context. This assembles general questions and checks; it does not analyse a listing, document or actual building.',
-      inputSchema: z.object({
-        jurisdiction: z.string().optional().describe('Australia or a state/territory code or name, such as NSW, nsw or New South Wales.'),
-        propertyType: z.string().optional().describe('For example house, apartment, or townhouse or unit.'),
-        era: z.string().optional().describe('For example 1950s-1970s or 2000s-on.'),
-        buyingStage: z.string().optional().describe('For example research, before offer or auction, contract review, or physical inspection.'),
-        concerns: z.array(z.string().min(2).max(120)).max(10).optional().default([]),
-        limit: z.number().int().min(4).max(20).optional().default(12),
-      }),
+      title: TOOL_CONTRACTS.build_buyer_checklist.title,
+      description: TOOL_CONTRACTS.build_buyer_checklist.description,
+      inputSchema: TOOL_CONTRACTS.build_buyer_checklist.inputSchema,
       annotations: readOnlyAnnotations,
     },
     async ({ limit, ...profile }) => {

@@ -12,7 +12,7 @@
 
 **Purpose:** answer “which Homechecker guidance is relevant?”
 
-**Returns:** ranked guides, matched terms, up to three matching sections, source metadata and limitations.
+**Returns:** ranked guides, matched terms, up to three matching sections, review metadata, canonical URLs and limitations.
 
 **Do not use it to:** claim that a defect, material, permit problem or legal consequence exists at a particular property.
 

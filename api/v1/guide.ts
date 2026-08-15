@@ -10,6 +10,10 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
     sendJson(res, 400, { error: 'slug is required' }, 'no-store');
     return;
   }
+  if (slug.length > 160) {
+    sendJson(res, 400, { error: 'slug must be 160 characters or fewer' }, 'no-store');
+    return;
+  }
   const guide = getGuide(slug);
   logApi('guide', { slug, found: Boolean(guide) });
   if (!guide) {
