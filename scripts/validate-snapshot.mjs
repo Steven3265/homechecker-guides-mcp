@@ -53,10 +53,12 @@ for (const guide of snapshot.guides) {
 }
 
 const publishedSlugs = new Set(snapshot.guides.filter((guide) => !guide.pillar).map((guide) => guide.slug));
+const hasPillar = snapshot.guides.some((guide) => guide.pillar);
+const relatedTargets = new Set([...publishedSlugs, ...(hasPillar ? ['guides'] : [])]);
 for (const guide of snapshot.guides) {
   for (const related of guide.related ?? []) {
     if (!related?.trim()) errors.push(`Blank related-guide slug: ${guide.slug}`);
-    else if (!publishedSlugs.has(related)) errors.push(`Unknown related-guide slug in ${guide.slug}: ${related}`);
+    else if (!relatedTargets.has(related)) errors.push(`Unknown related-guide slug in ${guide.slug}: ${related}`);
   }
 }
 

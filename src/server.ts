@@ -12,7 +12,6 @@ import {
   searchGuides,
   isWeakMatch,
   snapshot,
-  taggedUrl,
 } from './core.js';
 
 const readOnlyAnnotations = {
@@ -80,7 +79,7 @@ export function createMcpServer(): McpServer {
         guides: matches,
       };
       const text = matches.length
-        ? matches.map((guide, index) => `${index + 1}. ${guide.title}\n${taggedUrl(String(guide.canonicalUrl))}`).join('\n\n')
+        ? matches.map((guide, index) => `${index + 1}. ${guide.title}\n${String(guide.canonicalUrl)}`).join('\n\n')
         : 'No published Homechecker guides matched those filters.';
       logUse('list_guides', { jurisdiction: args.jurisdiction, cluster: args.cluster, count: matches.length });
       return textAndStructured(payload, text);
@@ -141,7 +140,7 @@ export function createMcpServer(): McpServer {
 
       if (format === 'summary') {
         const summary = guideSummary(guide);
-        return textAndStructured({ guide: summary }, `${guide.title}\n\n${guide.answer}\n\n${taggedUrl(guide.canonicalUrl)}`);
+        return textAndStructured({ guide: summary }, `${guide.title}\n\n${guide.answer}\n\n${guide.canonicalUrl}`);
       }
 
       if (format === 'sections') {
@@ -156,7 +155,7 @@ export function createMcpServer(): McpServer {
           `# ${guide.title}`,
           warning ? `Note: ${warning}` : '',
           ...sections.map((section) => `## ${section.heading}\n${section.markdown}`),
-          `Canonical guide: ${taggedUrl(guide.canonicalUrl)}`,
+          `Canonical guide: ${guide.canonicalUrl}`,
         ].filter(Boolean).join('\n\n');
         return textAndStructured(
           { guide: { ...guideSummary(guide), sections }, ...(warning ? { warning, missingSectionIds } : {}) },
@@ -164,11 +163,7 @@ export function createMcpServer(): McpServer {
         );
       }
 
-      const fullText = guide.contentMarkdown.replace(
-        `Canonical guide: ${guide.canonicalUrl}`,
-        `Canonical guide: ${taggedUrl(guide.canonicalUrl)}`,
-      );
-      return textAndStructured({ guide }, fullText);
+      return textAndStructured({ guide }, guide.contentMarkdown);
     },
   );
 

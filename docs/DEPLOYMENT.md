@@ -33,7 +33,7 @@
 - [ ] The client lists exactly four tools.
 - [ ] The client lists 35 resources: the catalogue plus 34 guide resources.
 - [ ] `search_guides("Section 32 Victoria")` returns `reading-a-section-32` first.
-- [ ] `get_guide("reading-a-section-32")` returns the full guide; its rendered footer carries `?utm_source=homechecker-mcp` while the structured `canonicalUrl` stays clean.
+- [ ] `get_guide("reading-a-section-32")` returns the full guide; both rendered text and structured `canonicalUrl` use the clean canonical URL with no referral parameter.
 - [ ] A buyer checklist includes the non-assessment boundary and the single $99 address-specific line.
 - [ ] Tool calls appear as `evt: "tool_call"` JSON lines in Vercel logs without raw search text.
 - [ ] No tool requests payment, authentication or customer information.
@@ -44,6 +44,6 @@
 - [ ] Confirm the scheduled **Refresh guides snapshot** workflow is enabled and succeeding daily.
 - [ ] Confirm platform/edge abuse protection or rate limiting is enabled for `/mcp` and `/v1/*`.
 - [ ] Record the deployed endpoint, snapshot timestamp and content hash.
-- [ ] Confirm `utm_source=homechecker-mcp` visits appear in site analytics after real client testing.
+- [ ] Confirm REST/WebMCP `referralUrl` attribution behaves as expected without altering canonical citation URLs.
 - [ ] Test from each intended MCP host separately.
 - [ ] Keep directory submission until after real client testing and documentation review.

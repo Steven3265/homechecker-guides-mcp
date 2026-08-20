@@ -30,6 +30,13 @@ test('gets a canonical guide by slug and route', () => {
   assert.match(bySlug.contentMarkdown, /Sale of Land Act 1962/);
 });
 
+test('preserves explicit relationships back to the guide hub', () => {
+  const guide = getGuide('reading-a-section-32');
+  assert.ok(guide);
+  assert.ok(guide.related.includes('guides'));
+  assert.equal(getGuide('guides')?.pillar, true);
+});
+
 test('filters the catalogue by state and cluster', () => {
   const vicStateRules = listGuides({ jurisdiction: 'VIC', cluster: 'state-rules' });
   const victoriaStateRules = listGuides({ jurisdiction: 'Victoria', cluster: 'state-rules' });
@@ -45,6 +52,13 @@ test('search selects the Victorian Section 32 guide', () => {
   const results = searchGuides({ query: 'What should I look for in a Section 32 vendor statement in Victoria?' });
   assert.equal(results[0]?.slug, 'reading-a-section-32');
   assert.ok((results[0]?.matchedSections.length ?? 0) > 0);
+});
+
+test('rendered search text exposes canonical URLs without referral parameters', () => {
+  const results = searchGuides({ query: 'Section 32 Victoria', limit: 3 });
+  const text = renderSearchResults(results, 'Section 32 Victoria');
+  assert.match(text, /https:\/\/homechecker\.com\.au\/guides\/reading-a-section-32/);
+  assert.doesNotMatch(text, /utm_source=/);
 });
 
 test('jurisdiction parameter accepts codes, lowercase codes and full names', () => {
@@ -85,6 +99,7 @@ test('buyer checklist is deterministic, sourced and bounded', () => {
   assert.ok(first.items.some((item) => item.guideSlug === 'cracks-structural-or-cosmetic'));
   assert.ok(first.items.some((item) => item.guideSlug === 'damp-and-moisture-in-your-home'));
   assert.match(first.guidanceBoundary, /does not assess the actual property/i);
+  assert.doesNotMatch(first.guidanceBoundary, /utm_source=/);
 });
 
 test('buyer checklist accepts a full jurisdiction name', () => {

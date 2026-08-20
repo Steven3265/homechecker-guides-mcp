@@ -77,7 +77,7 @@ See [`docs/PROTOCOL-SUPPORT.md`](docs/PROTOCOL-SUPPORT.md), [`docs/RELEASE-1.0.m
 - **Two MCP transports:** stateless remote Streamable HTTP at `/mcp` and modern/legacy-compatible local stdio.
 - **A bundled content snapshot:** rebuilt from Homechecker's public guide export at `https://homechecker.com.au/guides/export.json`. The repository needs no runtime access to the portal codebase.
 - **A browser-triggered refresh workflow:** Actions → **Refresh guides snapshot** regenerates, tests and opens a pull request. No local environment is required.
-- **Referral-tagged machine traffic:** rendered MCP links use `utm_source=homechecker-mcp`; REST responses preserve the clean `canonicalUrl` and add a separately tagged `referralUrl` using `homechecker-rest`. Browser WebMCP calls use `homechecker-webmcp`.
+- **Canonical model-facing links:** MCP-rendered text and `canonicalUrl` fields always use the clean Homechecker canonical URL. REST/WebMCP responses may add a separate `referralUrl` for attribution (`homechecker-rest` / `homechecker-webmcp`) without changing the URL an assistant is instructed to cite.
 - **Privacy-minimised operational telemetry:** application telemetry records operational fields such as MCP method, tool name, query length, coarse filters, counts, match strength, outcome and duration where applicable. Raw questions, session identifiers, IP addresses and identifying request-header values are not intentionally logged by the application. See `docs/SECURITY.md`.
 - **Tests and benchmark:** snapshot integrity, core search, release metadata, protocol and HTTP-adapter checks plus 14 representative buyer questions.
 

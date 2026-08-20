@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased — Machine integrity
+
+- Keeps every MCP model-facing Homechecker URL canonical; attribution remains an explicit REST/WebMCP `referralUrl` field rather than a query parameter in citable text.
+- Preserves authored relationships back to the `/guides` pillar as the stable `guides` alias instead of dropping the empty authoring slug from the snapshot.
+- Adds regression coverage for canonical rendered URLs and the guide-hub relationship.
+
+
 ## 1.1.1 — Infrastructure hardening — 15 August 2026
 
 - Corrects the public publisher/legal-entity wording to the current sole-trader operator.

@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { buildBuyerChecklist } from '../../src/core.js';
-import { addReferralUrls, intParam, logApi, optionalParam, referralSource, repeatedStringParam, requestUrl, requireGet, retagMcpReferral, sendJson } from '../../src/http-json.js';
+import { addReferralUrls, intParam, logApi, optionalParam, referralSource, repeatedStringParam, requestUrl, requireGet, sendJson } from '../../src/http-json.js';
 
 export default function handler(req: IncomingMessage, res: ServerResponse): void {
   if (!requireGet(req, res)) return;
@@ -20,6 +20,5 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
   logApi('checklist', { jurisdiction: profile.jurisdiction, propertyType: profile.propertyType, era: profile.era, concerns: concerns.length, items: checklist.items.length });
   const source = referralSource(req);
   const attributed = addReferralUrls(checklist, source);
-  attributed.guidanceBoundary = retagMcpReferral(attributed.guidanceBoundary, source);
   sendJson(res, 200, { checklist: attributed }, 'public, max-age=60, s-maxage=300');
 }

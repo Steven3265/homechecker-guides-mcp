@@ -149,10 +149,6 @@ export function addReferralUrls<T>(value: T, source: string): T {
   return output as T;
 }
 
-export function retagMcpReferral(text: string, source: string): string {
-  return text.replace(/([?&])utm_source=homechecker-mcp\b/g, `$1utm_source=${source}`);
-}
-
 export function logApi(route: string, detail: Record<string, unknown>): void {
   try {
     console.error(JSON.stringify({ evt: 'rest_call', route, ...detail, at: new Date().toISOString() }));

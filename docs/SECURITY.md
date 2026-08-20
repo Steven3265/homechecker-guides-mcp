@@ -46,9 +46,9 @@ The snapshot validator checks:
 - the expected guide count;
 - common production-secret marker strings across the complete serialized snapshot.
 
-## Referral tagging
+## Referral attribution
 
-URLs in rendered text carry `utm_source=homechecker-mcp` for analytics attribution. Structured content always returns clean canonical URLs, and the guide pages declare their own `rel=canonical`, so the parameter has no indexing effect.
+Model-facing MCP text and `canonicalUrl` fields always return clean canonical Homechecker URLs. REST and browser WebMCP adapters may add a separate `referralUrl` field for attribution; they do not rewrite the canonical URL or the URL an assistant is instructed to cite.
 
 ## Operational controls
 

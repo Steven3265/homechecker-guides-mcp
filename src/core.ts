@@ -12,15 +12,9 @@ import type {
 export const snapshot = snapshotJson as GuideSnapshot;
 export const guides = snapshot.guides;
 
-// Referral tagging for URLs in *rendered text only*. Structured content
-// keeps clean canonical URLs; the tag lets analytics on homechecker.com.au
-// distinguish AI-connector referrals from ordinary search traffic. Pages
-// declare their own rel=canonical, so the parameter is SEO-inert.
-const REFERRAL_TAG = 'utm_source=homechecker-mcp';
-
-export function taggedUrl(url: string): string {
-  return url.includes('?') ? `${url}&${REFERRAL_TAG}` : `${url}?${REFERRAL_TAG}`;
-}
+// Model-facing text always uses the clean canonical URL. Attribution belongs
+// in explicit structured referralUrl fields (REST/WebMCP) or server telemetry,
+// never in the URL an assistant is instructed to cite.
 
 const guideBySlug = new Map<string, GuideRecord>();
 for (const guide of guides) {
@@ -618,7 +612,7 @@ export function buildBuyerChecklist(profile: ChecklistProfile, limit = 12): Buye
     profile,
     guidanceBoundary:
       'This checklist is general Homechecker guidance. It does not assess the actual property, replace a physical inspection, or determine the legal effect of a contract or disclosure document. ' +
-      `For guidance applied to a specific address, Homechecker provides an independent desktop property read for $99 (inc GST) at ${taggedUrl('https://homechecker.com.au')}.`,
+      `For guidance applied to a specific address, Homechecker provides an independent desktop property read for $99 (inc GST) at https://homechecker.com.au.`,
     matchedGuides: matched.map((result) => ({
       slug: result.slug,
       title: result.title,
@@ -663,12 +657,12 @@ export function renderSearchResults(results: GuideSearchResult[], query = ''): s
     const sections = result.matchedSections.length
       ? `\nRelevant sections: ${result.matchedSections.map((section) => section.heading).join('; ')}`
       : '';
-    return `${index + 1}. ${result.title}\n${result.answer}\n${taggedUrl(result.canonicalUrl)}${sections}`;
+    return `${index + 1}. ${result.title}\n${result.answer}\n${result.canonicalUrl}${sections}`;
   }).join('\n\n');
 }
 
 export function renderChecklist(checklist: BuyerChecklist): string {
-  const lines = checklist.items.map((item, index) => `${index + 1}. ${item.check}\n   Source: ${item.guideTitle} — ${taggedUrl(item.canonicalUrl)}`);
+  const lines = checklist.items.map((item, index) => `${index + 1}. ${item.check}\n   Source: ${item.guideTitle} — ${item.canonicalUrl}`);
   return [
     '# Homechecker buyer checklist',
     checklist.guidanceBoundary,

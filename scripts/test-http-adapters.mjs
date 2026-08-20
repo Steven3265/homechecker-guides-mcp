@@ -66,8 +66,8 @@ assert.match(body(res).error, /includePillar must be true or false/);
 
 res = call(checklistHandler, request('GET', '/v1/checklist?jurisdiction=VIC', { 'x-homechecker-source': 'webmcp' }));
 payload = body(res);
-assert.match(payload.checklist.guidanceBoundary, /utm_source=homechecker-webmcp/);
-assert.doesNotMatch(payload.checklist.guidanceBoundary, /utm_source=homechecker-mcp/);
+assert.match(payload.checklist.guidanceBoundary, /https:\/\/homechecker\.com\.au/);
+assert.doesNotMatch(payload.checklist.guidanceBoundary, /utm_source=/);
 assert.ok(payload.checklist.items.some((item) => /utm_source=homechecker-webmcp/.test(item.referralUrl || '')));
 res = call(checklistHandler, request('GET', '/v1/checklist?concern=x'));
 assert.equal(res.statusCode, 400);

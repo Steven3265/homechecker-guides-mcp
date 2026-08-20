@@ -228,7 +228,10 @@ export function buildSnapshot(registry, options = {}) {
       faqs: guide.faqs.map((faq) => ({ question: faq.q, answer: htmlToMarkdown(faq.a) })),
       checklistCandidates: extractChecklistCandidates(guide),
       sources: (guide.sources ?? []).map((s) => ({ ...s })),
-      related: (guide.related ?? []).map((slug) => slug.trim()).filter(Boolean),
+      // Portal authoring uses '' to mean the /guides pillar. Preserve that
+      // relationship in the machine snapshot using the stable alias accepted
+      // by getGuide(), rather than silently dropping it.
+      related: [...new Set((guide.related ?? []).map((slug) => slug.trim() || 'guides'))],
       contentMarkdown,
     }
   })
