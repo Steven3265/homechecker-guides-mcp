@@ -57,6 +57,7 @@ const snapshot = buildSnapshot(
     generatedAt: new Date().toISOString(),
     baseUrl: exportData.baseUrl,
     origin: url,
+    readingTimeMethod: exportData.readingTimeMethod ?? null,
   },
 );
 

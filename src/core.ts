@@ -641,6 +641,7 @@ export function guideSummary(guide: GuideRecord): Record<string, unknown> {
     updatedAt: guide.updatedAt,
     reviewedAt: guide.reviewedAt,
     reviewDue: guide.reviewDue,
+    wordCount: guide.wordCount,
     readingTimeMin: guide.readingTimeMin,
     limitations: guide.limitations,
   };

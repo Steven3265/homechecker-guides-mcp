@@ -1,13 +1,18 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-20T02:16:56.140Z",
+  "generatedAt": "2026-08-20T02:45:25.085Z",
   "source": {
     "name": "Homechecker guide registry",
     "origin": "https://homechecker.com.au/guides/export.json",
     "baseUrl": "https://homechecker.com.au",
     "contentCount": 34,
     "spokeCount": 33,
-    "latestUpdated": "2026-07-20"
+    "latestUpdated": "2026-07-20",
+    "readingTimeMethod": {
+      "wordsPerMinute": 180,
+      "rounding": "ceil",
+      "basis": "answer, research note, guide body, FAQs, methodology and limitations"
+    }
   },
   "clusters": [
     {
@@ -106,7 +111,8 @@
       "methodology": "We took the official buyer guidance and arranged it in the order a buyer meets it: documents first, then the building, then the specialists, with a deep-dive waiting at each step.",
       "limitations": "General Australian guidance only. Contracts, statutes, policies, site conditions and professional scopes vary; obtain advice for the property and decision in front of you.",
       "researchNote": "The sequence below reflects official buyer guidance: read the contract and disclosure material early, then commission the physical and specialist checks the property warrants. See the [NSW inspection guidance](https://www.nsw.gov.au/housing-and-construction/buying-and-selling-property/buying-property-nsw/inspecting-a-property/inspection-reports) and [Victoria's due-diligence checklist](https://www.consumer.vic.gov.au/housing/buying-and-selling-property/checklists/due-diligence).",
-      "readingTimeMin": 9,
+      "wordCount": 1015,
+      "readingTimeMin": 6,
       "cluster": {
         "id": "hub",
         "label": "Guide hub",
@@ -255,7 +261,8 @@
       "methodology": "Written against the current Sale of Land Act and Victoria’s own consumer guidance, and updated for the July 2026 Home Warranty changeover.",
       "limitations": "This provides Victorian legal orientation. A Victorian conveyancer or solicitor should read the statement and contract before you sign anything.",
       "researchNote": "Consumer Affairs Victoria says the seller must provide the Section 32 before the buyer signs and recommends legal review. The statement covers legal disclosure. Arrange a separate physical inspection for the building's condition. Read the [official Section 32 overview](https://www.consumer.vic.gov.au/housing/buying-and-selling-property/selling-property/conveyancing-and-contracts-for-sellers) alongside the contract.",
-      "readingTimeMin": 10,
+      "wordCount": 1473,
+      "readingTimeMin": 9,
       "cluster": {
         "id": "state-rules",
         "label": "Documents and state rules",
@@ -478,7 +485,8 @@
       "methodology": "Built from the NSW Government’s guidance on contracts, cooling-off and inspections, read as one purchase sequence.",
       "limitations": "This is NSW legal orientation. A licensed conveyancer or Australian legal practitioner should review amendments and certificates.",
       "researchNote": "A NSW residential property must have a contract available before marketing, and the NSW Government recommends requesting it early for legal review. See [contracts and deposits when buying in NSW](https://www.nsw.gov.au/housing-and-construction/buying-and-selling-property/buying-property-nsw/contracts-and-deposits).",
-      "readingTimeMin": 8,
+      "wordCount": 860,
+      "readingTimeMin": 5,
       "cluster": {
         "id": "state-rules",
         "label": "Documents and state rules",
@@ -630,7 +638,8 @@
       "methodology": "Built from the Queensland Government’s own scheme guide and its current cooling-off guidance, written while the scheme is still new enough to surprise people.",
       "limitations": "This is Queensland legal orientation. Whether a defective Form 2 lets you out depends on the Act, the defect and your circumstances, which is exactly the question for your solicitor.",
       "researchNote": "Queensland's scheme applies to contracts entered from 1 August 2025. The official guide explains delivery timing, prescribed certificates, exclusions, the over-$10 million waiver and the buyer's conditional termination right: read the [seller disclosure scheme](https://www.qld.gov.au/housing/buying-owning-home/seller-disclosure-scheme) before relying on a Form 2.",
-      "readingTimeMin": 8,
+      "wordCount": 1017,
+      "readingTimeMin": 6,
       "cluster": {
         "id": "state-rules",
         "label": "Documents and state rules",
@@ -798,7 +807,8 @@
       "methodology": "We read the official auction and inspection guidance side by side, because the timing rules and the report’s fine print only make sense together.",
       "limitations": "General Australian guidance only. Contracts, statutes, policies, site conditions and professional scopes vary; obtain advice for the property and decision in front of you.",
       "researchNote": "Auction purchases are generally binding and cooling-off is usually unavailable. Complete physical checks and agree any contract changes before bidding. Victoria's official guidance explains [conditional offers and auction contracts](https://www.consumer.vic.gov.au/housing/buying-and-selling-property/buying-property/buying-property-by-private-sale).",
-      "readingTimeMin": 7,
+      "wordCount": 866,
+      "readingTimeMin": 5,
       "cluster": {
         "id": "how-to-buy",
         "label": "How to buy",
@@ -945,7 +955,8 @@
       "methodology": "Government guidance on what an inspection covers, plus five real published prices from five cities, checked on the review date. Each figure keeps the GST basis and scope the provider stated.",
       "limitations": "Every quote reflects a particular property, access and scope. Use the examples as bearings, then get the current inclusions, insurance and timing in writing.",
       "researchNote": "Official buyer guidance covers inspection scope, qualifications, insurance and report limitations. Start with the [NSW Government inspection checklist](https://www.nsw.gov.au/housing-and-construction/buying-and-selling-property/buying-property-nsw/inspecting-a-property/inspection-reports). The five city prices are provider-published examples accessed on 19 July 2026.",
-      "readingTimeMin": 8,
+      "wordCount": 1138,
+      "readingTimeMin": 7,
       "cluster": {
         "id": "how-to-buy",
         "label": "How to buy",
@@ -1185,7 +1196,8 @@
       "methodology": "We turned the regulator and consumer guidance into the questions a buyer can actually ask: who is attending, what covers them, what they will reach, and what you get in writing.",
       "limitations": "Licensing, registration and timber-pest requirements vary by jurisdiction and service. Verify the individual, business, licence class and insurance for the property and work commissioned.",
       "researchNote": "Official buyer guidance recommends a suitably qualified, independent professional with adequate professional indemnity insurance. Requirements vary by state. Queensland, for example, has a specific [completed residential building inspection licence](https://www.qbcc.qld.gov.au/licences/apply-licence/available-licence/inspectors-certifiers/completed-residential-building).",
-      "readingTimeMin": 8,
+      "wordCount": 1243,
+      "readingTimeMin": 7,
       "cluster": {
         "id": "how-to-buy",
         "label": "How to buy",
@@ -1422,7 +1434,8 @@
       "methodology": "We turned the report into a decision register a buyer can keep: every finding traced to its consequence, its open question, the right professional and the deadline.",
       "limitations": "General reading guidance only. The report, engagement terms, property evidence, contract and advice from the relevant professional control the decision.",
       "researchNote": "A pre-purchase report records observations within an agreed scope and accessible areas. Read findings beside limitations and recommendations. The [Australian Standard](https://store.standards.org.au/product/as-4349-1-2007) sets national requirements, while the engagement and report define the service you received.",
-      "readingTimeMin": 9,
+      "wordCount": 1369,
+      "readingTimeMin": 8,
       "cluster": {
         "id": "how-to-buy",
         "label": "How to buy",
@@ -1664,7 +1677,8 @@
       "methodology": "We compared what each kind of report can see, what it can reach, and which decisions it can honestly carry.",
       "limitations": "A desktop read cannot climb into the roof, give legal advice or diagnose a specialist problem. It tells you where to point the people who can.",
       "researchNote": "A desktop review organises available records and likely questions. A physical inspection covers accessible conditions at the property. The [NSW Government's inspection guidance](https://www.nsw.gov.au/housing-and-construction/buying-and-selling-property/buying-property-nsw/inspecting-a-property/inspection-reports) describes the role and limitations of a physical pre-purchase report.",
-      "readingTimeMin": 5,
+      "wordCount": 669,
+      "readingTimeMin": 4,
       "cluster": {
         "id": "how-to-buy",
         "label": "How to buy",
@@ -1795,6 +1809,7 @@
       "methodology": "We sorted the reports by purpose, commissioning party, reach and the decision each one supports.",
       "limitations": "General Australian guidance only. Contracts, statutes, policies, site conditions and professional scopes vary; obtain advice for the property and decision in front of you.",
       "researchNote": "The label is context-dependent. For a purchase, official guidance focuses on a qualified pre-purchase inspection and the report's scope and exclusions; see [NSW inspection reports](https://www.nsw.gov.au/housing-and-construction/buying-and-selling-property/buying-property-nsw/inspecting-a-property/inspection-reports).",
+      "wordCount": 1085,
       "readingTimeMin": 7,
       "cluster": {
         "id": "how-to-buy",
@@ -1976,7 +1991,8 @@
       "methodology": "We drew the lines between moisture investigation, environmental sampling, medical advice and building inspection, then compared three providers’ published pricing so you can see how a quote is assembled.",
       "limitations": "Take health concerns to a registered health practitioner and structural concerns to an appropriately qualified building professional.",
       "researchNote": "For mould, health departments emphasise moisture control and medical advice for symptoms. The [National Training Register lists a current Advanced Diploma of Building Biology](https://training.gov.au/training/details/11429NAT). For electromagnetic fields, use [ARPANSA's evidence review](https://www.arpansa.gov.au/research-and-expertise/technical-reports/radiofrequency-electromagnetic-energy-and-health-research).",
-      "readingTimeMin": 8,
+      "wordCount": 1134,
+      "readingTimeMin": 7,
       "cluster": {
         "id": "read-building",
         "label": "Read the building",
@@ -2219,7 +2235,8 @@
       "methodology": "Compiled state by state from current government and legislation sources, with each exception beside the headline number it changes.",
       "limitations": "Legal orientation only. Property type, buyer identity, auction timing, certificates, written waivers and contract terms can change the result.",
       "researchNote": "Cooling-off clocks use state-specific triggers. Victoria starts when the buyer signs, NSW starts at exchange, and Queensland starts when the buyer receives the fully signed contract. Compare the linked [Victorian](https://www.consumer.vic.gov.au/housing/buying-and-selling-property/buying-property/buying-property-by-private-sale), [NSW](https://www.nsw.gov.au/housing-and-construction/buying-and-selling-property/buying-property-nsw/contracts-and-deposits) and [Queensland](https://www.qld.gov.au/community/fair-trading/regulated-industries-licensing-and-legislation/property-industry-regulation/legal-requirements-for-the-property-industry/cooling-off-period-for-residential-property-contracts) rules.",
-      "readingTimeMin": 8,
+      "wordCount": 1031,
+      "readingTimeMin": 6,
       "cluster": {
         "id": "how-to-buy",
         "label": "How to buy",
@@ -2409,7 +2426,8 @@
       "methodology": "A checklist built from the official contract, auction and inspection guidance, arranged as gates: things you finish before you let yourself bid.",
       "limitations": "General Australian guidance only. Contracts, statutes, policies, site conditions and professional scopes vary; obtain advice for the property and decision in front of you.",
       "researchNote": "Finish due diligence before auction day. Official guidance confirms that auction contracts are generally binding, cooling-off is usually unavailable and changes to terms require agreement before bidding. See [Consumer Affairs Victoria's auction guidance](https://www.consumer.vic.gov.au/housing/buying-and-selling-property/selling-property/selling-property-by-auction).",
-      "readingTimeMin": 6,
+      "wordCount": 850,
+      "readingTimeMin": 5,
       "cluster": {
         "id": "how-to-buy",
         "label": "How to buy",
@@ -2564,7 +2582,8 @@
       "methodology": "The build date starts the questions. Records, alterations, what you can see, and a physical inspection then confirm or overturn them.",
       "limitations": "Construction practice varies by region, building type and alteration history. Confirm materials, defects and service age through property-specific evidence.",
       "researchNote": "Age guides inspection priorities. Australian guidance says asbestos can be present in homes built or renovated before 1990 and all uses were prohibited nationally from 31 December 2003. Older paint can contain lead. See the [householders' asbestos guide](https://www.newaste.org.au/asbestos/assets/asbestos-guide-for-householders.pdf) and [Lead Alert](https://www.agriculture.gov.au/sites/default/files/documents/lead-paint-fifth-edition.pdf).",
-      "readingTimeMin": 8,
+      "wordCount": 875,
+      "readingTimeMin": 5,
       "cluster": {
         "id": "read-building",
         "label": "Read the building",
@@ -2750,6 +2769,7 @@
       "methodology": "A triage approach: what the crack looks like, what surrounds it, and whether it is moving.",
       "limitations": "A structural engineer can diagnose the significance and cause for the building in front of them. Visible progression or movement affecting doors, floors and openings deserves professional investigation.",
       "researchNote": "Read crack width with direction, location, associated distortion and change over time. The [QBCC treats cracks wider than 5 mm as a sign that can warrant further investigation](https://qbcc.qld.gov.au/home-owner-hub/maintain-protect/protect-against-subsidence). A structural engineer should diagnose progressive movement or movement affecting doors, floors and openings.",
+      "wordCount": 956,
       "readingTimeMin": 6,
       "cluster": {
         "id": "read-building",
@@ -2896,7 +2916,8 @@
       "methodology": "We split the purchase across your lot, the shared building, and the scheme that runs and funds it.",
       "limitations": "Terminology, boundaries, disclosure and liability differ by state and registered plan. Obtain state-specific strata and legal advice.",
       "researchNote": "An apartment purchase includes the lot and an interest in shared property and governance. The registered plan and state law establish common property. Compare [Victorian owners-corporation guidance](https://www.consumer.vic.gov.au/housing/owners-corporations/buying-into-an-owners-corporation/what-is-an-owners-corporation) and [NSW strata roles](https://www.nsw.gov.au/housing-and-construction/strata/roles).",
-      "readingTimeMin": 6,
+      "wordCount": 866,
+      "readingTimeMin": 5,
       "cluster": {
         "id": "shared-buildings",
         "label": "Apartments and shared buildings",
@@ -3059,7 +3080,8 @@
       "methodology": "We followed the policy the way an insurer reads it: how the property is described, what it is insured for, what is excluded, what upkeep it expects, and what evidence a claim will need.",
       "limitations": "No record guarantees cover, a cheaper premium or a paid claim. The policy wording and the insurer’s assessment decide; good records just make sure your side of the story is on the table.",
       "researchNote": "Insurance is policy-specific. Moneysmart recommends checking exclusions, rebuilding cost, excesses and the Product Disclosure Statement; it also warns that inadequate sums insured can leave a gap. See [choosing home insurance](https://moneysmart.gov.au/home-insurance/choosing-home-insurance) and [avoiding underinsurance](https://moneysmart.gov.au/home-insurance/underinsurance-what-it-is-and-how-to-avoid-it).",
-      "readingTimeMin": 8,
+      "wordCount": 1040,
+      "readingTimeMin": 6,
       "cluster": {
         "id": "own-change",
         "label": "Own, maintain and change",
@@ -3238,7 +3260,8 @@
       "methodology": "A practical system for the paperwork of a home: what to keep, how to date it, where it belongs, and the decisions it will one day have to support.",
       "limitations": "Records can be incomplete, and occasionally wrong. For permits, title, boundaries and present condition, the authority or the professional is the source of truth; the record is your map to them.",
       "researchNote": "A useful home record preserves permits, plans, invoices, warranties, dated photographs, materials, reports, maintenance and insurer correspondence. Current condition and legal compliance still require the relevant property-specific checks.",
-      "readingTimeMin": 8,
+      "wordCount": 922,
+      "readingTimeMin": 6,
       "cluster": {
         "id": "own-change",
         "label": "Own, maintain and change",
@@ -3434,7 +3457,8 @@
       "methodology": "The era sets expectations; the records, the visible evidence and a physical inspection tell you how this particular home has kept to them.",
       "limitations": "Regional archetypes differ. Confirm the actual material, installation date and condition before budgeting work.",
       "researchNote": "A build date narrows the questions. Set replacement planning from the installed system, its condition, exposure, maintenance and alteration history. For date-linked hazards, use the [pre-1990 asbestos screening rule](https://www.newaste.org.au/asbestos/assets/asbestos-guide-for-householders.pdf) and [Lead Alert](https://www.agriculture.gov.au/sites/default/files/documents/lead-paint-fifth-edition.pdf).",
-      "readingTimeMin": 8,
+      "wordCount": 1188,
+      "readingTimeMin": 7,
       "cluster": {
         "id": "read-building",
         "label": "Read the building",
@@ -3654,7 +3678,8 @@
       "methodology": "We drew the line between what you can safely watch, what you can routinely do, what a professional should inspect, and what simply wears out and gets replaced.",
       "limitations": "Timing depends on exposure, material and manufacturer guidance. Leave roof access, electrical work and confined subfloors to properly equipped professionals.",
       "researchNote": "Maintenance reduces avoidable deterioration, especially by managing water. Age- and condition-driven renewal may include worn roofing, wiring upgrades, membranes and footing repairs. Roof, electrical, termite and confined subfloor tasks also have safety and licensing implications.",
-      "readingTimeMin": 8,
+      "wordCount": 888,
+      "readingTimeMin": 5,
       "cluster": {
         "id": "own-change",
         "label": "Own, maintain and change",
@@ -3824,7 +3849,8 @@
       "methodology": "We read the minutes, plans, budgets and funds across several years, because the story of a building lives in the gaps between what was planned and what was paid for.",
       "limitations": "The records only hold what someone wrote down, so recent or unresolved issues can be missing. A state-specific records inspection and legal advice on adjustments and levies close that gap.",
       "researchNote": "Read fund balances with the maintenance or capital-works plan, current liabilities and known projects. Boundaries, levy liability and insurance responsibilities depend on the registered plan, state law and contract. See [NSW strata roles](https://www.nsw.gov.au/housing-and-construction/strata/roles) and [Victorian guidance](https://www.consumer.vic.gov.au/housing/owners-corporations/buying-into-an-owners-corporation/what-is-an-owners-corporation).",
-      "readingTimeMin": 9,
+      "wordCount": 938,
+      "readingTimeMin": 6,
       "cluster": {
         "id": "shared-buildings",
         "label": "Apartments and shared buildings",
@@ -4023,7 +4049,8 @@
       "methodology": "We sorted damp by the path the water takes, then set out what you can safely check yourself and where the specialists take over.",
       "limitations": "Reading patterns from a distance cannot find a concealed leak or judge a health effect. Anything significant, recurring or post-flood needs eyes, instruments and advice on site.",
       "researchNote": "Health departments consistently advise fixing the moisture source, drying affected materials and avoiding disturbance where contamination is extensive. Read [NSW Health](https://www.health.nsw.gov.au/environment/factsheets/Pages/mould.aspx) and [Better Health Channel](https://www.betterhealth.vic.gov.au/health/conditionsandtreatments/mould-and-your-health) before treating mould as a surface-cleaning problem.",
-      "readingTimeMin": 7,
+      "wordCount": 931,
+      "readingTimeMin": 6,
       "cluster": {
         "id": "read-building",
         "label": "Read the building",
@@ -4161,7 +4188,8 @@
       "methodology": "A national sequence of decisions, with Victorian examples clearly labelled as Victorian, and the pre-1990 hazard screen built in before any demolition talk.",
       "limitations": "Approval, licensing, insurance and disclosure obligations vary. Confirm them before design or demolition with the relevant authority and insurer.",
       "researchNote": "Planning and building permits are different approvals, and requirements turn on the proposal, site and jurisdiction. Victoria's official guides explain [planning permits](https://www.planning.vic.gov.au/guides-and-resources/guides/guide-to-victorias-planning-system/planning-permits) and [when a building permit is required](https://www.bpc.vic.gov.au/resource-hub/practice-notes/bp-01-when-is-a-building-permit-required).",
-      "readingTimeMin": 8,
+      "wordCount": 829,
+      "readingTimeMin": 5,
       "cluster": {
         "id": "own-change",
         "label": "Own, maintain and change",
@@ -4312,7 +4340,8 @@
       "methodology": "The era opens the questions; the actual construction, the region, the alterations and the inspection evidence answer them.",
       "limitations": "Confirm stump type, damp-proof course, wiring age and hazardous materials through records and physical evidence.",
       "researchNote": "Period homes cover many Australian construction systems. Footings, damp-proofing, wall fabric and services vary by region and alteration history. Later works may also introduce pre-1990 asbestos and older lead paint.",
-      "readingTimeMin": 7,
+      "wordCount": 699,
+      "readingTimeMin": 4,
       "cluster": {
         "id": "read-building",
         "label": "Read the building",
@@ -4456,7 +4485,8 @@
       "methodology": "The era suggests what to expect; the alteration history, service records and physical condition of this particular house decide what is true.",
       "limitations": "Confirm the age of services, wet areas, footings and hazardous materials through records and physical evidence.",
       "researchNote": "Postwar housing spans many systems and regions. The reliable date-linked screen is that homes built or renovated before 1990 may contain asbestos; material identification and removal rules require competent assessment. See the [national householders' guide](https://www.newaste.org.au/asbestos/assets/asbestos-guide-for-householders.pdf).",
-      "readingTimeMin": 7,
+      "wordCount": 698,
+      "readingTimeMin": 4,
       "cluster": {
         "id": "read-building",
         "label": "Read the building",
@@ -4600,7 +4630,8 @@
       "methodology": "For each physical problem, we traced the same four questions: whose side of the boundary, who decides, who pays, and where the evidence lives.",
       "limitations": "General Australian strata guidance. Use the registered plan, scheme documents and state-specific professional advice.",
       "researchNote": "Strata risk is a building-and-governance system: common property, budgets, maintenance plans, insurance, by-laws and records interact. Responsibilities differ across jurisdictions and plans; start with [NSW strata roles](https://www.nsw.gov.au/housing-and-construction/strata/roles) or the equivalent authority in your state.",
-      "readingTimeMin": 7,
+      "wordCount": 1046,
+      "readingTimeMin": 6,
       "cluster": {
         "id": "shared-buildings",
         "label": "Apartments and shared buildings",
@@ -4743,7 +4774,8 @@
       "methodology": "We put the obligations first and the styling last: what the law requires you to disclose, what evidence to prepare, what to fix, and only then how to present it.",
       "limitations": "Selling obligations vary by state and contract. A pre-sale report may create information that requires legal consideration before marketing.",
       "researchNote": "Preparing records and addressing known defects can reduce buyer uncertainty. Price and disputes still depend on the property, market, contract and disclosure. Sellers must meet the disclosure law in their jurisdiction. See [Victorian disclosure guidance](https://www.consumer.vic.gov.au/housing/buying-and-selling-property/selling-property/conveyancing-and-contracts-for-sellers) as one state example.",
-      "readingTimeMin": 7,
+      "wordCount": 822,
+      "readingTimeMin": 5,
       "cluster": {
         "id": "own-change",
         "label": "Own, maintain and change",
@@ -4913,7 +4945,8 @@
       "methodology": "The era sketches the house; the records, alterations and a physical inspection fill in this one.",
       "limitations": "Confirm footing, wall, service and damp-proofing condition through records and physical evidence.",
       "researchNote": "Interwar homes form a regional family with varied construction. Use age to ask about footings, drainage, roof, services and later wet-area work. Screen all pre-1990 alterations for possible asbestos and older coatings for lead.",
-      "readingTimeMin": 7,
+      "wordCount": 640,
+      "readingTimeMin": 4,
       "cluster": {
         "id": "read-building",
         "label": "Read the building",
@@ -5053,7 +5086,8 @@
       "methodology": "We split the modern era into its two distinct risk systems: newer houses and newer apartment buildings.",
       "limitations": "Warranty periods, defect regimes and cladding programs differ by state and run on clocks. Check the dates for your state before assuming a door is still open.",
       "researchNote": "Newer houses and apartments have different risk systems. For apartments, investigate common-property defects, cladding, funding and warranties through the scheme records; for houses, focus on workmanship, drainage, waterproofing, approvals and warranty periods in the relevant state.",
-      "readingTimeMin": 7,
+      "wordCount": 690,
+      "readingTimeMin": 4,
       "cluster": {
         "id": "read-building",
         "label": "Read the building",
@@ -5194,7 +5228,8 @@
       "methodology": "The order is deliberate: people first, official warnings second, and only then the property, the works, the records and the insurance conversation.",
       "limitations": "This is a national resilience guide. During an event, follow your emergency service. BAL ratings, flood levels and engineering require site-specific assessment.",
       "researchNote": "Life safety comes before fabric. Follow the emergency service and hazard authority for your location, make a household plan, and leave early when directed. Building work should follow property-specific flood, storm or bushfire advice; start with the [NSW RFS survival plan](https://www.rfs.nsw.gov.au/__data/assets/pdf_file/0003/36597/BFSP-Complete.pdf) and [VICSES storm guidance](https://www.ses.vic.gov.au/plan-and-stay-safe/emergencies/storm).",
-      "readingTimeMin": 9,
+      "wordCount": 956,
+      "readingTimeMin": 6,
       "cluster": {
         "id": "own-change",
         "label": "Own, maintain and change",
@@ -5376,7 +5411,8 @@
       "methodology": "The era narrows the questions; installation dates, renovation records and inspection evidence settle them.",
       "limitations": "Identify the installed membrane and roof systems, then assess their condition before setting renewal timing.",
       "researchNote": "Homes from the 1980s and 1990s span changing materials and standards. A pre-1990 build or renovation may contain asbestos. Establish membrane, roof, glazing and service condition through property-specific evidence.",
-      "readingTimeMin": 6,
+      "wordCount": 581,
+      "readingTimeMin": 4,
       "cluster": {
         "id": "read-building",
         "label": "Read the building",
@@ -5503,7 +5539,8 @@
       "methodology": "We followed the water the way the house has to: from the roof edge, down the boards and junctions, all the way to the ground.",
       "limitations": "Weatherboard homes may use stump, pier, strip footing or slab systems. Confirm the actual assembly and safe access before work.",
       "researchNote": "Paint protects timber cladding. The weatherproofing system also depends on flashings, wraps or sarking, junctions, drainage, ground clearance and maintenance. Exposure, coating and preparation determine recoating intervals.",
-      "readingTimeMin": 7,
+      "wordCount": 752,
+      "readingTimeMin": 5,
       "cluster": {
         "id": "read-building",
         "label": "Read the building",
@@ -5646,7 +5683,8 @@
       "methodology": "A comparison built around what differs between the wall systems: load paths, moisture management, wall behaviour and observable clues.",
       "limitations": "Confirm cavity construction, tie condition and concealed moisture through plans and physical evidence.",
       "researchNote": "Brick veneer and cavity masonry manage structure, insulation and moisture differently. The [Australian Government's YourHome guide](https://www.yourhome.gov.au/materials/brickwork-and-blockwork) explains the roles of masonry, cavities, ties, damp-proof courses and weep holes.",
-      "readingTimeMin": 6,
+      "wordCount": 770,
+      "readingTimeMin": 5,
       "cluster": {
         "id": "read-building",
         "label": "Read the building",
@@ -5775,7 +5813,8 @@
       "methodology": "We untangled the four layers people usually collapse into one: the overlay, its schedule, the Heritage Register and anything on the title.",
       "limitations": "Victorian planning guidance only. Confirm the property-specific schedule, incorporated documents and council interpretation before design.",
       "researchNote": "A Victorian Heritage Overlay is a planning control. The schedule can activate additional controls, including internal alteration controls for a particular place. Read [Clause 43.01 and the applicable schedule](https://planning-schemes.app.planning.vic.gov.au/Knox/ordinance/43.01) before planning interior work.",
-      "readingTimeMin": 7,
+      "wordCount": 793,
+      "readingTimeMin": 5,
       "cluster": {
         "id": "read-building",
         "label": "Read the building",

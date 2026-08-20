@@ -17,6 +17,9 @@ if (snapshot.schemaVersion !== 1) errors.push('Unexpected snapshot schema versio
 if (snapshot.source.contentCount !== snapshot.guides.length) errors.push('contentCount does not match guide count.');
 if (snapshot.guides.filter((guide) => !guide.pillar).length !== snapshot.source.spokeCount) errors.push('spokeCount does not match.');
 if (SECRET_PATTERN.test(snapshotText)) errors.push('Potential secret marker found somewhere in the serialized snapshot.');
+if (snapshot.source.readingTimeMethod?.wordsPerMinute !== 180 || snapshot.source.readingTimeMethod?.rounding !== 'ceil') {
+  errors.push('Unexpected or missing deterministic reading-time method.');
+}
 
 for (const guide of snapshot.guides) {
   const key = guide.pillar ? '__pillar__' : guide.slug;
@@ -27,6 +30,8 @@ for (const guide of snapshot.guides) {
   if (!guide.canonicalUrl.startsWith('https://homechecker.com.au/guides')) errors.push(`Non-canonical URL: ${guide.canonicalUrl}`);
   if (!guide.contentMarkdown.includes(guide.canonicalUrl)) errors.push(`Canonical URL missing from content: ${guide.slug}`);
   if (!guide.title || !guide.answer || !guide.summary) errors.push(`Incomplete guide metadata: ${guide.slug}`);
+  if (!Number.isInteger(guide.wordCount) || guide.wordCount <= 0) errors.push(`Invalid wordCount: ${guide.slug}`);
+  if (!Number.isInteger(guide.readingTimeMin) || guide.readingTimeMin <= 0) errors.push(`Invalid readingTimeMin: ${guide.slug}`);
   if (!Array.isArray(guide.sections) || !guide.sections.length) errors.push(`No sections: ${guide.slug}`);
 
   const sectionIds = new Set();

@@ -114,7 +114,7 @@ function schemas(): Record<string, unknown> {
   const guideSummaryRequired = [
     'slug', 'title', 'question', 'summary', 'answer', 'canonicalUrl', 'referralUrl', 'resourceUri',
     'jurisdiction', 'cluster', 'topics', 'propertyTypes', 'eras', 'buyingStages', 'updatedAt',
-    'reviewedAt', 'reviewDue', 'readingTimeMin', 'limitations',
+    'reviewedAt', 'reviewDue', 'wordCount', 'readingTimeMin', 'limitations',
   ];
   const guideSummaryProperties = {
     slug: { type: 'string' },
@@ -133,7 +133,8 @@ function schemas(): Record<string, unknown> {
     updatedAt: { type: 'string', format: 'date' },
     reviewedAt: nullableString,
     reviewDue: nullableString,
-    readingTimeMin: { type: 'integer', minimum: 0 },
+    wordCount: { type: 'integer', minimum: 1 },
+    readingTimeMin: { type: 'integer', minimum: 1 },
     limitations: nullableString,
   };
   const searchResultRequired = [

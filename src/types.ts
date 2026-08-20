@@ -35,6 +35,7 @@ export interface GuideRecord {
   methodology: string | null;
   limitations: string | null;
   researchNote: string | null;
+  wordCount: number | null;
   readingTimeMin: number;
   cluster: {
     id: string;
@@ -64,6 +65,11 @@ export interface GuideSnapshot {
     contentCount: number;
     spokeCount: number;
     latestUpdated: string;
+    readingTimeMethod: {
+      wordsPerMinute: number;
+      rounding: string;
+      basis: string;
+    } | null;
   };
   clusters: Array<{
     id: string;
