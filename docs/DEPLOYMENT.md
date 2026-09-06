@@ -18,9 +18,14 @@
 - [ ] Create a standalone Vercel project (never attach the portal's environment variables).
 - [ ] Set the project's Node.js version to **22** — the source uses JSON import attributes and will not build on 20.
 - [ ] Deploy the repository root.
-- [ ] Open `/health` and confirm `guides: 34`, version `1.1.1`, a 64-character `contentHash`, and the expected snapshot/latest-guide timestamps.
+- [ ] Ensure Vercel **Automatically expose System Environment Variables** is enabled, or set `ALLOWED_HOSTS` explicitly for any generated/branch/project aliases you intend to test. The request guard reads `VERCEL_URL`, `VERCEL_BRANCH_URL` and `VERCEL_PROJECT_PRODUCTION_URL`.
+- [ ] Check existing `ALLOWED_ORIGIN` / `ALLOWED_ORIGINS` values before rollout. `ALLOWED_ORIGINS` is now an authoritative exact-origin allowlist; scheme and effective port are significant, and a concrete legacy `ALLOWED_ORIGIN` remains an exact restriction rather than being widened by defaults.
+- [ ] Open `/health` and confirm `guides: 34`, version `1.2.0`, a 64-character `contentHash`, and the expected snapshot/latest-guide timestamps.
 - [ ] Open `/` and confirm the public service metadata.
-- [ ] Test `https://<project>.vercel.app/mcp` with an MCP client or the MCP Inspector.
+- [ ] Open `/mcp/server-card` and confirm the experimental Server Card reports version `1.2.0`, the `/mcp` remote and protocol versions without enumerating tools/resources.
+- [ ] Open `/server-card.json` and confirm the extended Homechecker service metadata points to `/mcp/server-card`.
+- [ ] Confirm `/homechecker-icon-32.png` is publicly reachable.
+- [ ] Test the generated deployment URL, branch alias and project production alias with an MCP client. Test the production endpoint from the official loopback MCP Inspector as well; `localhost` / `127.0.0.1` browser origins are intentionally allowed for this public read-only service.
 
 ## Domain
 
@@ -45,5 +50,6 @@
 - [ ] Confirm platform/edge abuse protection or rate limiting is enabled for `/mcp` and `/v1/*`.
 - [ ] Record the deployed endpoint, snapshot timestamp and content hash.
 - [ ] Confirm REST/WebMCP `referralUrl` attribution behaves as expected without altering canonical citation URLs.
-- [ ] Test from each intended MCP host separately.
+- [ ] Test from each intended MCP host separately, including one approved browser Origin and one deliberately rejected Origin.
+- [ ] Update Homechecker’s external AI Catalog / developer copy so its MCP Server Card URL is `https://mcp.homechecker.com.au/mcp/server-card`; retain `/server-card.json` as the extended compatibility document.
 - [ ] Keep directory submission until after real client testing and documentation review.

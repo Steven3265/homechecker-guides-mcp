@@ -7,12 +7,21 @@
     "url": "https://github.com/Steven3265/homechecker-guides-mcp",
     "source": "github"
   },
-  "version": "1.1.1",
+  "version": "1.2.0",
   "websiteUrl": "https://homechecker.com.au/ai",
   "remotes": [
     {
       "type": "streamable-http",
       "url": "https://mcp.homechecker.com.au/mcp"
+    }
+  ],
+  "icons": [
+    {
+      "src": "https://mcp.homechecker.com.au/homechecker-icon-32.png",
+      "mimeType": "image/png",
+      "sizes": [
+        "32x32"
+      ]
     }
   ]
 }

@@ -1,5 +1,8 @@
 # Tool contract
 
+All four tools advertise both `inputSchema` and `outputSchema` through MCP discovery. Successful calls return the documented object in `structuredContent`; human-readable `content` remains available for clients that do not consume structured results. The schemas live together in `src/contracts.ts` so registration and discovery cannot drift independently.
+
+
 ## `list_guides`
 
 **Purpose:** catalogue discovery.

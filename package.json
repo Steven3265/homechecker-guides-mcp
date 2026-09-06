@@ -1,6 +1,6 @@
 {
   "name": "homechecker-guides-mcp",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "description": "Homechecker's professionally authored Australian homebuyer guides: search, cite, build checklists.",
@@ -20,7 +20,8 @@
     "test:protocol": "node scripts/test-protocol.mjs",
     "sync:skills": "node scripts/sync-skills.mjs",
     "validate:metadata": "node scripts/validate-release-metadata.mjs",
-    "test:http": "node scripts/test-http-adapters.mjs"
+    "test:http": "node scripts/test-http-adapters.mjs",
+    "serve:conformance": "node scripts/serve-conformance.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.0.0",

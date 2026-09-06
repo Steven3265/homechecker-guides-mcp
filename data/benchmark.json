@@ -1,16 +1,906 @@
 [
-  { "query": "What should I look for in a Section 32 vendor statement in Victoria?", "expected": ["reading-a-section-32"] },
-  { "query": "How do I read a contract for sale when buying in New South Wales?", "expected": ["reading-a-contract-for-sale-nsw"] },
-  { "query": "What is the Queensland Form 2 seller disclosure?", "expected": ["seller-disclosure-qld"] },
-  { "query": "Should I get a building inspection before bidding at auction?", "expected": ["building-inspection-before-auction"] },
-  { "query": "How do I read an owners corporation report for an apartment?", "expected": ["reading-your-owners-corporation-report", "buying-an-apartment-strata"] },
-  { "query": "What are common issues in a 1970s house?", "expected": ["postwar-homes-1950s-70s", "red-flags-by-era"] },
-  { "query": "What should I know about buying a weatherboard house?", "expected": ["weatherboard-homes"] },
-  { "query": "Brick veneer versus double brick", "expected": ["brick-veneer-vs-double-brick"] },
-  { "query": "Are these cracks structural or cosmetic?", "expected": ["cracks-structural-or-cosmetic"] },
-  { "query": "How should I investigate damp and moisture?", "expected": ["damp-and-moisture-in-your-home"] },
-  { "query": "What cooling-off period applies when buying a home?", "expected": ["cooling-off-period-by-state"] },
-  { "query": "What maintenance prevents major repair bills?", "expected": ["the-maintenance-that-prevents-the-big-bills"] },
-  { "query": "What should I check in a modern home built after 2000?", "expected": ["modern-homes-2000s-on"] },
-  { "query": "How can the condition of a home affect insurance?", "expected": ["home-condition-and-insurance"] }
+  {
+    "id": "vic-section32-direct",
+    "category": "positive",
+    "query": "What should I look for in a Section 32 vendor statement in Victoria?",
+    "expected": [
+      "reading-a-section-32"
+    ]
+  },
+  {
+    "id": "vic-section32-conversational",
+    "category": "positive",
+    "query": "I'm buying in Melbourne and the agent sent me a vendor statement. How do I read the Section 32?",
+    "expected": [
+      "reading-a-section-32"
+    ]
+  },
+  {
+    "id": "nsw-contract-direct",
+    "category": "positive",
+    "query": "How do I read a contract for sale when buying in New South Wales?",
+    "expected": [
+      "reading-a-contract-for-sale-nsw"
+    ]
+  },
+  {
+    "id": "nsw-contract-conversational",
+    "category": "positive",
+    "query": "Buying in NSW and I have the sale contract before signing. What disclosures should I check?",
+    "expected": [
+      "reading-a-contract-for-sale-nsw"
+    ]
+  },
+  {
+    "id": "qld-form2-direct",
+    "category": "positive",
+    "query": "What is the Queensland Form 2 seller disclosure?",
+    "expected": [
+      "seller-disclosure-qld"
+    ]
+  },
+  {
+    "id": "qld-form2-conversational",
+    "category": "positive",
+    "query": "The seller in Brisbane gave me a disclosure statement Form 2. What am I meant to look for?",
+    "expected": [
+      "seller-disclosure-qld"
+    ]
+  },
+  {
+    "id": "inspection-before-auction-direct",
+    "category": "positive",
+    "query": "Should I get a building inspection before bidding at auction?",
+    "expected": [
+      "building-inspection-before-auction"
+    ]
+  },
+  {
+    "id": "inspection-before-auction-conversational",
+    "category": "positive",
+    "query": "Auction is Saturday. Is it worth arranging the building inspection before I bid?",
+    "expected": [
+      "building-inspection-before-auction",
+      "auction-day-due-diligence"
+    ]
+  },
+  {
+    "id": "inspection-cost-direct",
+    "category": "positive",
+    "query": "How much does a building and pest inspection cost in Australia?",
+    "expected": [
+      "building-and-pest-inspection-cost"
+    ]
+  },
+  {
+    "id": "inspection-cost-conversational",
+    "category": "positive",
+    "query": "What should I budget for a pre-purchase building and pest inspection?",
+    "expected": [
+      "building-and-pest-inspection-cost"
+    ]
+  },
+  {
+    "id": "choose-inspector-direct",
+    "category": "positive",
+    "query": "How do I choose a building and pest inspector?",
+    "expected": [
+      "how-to-choose-a-building-and-pest-inspector"
+    ]
+  },
+  {
+    "id": "choose-inspector-conversational",
+    "category": "positive",
+    "query": "What questions should I ask before hiring a building inspector for a house purchase?",
+    "expected": [
+      "how-to-choose-a-building-and-pest-inspector"
+    ]
+  },
+  {
+    "id": "read-report-direct",
+    "category": "positive",
+    "query": "How do I read a building and pest inspection report?",
+    "expected": [
+      "how-to-read-a-building-and-pest-report"
+    ]
+  },
+  {
+    "id": "read-report-conversational",
+    "category": "positive",
+    "query": "The pre-purchase inspection report is full of defects and caveats. How should I work through it?",
+    "expected": [
+      "how-to-read-a-building-and-pest-report"
+    ]
+  },
+  {
+    "id": "desktop-vs-physical-direct",
+    "category": "positive",
+    "query": "Desktop property report versus physical building inspection: where does each fit?",
+    "expected": [
+      "desktop-vs-physical-report"
+    ]
+  },
+  {
+    "id": "desktop-vs-physical-conversational",
+    "category": "positive",
+    "query": "Can a desktop property read replace an on-site building inspection, or do they do different jobs?",
+    "expected": [
+      "desktop-vs-physical-report"
+    ]
+  },
+  {
+    "id": "condition-report-direct",
+    "category": "positive",
+    "query": "What is a property condition report and which type do I need?",
+    "expected": [
+      "what-is-a-property-condition-report"
+    ]
+  },
+  {
+    "id": "condition-report-conversational",
+    "category": "positive",
+    "query": "People keep saying property condition report, inspection report and entry report. What kind of condition report is relevant to a buyer?",
+    "expected": [
+      "what-is-a-property-condition-report"
+    ]
+  },
+  {
+    "id": "building-biologist-cost-direct",
+    "category": "positive",
+    "query": "How much does a building biologist cost in Australia?",
+    "expected": [
+      "building-biologist-cost"
+    ]
+  },
+  {
+    "id": "building-biologist-cost-conversational",
+    "category": "positive",
+    "query": "I'm considering a building biologist for mould and indoor environmental issues. What do they cost?",
+    "expected": [
+      "building-biologist-cost"
+    ]
+  },
+  {
+    "id": "cooling-off-direct",
+    "category": "positive",
+    "query": "What cooling-off period applies when buying a home?",
+    "expected": [
+      "cooling-off-period-by-state"
+    ]
+  },
+  {
+    "id": "cooling-off-conversational",
+    "category": "positive",
+    "query": "How many days do I have to cool off after signing a property contract in Australia?",
+    "expected": [
+      "cooling-off-period-by-state"
+    ]
+  },
+  {
+    "id": "auction-due-diligence-direct",
+    "category": "positive",
+    "query": "What due diligence should I do before bidding at auction?",
+    "expected": [
+      "auction-day-due-diligence"
+    ]
+  },
+  {
+    "id": "auction-due-diligence-conversational",
+    "category": "positive",
+    "query": "I'm planning to bid at auction. What should already be checked before auction day?",
+    "expected": [
+      "auction-day-due-diligence",
+      "building-inspection-before-auction"
+    ]
+  },
+  {
+    "id": "red-flags-era-direct",
+    "category": "positive",
+    "query": "What are common property red flags by construction era?",
+    "expected": [
+      "red-flags-by-era"
+    ]
+  },
+  {
+    "id": "red-flags-era-conversational",
+    "category": "positive",
+    "query": "Different age homes have different failure points. What should make me look closer by era?",
+    "expected": [
+      "red-flags-by-era",
+      "what-your-home-needs-by-decade"
+    ]
+  },
+  {
+    "id": "cracks-direct",
+    "category": "positive",
+    "query": "Are these wall cracks structural or cosmetic?",
+    "expected": [
+      "cracks-structural-or-cosmetic"
+    ]
+  },
+  {
+    "id": "cracks-conversational",
+    "category": "positive",
+    "query": "There are diagonal cracks around doors. How do I tell normal cosmetic cracking from movement that needs investigation?",
+    "expected": [
+      "cracks-structural-or-cosmetic"
+    ]
+  },
+  {
+    "id": "apartment-strata-direct",
+    "category": "positive",
+    "query": "What should I check before buying an apartment with strata?",
+    "expected": [
+      "buying-an-apartment-strata"
+    ]
+  },
+  {
+    "id": "apartment-strata-conversational",
+    "category": "positive",
+    "query": "I'm buying a unit in an owners corporation. What should I investigate beyond the apartment itself?",
+    "expected": [
+      "buying-an-apartment-strata",
+      "reading-your-owners-corporation-report"
+    ]
+  },
+  {
+    "id": "insurance-condition-direct",
+    "category": "positive",
+    "query": "How can the condition of a home affect insurance?",
+    "expected": [
+      "home-condition-and-insurance"
+    ]
+  },
+  {
+    "id": "insurance-condition-conversational",
+    "category": "positive",
+    "query": "If the house has old wiring, roof issues or previous damage, how should I describe that risk to an insurer?",
+    "expected": [
+      "home-condition-and-insurance"
+    ]
+  },
+  {
+    "id": "home-record-direct",
+    "category": "positive",
+    "query": "What records should I keep for my home?",
+    "expected": [
+      "keeping-a-record-of-your-home"
+    ]
+  },
+  {
+    "id": "home-record-conversational",
+    "category": "positive",
+    "query": "I want one useful record of repairs, warranties, photos and invoices for the house. What should I keep and how should I organise it?",
+    "expected": [
+      "keeping-a-record-of-your-home"
+    ]
+  },
+  {
+    "id": "home-by-decade-direct",
+    "category": "positive",
+    "query": "What does a home need as it ages decade by decade?",
+    "expected": [
+      "what-your-home-needs-by-decade"
+    ]
+  },
+  {
+    "id": "home-by-decade-conversational",
+    "category": "positive",
+    "query": "How should I plan ahead for the big building components as a house gets older?",
+    "expected": [
+      "what-your-home-needs-by-decade"
+    ]
+  },
+  {
+    "id": "maintenance-direct",
+    "category": "positive",
+    "query": "What maintenance prevents major repair bills?",
+    "expected": [
+      "the-maintenance-that-prevents-the-big-bills"
+    ]
+  },
+  {
+    "id": "maintenance-conversational",
+    "category": "positive",
+    "query": "Which routine home maintenance jobs are most likely to prevent expensive damage later?",
+    "expected": [
+      "the-maintenance-that-prevents-the-big-bills"
+    ]
+  },
+  {
+    "id": "oc-records-direct",
+    "category": "positive",
+    "query": "How do I read an owners corporation report for an apartment?",
+    "expected": [
+      "reading-your-owners-corporation-report",
+      "buying-an-apartment-strata"
+    ]
+  },
+  {
+    "id": "oc-records-conversational",
+    "category": "positive",
+    "query": "What should I look for in strata minutes, budgets, levies and the owners corporation records?",
+    "expected": [
+      "reading-your-owners-corporation-report"
+    ]
+  },
+  {
+    "id": "damp-direct",
+    "category": "positive",
+    "query": "How should I investigate damp and moisture in a house?",
+    "expected": [
+      "damp-and-moisture-in-your-home"
+    ]
+  },
+  {
+    "id": "damp-conversational",
+    "category": "positive",
+    "query": "There is mould and a musty smell near an external wall. How do I work out the moisture source before fixing finishes?",
+    "expected": [
+      "damp-and-moisture-in-your-home"
+    ]
+  },
+  {
+    "id": "renovation-direct",
+    "category": "positive",
+    "query": "What should I check before renovating my home?",
+    "expected": [
+      "planning-a-renovation"
+    ]
+  },
+  {
+    "id": "renovation-conversational",
+    "category": "positive",
+    "query": "Before planning an extension, what existing-building records, approvals and constraints should I understand?",
+    "expected": [
+      "planning-a-renovation"
+    ]
+  },
+  {
+    "id": "period-direct",
+    "category": "positive",
+    "query": "What should I expect in a pre-1920s period home?",
+    "expected": [
+      "period-homes-pre-1920s"
+    ]
+  },
+  {
+    "id": "period-year",
+    "category": "positive",
+    "query": "I'm looking at a house built in 1910. What age-related issues should I expect?",
+    "expected": [
+      "period-homes-pre-1920s"
+    ]
+  },
+  {
+    "id": "postwar-direct",
+    "category": "positive",
+    "query": "What are common issues in a 1970s house?",
+    "expected": [
+      "postwar-homes-1950s-70s",
+      "red-flags-by-era"
+    ]
+  },
+  {
+    "id": "postwar-year",
+    "category": "positive",
+    "query": "What should I expect in a house built in 1965?",
+    "expected": [
+      "postwar-homes-1950s-70s"
+    ]
+  },
+  {
+    "id": "strata-owner-risk-direct",
+    "category": "positive",
+    "query": "What are the main strata risks for apartment owners?",
+    "expected": [
+      "strata-risks-for-owners"
+    ]
+  },
+  {
+    "id": "strata-owner-risk-conversational",
+    "category": "positive",
+    "query": "As an apartment owner, what shared-building risks can turn into levies or recurring problems?",
+    "expected": [
+      "strata-risks-for-owners"
+    ]
+  },
+  {
+    "id": "selling-direct",
+    "category": "positive",
+    "query": "What property condition work should I do before selling my home?",
+    "expected": [
+      "selling-your-home"
+    ]
+  },
+  {
+    "id": "selling-conversational",
+    "category": "positive",
+    "query": "I'm getting the house ready for sale. What condition evidence and maintenance records are worth sorting out first?",
+    "expected": [
+      "selling-your-home",
+      "keeping-a-record-of-your-home"
+    ]
+  },
+  {
+    "id": "interwar-direct",
+    "category": "positive",
+    "query": "What should I expect in a 1930s interwar home?",
+    "expected": [
+      "interwar-homes-1920s-40s"
+    ]
+  },
+  {
+    "id": "interwar-year",
+    "category": "positive",
+    "query": "I'm considering a house built in 1935. What age-related issues are typical?",
+    "expected": [
+      "interwar-homes-1920s-40s"
+    ]
+  },
+  {
+    "id": "modern-direct",
+    "category": "positive",
+    "query": "What should I check in a modern home built after 2000?",
+    "expected": [
+      "modern-homes-2000s-on"
+    ]
+  },
+  {
+    "id": "modern-year",
+    "category": "positive",
+    "query": "I'm looking at a house constructed in 2012. What should I expect from that era?",
+    "expected": [
+      "modern-homes-2000s-on"
+    ]
+  },
+  {
+    "id": "extreme-weather-direct",
+    "category": "positive",
+    "query": "How do I prepare my home for storms floods and bushfire?",
+    "expected": [
+      "preparing-your-home-for-extreme-weather"
+    ]
+  },
+  {
+    "id": "extreme-weather-conversational",
+    "category": "positive",
+    "query": "What practical house preparation should I do ahead of severe weather and natural hazards?",
+    "expected": [
+      "preparing-your-home-for-extreme-weather"
+    ]
+  },
+  {
+    "id": "eighties-direct",
+    "category": "positive",
+    "query": "What should I expect in a 1980s or 1990s home?",
+    "expected": [
+      "homes-1980s-90s"
+    ]
+  },
+  {
+    "id": "eighties-year",
+    "category": "positive",
+    "query": "What should I check in a house built in 1988?",
+    "expected": [
+      "homes-1980s-90s"
+    ]
+  },
+  {
+    "id": "weatherboard-direct",
+    "category": "positive",
+    "query": "What should I know about buying a weatherboard house?",
+    "expected": [
+      "weatherboard-homes"
+    ]
+  },
+  {
+    "id": "weatherboard-conversational",
+    "category": "positive",
+    "query": "I'm looking at a timber-clad weatherboard home. What should I check about water shedding and the external fabric?",
+    "expected": [
+      "weatherboard-homes"
+    ]
+  },
+  {
+    "id": "brick-direct",
+    "category": "positive",
+    "query": "Brick veneer versus double brick: what is the difference?",
+    "expected": [
+      "brick-veneer-vs-double-brick"
+    ]
+  },
+  {
+    "id": "brick-conversational",
+    "category": "positive",
+    "query": "How can I tell whether a house is brick veneer or double brick, and why does the construction type matter?",
+    "expected": [
+      "brick-veneer-vs-double-brick"
+    ]
+  },
+  {
+    "id": "heritage-direct",
+    "category": "positive",
+    "query": "What does a Heritage Overlay mean for my home in Victoria?",
+    "expected": [
+      "living-in-a-heritage-overlay"
+    ]
+  },
+  {
+    "id": "heritage-conversational",
+    "category": "positive",
+    "query": "The Melbourne property is in a Victorian Heritage Overlay. How do I read the schedule before planning changes?",
+    "expected": [
+      "living-in-a-heritage-overlay"
+    ]
+  },
+  {
+    "id": "jurisdiction-vic-no-qld",
+    "category": "jurisdiction",
+    "query": "What seller disclosure documents should I read when buying in Victoria?",
+    "expected": [
+      "reading-a-section-32"
+    ],
+    "forbidden": [
+      "seller-disclosure-qld",
+      "reading-a-contract-for-sale-nsw"
+    ]
+  },
+  {
+    "id": "jurisdiction-nsw-no-vic",
+    "category": "jurisdiction",
+    "query": "What should I read in the sale contract when buying in NSW?",
+    "expected": [
+      "reading-a-contract-for-sale-nsw"
+    ],
+    "forbidden": [
+      "reading-a-section-32",
+      "seller-disclosure-qld"
+    ]
+  },
+  {
+    "id": "jurisdiction-qld-no-vic",
+    "category": "jurisdiction",
+    "query": "What disclosure statement does the seller give a buyer in Queensland?",
+    "expected": [
+      "seller-disclosure-qld"
+    ],
+    "forbidden": [
+      "reading-a-section-32",
+      "reading-a-contract-for-sale-nsw"
+    ]
+  },
+  {
+    "id": "jurisdiction-vic-heritage",
+    "category": "jurisdiction",
+    "query": "How do Heritage Overlay controls work for a house in Melbourne Victoria?",
+    "expected": [
+      "living-in-a-heritage-overlay"
+    ],
+    "forbidden": [
+      "seller-disclosure-qld",
+      "reading-a-contract-for-sale-nsw"
+    ]
+  },
+  {
+    "id": "weak-buy-v-rent",
+    "category": "weak",
+    "query": "Should I buy or rent a home in Australia in 2026?"
+  },
+  {
+    "id": "weak-price-growth",
+    "category": "weak",
+    "query": "Will house prices in Melbourne rise next year?"
+  },
+  {
+    "id": "weak-council-outcome",
+    "category": "weak",
+    "query": "Will council approve a second storey extension on this house?"
+  },
+  {
+    "id": "weak-code-outcome",
+    "category": "weak",
+    "query": "Is this cracked retaining wall code compliant?"
+  },
+  {
+    "id": "weak-collapse-outcome",
+    "category": "weak",
+    "query": "Could this cracked wall collapse?"
+  },
+  {
+    "id": "weak-agent-selection",
+    "category": "weak",
+    "query": "Which real estate agent should I use to sell my house?"
+  },
+  {
+    "id": "empty-mortgage",
+    "category": "empty",
+    "query": "Which bank has the cheapest variable mortgage rate today?"
+  },
+  {
+    "id": "empty-stamp-duty-calculator",
+    "category": "empty",
+    "query": "Calculate the exact stamp duty on a 1.3 million dollar purchase."
+  },
+  {
+    "id": "empty-tax",
+    "category": "empty",
+    "query": "How much capital gains tax will I owe on an investment property?"
+  },
+  {
+    "id": "weak-share-market",
+    "category": "weak",
+    "query": "Should I buy BHP shares before the dividend?"
+  },
+  {
+    "id": "empty-car",
+    "category": "empty",
+    "query": "What is the best tyre pressure for a 2017 Kia Sportage?"
+  },
+  {
+    "id": "empty-travel",
+    "category": "empty",
+    "query": "What train should I take from Tokyo to Kyoto?"
+  },
+  {
+    "id": "weak-phone",
+    "category": "weak",
+    "query": "How do I check an iPhone for malware?"
+  },
+  {
+    "id": "weak-weather",
+    "category": "weak",
+    "query": "Will it rain in Melbourne tomorrow afternoon?"
+  },
+  {
+    "id": "empty-recipe",
+    "category": "empty",
+    "query": "Can I make pasta with broccoli and cottage cheese?"
+  },
+  {
+    "id": "empty-politics",
+    "category": "empty",
+    "query": "Who should I vote for in the next federal election?"
+  },
+  {
+    "id": "empty-capital-france",
+    "category": "empty",
+    "query": "What is the capital of France?"
+  },
+  {
+    "id": "empty-afl",
+    "category": "empty",
+    "query": "Who won the AFL grand final?"
+  },
+  {
+    "id": "empty-sourdough",
+    "category": "empty",
+    "query": "How do I bake sourdough bread?"
+  },
+  {
+    "id": "typo-section32",
+    "category": "positive",
+    "query": "Im buying in Victoria and the agent sent a secton 32 vendor statment. wat shuld I check?",
+    "expected": [
+      "reading-a-section-32"
+    ]
+  },
+  {
+    "id": "typo-strata-minutes",
+    "category": "positive",
+    "query": "The owners corporatoin minuets mention levys and defects. What matters before I buy the unit?",
+    "expected": [
+      "buying-an-apartment-strata"
+    ]
+  },
+  {
+    "id": "typo-moisture",
+    "category": "positive",
+    "query": "There is moister and mould around a window. What should I understand before buying?",
+    "expected": [
+      "damp-and-moisture-in-your-home"
+    ]
+  },
+  {
+    "id": "indirect-crack-pattern",
+    "category": "positive",
+    "query": "There are diagonal lines running from the corners of doors and windows. Is there Homechecker guidance on what cracks can mean?",
+    "expected": [
+      "cracks-structural-or-cosmetic"
+    ]
+  },
+  {
+    "id": "mixed-condition-insurance",
+    "category": "positive",
+    "query": "The insurer is asking about the roof and previous damage. How does the condition of the home affect insurance?",
+    "expected": [
+      "home-condition-and-insurance"
+    ]
+  },
+  {
+    "id": "mixed-era-fabric-condition",
+    "category": "positive",
+    "query": "The house was built in 1967, has brick veneer walls, some cracking and old wet areas. Which Homechecker guidance should I start with?",
+    "expected": [
+      "brick-veneer-vs-double-brick",
+      "postwar-homes-1950s-70s"
+    ]
+  },
+  {
+    "id": "verbose-section32",
+    "category": "positive",
+    "query": "I have been sent a long pack of contract paperwork for a Victorian house and I am trying to understand, before I sign anything or spend money on inspections, which vendor disclosures in the Section 32 deserve attention and what they can and cannot tell me about the building.",
+    "expected": [
+      "reading-a-section-32"
+    ]
+  },
+  {
+    "id": "jurisdiction-vic-negates-qld",
+    "category": "jurisdiction",
+    "query": "I am buying in Victoria, not Queensland. The agent mentioned Form 2 seller disclosure. Which disclosure guide is relevant to me?",
+    "expected": [
+      "reading-a-section-32"
+    ],
+    "forbidden": [
+      "seller-disclosure-qld",
+      "reading-a-contract-for-sale-nsw"
+    ]
+  },
+  {
+    "id": "jurisdiction-nsw-negates-vic",
+    "category": "jurisdiction",
+    "query": "I am buying in NSW, not Victoria. Someone told me to ask for a Section 32. Which state-specific contract guide is actually relevant?",
+    "expected": [
+      "reading-a-contract-for-sale-nsw"
+    ],
+    "forbidden": [
+      "reading-a-section-32",
+      "seller-disclosure-qld"
+    ]
+  },
+  {
+    "id": "multi-state-comparison",
+    "category": "positive",
+    "query": "Compare cooling-off periods in Victoria and NSW before I sign a contract.",
+    "expected": [
+      "cooling-off-period-by-state"
+    ]
+  },
+  {
+    "id": "verbose-mortgage-empty",
+    "category": "empty",
+    "query": "My broker says rates might fall next year and I have a 20 percent deposit. Should I choose a fixed mortgage or variable loan, and how much should I borrow?",
+    "expected": []
+  },
+  {
+    "id": "jurisdiction-nsw-conveyancing-act",
+    "category": "jurisdiction",
+    "query": "NSW cooling off period under the Conveyancing Act",
+    "expected": [
+      "cooling-off-period-by-state"
+    ],
+    "forbidden": [
+      "reading-a-section-32",
+      "seller-disclosure-qld"
+    ]
+  },
+  {
+    "id": "jurisdiction-vic-sale-of-land-act",
+    "category": "jurisdiction",
+    "query": "Section 32 requirements under the Victorian Sale of Land Act",
+    "expected": [
+      "reading-a-section-32"
+    ],
+    "forbidden": [
+      "reading-a-contract-for-sale-nsw",
+      "seller-disclosure-qld"
+    ]
+  },
+  {
+    "id": "jurisdiction-nsw-strata-act",
+    "category": "jurisdiction",
+    "query": "Owners corporation rules under the Strata Schemes Management Act in NSW",
+    "expected": [
+      "reading-your-owners-corporation-report",
+      "buying-an-apartment-strata"
+    ],
+    "forbidden": [
+      "reading-a-section-32",
+      "seller-disclosure-qld"
+    ]
+  },
+  {
+    "id": "weak-vic-building-act-melbourne",
+    "category": "weak",
+    "query": "Building Act compliance for a Melbourne home",
+    "forbidden": [
+      "reading-a-contract-for-sale-nsw",
+      "seller-disclosure-qld"
+    ]
+  },
+  {
+    "id": "jurisdiction-act-abbreviation",
+    "category": "jurisdiction",
+    "query": "What is the cooling-off period when buying in ACT?",
+    "expected": [
+      "cooling-off-period-by-state"
+    ],
+    "forbidden": [
+      "reading-a-section-32",
+      "reading-a-contract-for-sale-nsw",
+      "seller-disclosure-qld"
+    ]
+  },
+  {
+    "id": "weak-average-house-price-year",
+    "category": "weak",
+    "query": "What was the average house price in Melbourne in 2020?"
+  },
+  {
+    "id": "weak-modern-portfolio-theory",
+    "category": "weak",
+    "query": "Can you explain modern portfolio theory?"
+  },
+  {
+    "id": "multi-state-disclosure-vic-retained",
+    "category": "positive",
+    "query": "Buying in Victoria and Queensland: compare disclosure requirements",
+    "expected": [
+      "reading-a-section-32"
+    ]
+  },
+  {
+    "id": "multi-state-disclosure-qld-retained",
+    "category": "positive",
+    "query": "Buying in Victoria and Queensland: compare disclosure requirements",
+    "expected": [
+      "seller-disclosure-qld"
+    ]
+  },
+  {
+    "id": "jurisdiction-allcaps-sale-of-land-act",
+    "category": "jurisdiction",
+    "query": "WHAT DOES THE SALE OF LAND ACT REQUIRE IN VICTORIA?",
+    "expected": [
+      "reading-a-section-32"
+    ],
+    "forbidden": [
+      "reading-a-contract-for-sale-nsw",
+      "seller-disclosure-qld"
+    ]
+  },
+  {
+    "id": "weak-modern-house-price-trends",
+    "category": "weak",
+    "query": "modern house price trends"
+  },
+  {
+    "id": "multi-state-disclosure-no-compare-vic",
+    "category": "positive",
+    "query": "Buying in Victoria and Queensland: disclosure requirements",
+    "expected": [
+      "reading-a-section-32"
+    ]
+  },
+  {
+    "id": "multi-state-disclosure-no-compare-qld",
+    "category": "positive",
+    "query": "Buying in Victoria and Queensland: disclosure requirements",
+    "expected": [
+      "seller-disclosure-qld"
+    ]
+  },
+  {
+    "id": "jurisdiction-act-definite-article",
+    "category": "jurisdiction",
+    "query": "What is the cooling-off period when buying in the ACT?",
+    "expected": [
+      "cooling-off-period-by-state"
+    ],
+    "forbidden": [
+      "reading-a-section-32",
+      "reading-a-contract-for-sale-nsw",
+      "seller-disclosure-qld"
+    ]
+  }
 ]

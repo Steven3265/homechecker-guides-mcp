@@ -20,6 +20,10 @@
       "destination": "/api/health"
     },
     {
+      "source": "/mcp/server-card",
+      "destination": "/api/mcp-server-card"
+    },
+    {
       "source": "/server-card.json",
       "destination": "/api/server-card"
     },

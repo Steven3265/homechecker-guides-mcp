@@ -24,6 +24,8 @@ The portal is a **build-time content source only**. The deployed MCP server has 
 MCP client
    │ POST /mcp
    ▼
+Host + Origin request boundary
+   ▼
 stateless transport instance
    ▼
 new MCP server instance
@@ -33,7 +35,17 @@ read-only tool or resource handler
 data/guides.json
 ```
 
-A new stateless transport and MCP server are created for each HTTP request. There is no session store, database or cross-request state.
+A new stateless transport and MCP server are created for each HTTP request. There is no session store, database or cross-request state. Supplied `Host` and `Origin` values are validated before the MCP handler; requests without an `Origin` header remain valid for ordinary non-browser clients.
+
+## Discovery and protocol contract
+
+The runtime contract is discoverable in three layers:
+
+- `/mcp` exposes MCP-native tool/resource discovery, including explicit input and output schemas.
+- `/mcp/server-card` exposes the experimental standards-track Server Card: identity and remote connection metadata only.
+- `/server-card.json` remains Homechecker-specific extended service metadata for compatibility and human inspection.
+
+The official Registry manifest in `server.json` and the runtime server identity share version, website and icon metadata. Protocol conformance is checked in a dedicated pinned CI workflow in addition to Homechecker-specific protocol tests.
 
 ## Search model
 

@@ -1,5 +1,12 @@
 import { McpServer } from '@modelcontextprotocol/server';
-import { SERVER_NAME, SERVER_VERSION } from './identity.js';
+import {
+  SERVER_DESCRIPTION,
+  SERVER_ICON_URL,
+  SERVER_NAME,
+  SERVER_TITLE,
+  SERVER_VERSION,
+  SERVER_WEBSITE_URL,
+} from './identity.js';
 import { TOOL_CONTRACTS, searchGuidanceBoundary } from './contracts.js';
 import {
   buildBuyerChecklist,
@@ -44,6 +51,10 @@ export function createMcpServer(): McpServer {
     {
       name: SERVER_NAME,
       version: SERVER_VERSION,
+      title: SERVER_TITLE,
+      description: SERVER_DESCRIPTION,
+      websiteUrl: SERVER_WEBSITE_URL,
+      icons: [{ src: SERVER_ICON_URL, mimeType: 'image/png', sizes: ['32x32'] }],
     },
     {
       cacheHints: {
@@ -69,6 +80,7 @@ export function createMcpServer(): McpServer {
       title: TOOL_CONTRACTS.list_guides.title,
       description: TOOL_CONTRACTS.list_guides.description,
       inputSchema: TOOL_CONTRACTS.list_guides.inputSchema,
+      outputSchema: TOOL_CONTRACTS.list_guides.outputSchema,
       annotations: readOnlyAnnotations,
     },
     async (args) => {
@@ -92,6 +104,7 @@ export function createMcpServer(): McpServer {
       title: TOOL_CONTRACTS.search_guides.title,
       description: TOOL_CONTRACTS.search_guides.description,
       inputSchema: TOOL_CONTRACTS.search_guides.inputSchema,
+      outputSchema: TOOL_CONTRACTS.search_guides.outputSchema,
       annotations: readOnlyAnnotations,
     },
     async (args) => {
@@ -126,6 +139,7 @@ export function createMcpServer(): McpServer {
       title: TOOL_CONTRACTS.get_guide.title,
       description: TOOL_CONTRACTS.get_guide.description,
       inputSchema: TOOL_CONTRACTS.get_guide.inputSchema,
+      outputSchema: TOOL_CONTRACTS.get_guide.outputSchema,
       annotations: readOnlyAnnotations,
     },
     async ({ slug, format, sectionIds }) => {
@@ -173,6 +187,7 @@ export function createMcpServer(): McpServer {
       title: TOOL_CONTRACTS.build_buyer_checklist.title,
       description: TOOL_CONTRACTS.build_buyer_checklist.description,
       inputSchema: TOOL_CONTRACTS.build_buyer_checklist.inputSchema,
+      outputSchema: TOOL_CONTRACTS.build_buyer_checklist.outputSchema,
       annotations: readOnlyAnnotations,
     },
     async ({ limit, ...profile }) => {

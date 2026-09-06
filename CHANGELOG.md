@@ -1,10 +1,21 @@
 # Changelog
 
-## Unreleased — Machine integrity
+## 1.2.0 — Protocol trust and retrieval evaluation — 5 September 2026
 
 - Keeps every MCP model-facing Homechecker URL canonical; attribution remains an explicit REST/WebMCP `referralUrl` field rather than a query parameter in citable text.
-- Preserves authored relationships back to the `/guides` pillar as the stable `guides` alias instead of dropping the empty authoring slug from the snapshot.
-- Adds regression coverage for canonical rendered URLs and the guide-hub relationship.
+- Preserves authored relationships back to the `/guides` pillar as the stable `guides` alias instead of dropping the empty authoring slug from the snapshot, with regression coverage for both invariants.
+- Adds SDK-native Host and Origin validation in front of the bare Streamable HTTP handler, rejecting invalid supplied Origins with 403 while preserving non-browser clients that omit Origin.
+- Adds explicit `outputSchema` contracts to all four MCP tools and regression coverage for the advertised structured result fields.
+- Enriches MCP server identity with title, description, website and a first-party Homechecker icon.
+- Adds an experimental MCP Server Card at `/mcp/server-card` using the extension's identity-and-remotes shape, while preserving `/server-card.json` as richer Homechecker service metadata.
+- Adds a dedicated official MCP conformance workflow pinned by immutable source commit to the `@modelcontextprotocol/conformance@0.2.0-alpha.11` release and protocol revision `2026-07-28`, with a committed check-level expected-failures baseline for fixture/capability mismatches outside Homechecker's advertised surface; wire-schema checks inside those scenarios remain live.
+- Expands retrieval evaluation from 14 to 114 cases covering every published spoke twice, typo and mixed-concept probes, multi-state retention, jurisdiction isolation/conflicts, legislation-title/ACT ambiguity, era-confidence regressions, weak/background handling and correct-empty off-topic behaviour; reports top-1/top-3 recall, false-strong rate and jurisdiction leakage.
+- Prevents bare years or generic era language from manufacturing a strong answer to market/finance questions; construction-linked years and genuine residential era questions remain high-confidence signals.
+- Makes query-inferred jurisdiction filtering set-based whenever multiple positive states are named, so cross-state disclosure searches retain every relevant state-specific guide.
+- Preserves configured browser Origins exactly, including scheme and effective port; a configured `https://host:8443` no longer admits HTTP or another port.
+- Hardens jurisdiction inference for negated and multi-state wording, recognises Australian capital cities, and prevents ordinary legislation titles ending in “Act” from being mistaken for the ACT while keeping explicit ACT location forms, including “the ACT”, supported.
+- Adds monthly Dependabot monitoring for npm and GitHub Actions pins without auto-merge.
+- Enriches Registry metadata with the first-party Homechecker icon and keeps all versioned distribution manifests aligned at 1.2.0.
 
 
 ## 1.1.1 — Infrastructure hardening — 15 August 2026

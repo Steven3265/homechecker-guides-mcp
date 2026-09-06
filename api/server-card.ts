@@ -47,6 +47,7 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
     interfaces: {
       rest: 'https://mcp.homechecker.com.au/v1',
       openapi: 'https://mcp.homechecker.com.au/openapi.json',
+      serverCard: 'https://mcp.homechecker.com.au/mcp/server-card',
       ard: 'https://homechecker.com.au/.well-known/ai-catalog.json',
     },
     privacy: {
@@ -62,5 +63,5 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
       'Does not provide legal, engineering, valuation, tax or financial advice.',
       'Does not access customer data or modify any external system.',
     ],
-  }, undefined, 'application/mcp-server-card+json; charset=utf-8');
+  }, undefined, 'application/json; charset=utf-8');
 }

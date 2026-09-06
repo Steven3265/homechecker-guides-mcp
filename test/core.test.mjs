@@ -214,6 +214,19 @@ test('relevance is measured per term, so length cannot fake confidence', () => {
   assert.ok(MIN_RESULT_SCORE > 0 && WEAK_RELEVANCE_PER_TERM > 0);
 });
 
+
+test('era metadata cannot manufacture a strong match for unrelated modern/year questions', () => {
+  const unrelated = [
+    'What was the average house price in Melbourne in 2020?',
+    'Can you explain modern portfolio theory?',
+  ];
+  for (const query of unrelated) {
+    const results = searchGuides({ query });
+    if (results.length === 0) continue;
+    assert.equal(isWeakMatch(query, results), true, `structured era signal leaked as strong: ${query}`);
+  }
+});
+
 test('specific construction years infer the correct era without treating the current year as an era', () => {
   const cases = [
     ['house built in 1910', 'period-homes-pre-1920s'],
@@ -265,6 +278,76 @@ test("jurisdiction inferred from the query excludes other states' dedicated rule
   const wa = searchGuides({ query: 'What contract disclosures apply when buying in Western Australia?', limit: 10 });
   assert.ok(wa.every((result) => !['reading-a-section-32', 'reading-a-contract-for-sale-nsw', 'seller-disclosure-qld'].includes(result.slug)));
   assert.equal(isWeakMatch('What contract disclosures apply when buying in Western Australia?', wa), true);
+});
+
+test('jurisdiction inference handles negation and multi-state comparisons deterministically', () => {
+  const correctionQuery = 'I am buying in Victoria, not Queensland. The agent mentioned Form 2 seller disclosure. Which disclosure guide is relevant to me?';
+  const corrected = searchGuides({ query: correctionQuery, limit: 10 });
+  assert.ok(corrected.length > 0);
+  assert.ok(corrected.every((result) => result.slug !== 'seller-disclosure-qld'));
+  assert.equal(corrected[0].slug, 'reading-a-section-32');
+
+  const comparisonQuery = 'Compare cooling-off periods in Victoria and NSW before I sign a contract.';
+  const comparison = searchGuides({ query: comparisonQuery, limit: 5 });
+  assert.ok(comparison.some((result) => result.slug === 'cooling-off-period-by-state'));
+
+  const disclosureComparisonQuery = 'Buying in Victoria and Queensland: compare disclosure requirements';
+  const disclosureComparison = searchGuides({ query: disclosureComparisonQuery, limit: 5 });
+  assert.ok(disclosureComparison.some((result) => result.slug === 'reading-a-section-32'));
+  assert.ok(disclosureComparison.some((result) => result.slug === 'seller-disclosure-qld'));
+});
+
+test('legislation titles do not misclassify ordinary Act wording as the ACT jurisdiction', () => {
+  const cases = [
+    {
+      query: 'NSW cooling off period under the Conveyancing Act',
+      expected: 'cooling-off-period-by-state',
+      forbidden: ['reading-a-section-32', 'seller-disclosure-qld'],
+    },
+    {
+      query: 'Section 32 requirements under the Victorian Sale of Land Act',
+      expected: 'reading-a-section-32',
+      forbidden: ['reading-a-contract-for-sale-nsw', 'seller-disclosure-qld'],
+    },
+    {
+      query: 'Owners corporation rules under the Strata Schemes Management Act in NSW',
+      expected: 'reading-your-owners-corporation-report',
+      forbidden: ['reading-a-section-32', 'seller-disclosure-qld'],
+    },
+  ];
+
+  for (const { query, expected, forbidden } of cases) {
+    const results = searchGuides({ query, limit: 10 });
+    assert.equal(results[0]?.slug, expected, `wrong top result for: ${query}`);
+    assert.ok(results.every((result) => !forbidden.includes(result.slug)), `jurisdiction leaked for: ${query}`);
+  }
+
+  const allCapsVic = searchGuides({ query: 'WHAT DOES THE SALE OF LAND ACT REQUIRE IN VICTORIA?', limit: 10 });
+  assert.equal(allCapsVic[0]?.slug, 'reading-a-section-32');
+  assert.ok(allCapsVic.every((result) => !['reading-a-contract-for-sale-nsw', 'seller-disclosure-qld'].includes(result.slug)));
+
+  const melbourneAct = searchGuides({ query: 'Building Act compliance for a Melbourne home', limit: 10 });
+  assert.equal(isWeakMatch('Building Act compliance for a Melbourne home', melbourneAct), true);
+  assert.ok(melbourneAct.every((result) => !['reading-a-contract-for-sale-nsw', 'seller-disclosure-qld'].includes(result.slug)));
+});
+
+test('ACT remains usable as an explicit jurisdiction without treating every legal Act as the territory', () => {
+  const upper = searchGuides({ query: 'What is the cooling-off period when buying in ACT?', limit: 10 });
+  const lowerLocationCue = searchGuides({ query: 'What is the cooling-off period when buying in act?', limit: 10 });
+  const definiteArticle = searchGuides({ query: 'What is the cooling-off period when buying in the ACT?', limit: 10 });
+  const firstPersonDefiniteArticle = searchGuides({ query: 'I am in the ACT, what disclosure applies?', limit: 10 });
+  assert.equal(upper[0]?.slug, 'cooling-off-period-by-state');
+  assert.equal(lowerLocationCue[0]?.slug, 'cooling-off-period-by-state');
+  assert.equal(definiteArticle[0]?.slug, 'cooling-off-period-by-state');
+  for (const results of [upper, lowerLocationCue, definiteArticle, firstPersonDefiniteArticle]) {
+    assert.ok(results.every((result) => !['reading-a-section-32', 'reading-a-contract-for-sale-nsw', 'seller-disclosure-qld'].includes(result.slug)));
+  }
+
+  const explicitCode = listGuides({ jurisdiction: 'act', cluster: 'state-rules' });
+  assert.deepEqual(
+    explicitCode.map((guide) => guide.slug),
+    listGuides({ jurisdiction: 'ACT', cluster: 'state-rules' }).map((guide) => guide.slug),
+  );
 });
 
 test('answerability guard does not weaken topics Homechecker explicitly covers', () => {

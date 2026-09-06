@@ -44,6 +44,168 @@ export const buildBuyerChecklistInputSchema = z.object({
   limit: z.number().int().min(4).max(20).optional().default(12),
 });
 
+// Shared result schemas are the machine contract for structuredContent. Keeping
+// these next to the input contracts prevents the MCP registration, protocol
+// tests and discovery metadata from drifting independently as the corpus grows.
+const clusterSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  chip: z.string(),
+  blurb: z.string(),
+}).nullable();
+
+const guideSectionSchema = z.object({
+  id: z.string(),
+  heading: z.string(),
+  markdown: z.string(),
+});
+
+const guideSourceSchema = z.object({
+  title: z.string(),
+  publisher: z.string(),
+  url: z.string(),
+  accessed: z.string(),
+});
+
+const guideSummarySchema = z.object({
+  slug: z.string(),
+  title: z.string(),
+  question: z.string(),
+  summary: z.string(),
+  answer: z.string(),
+  canonicalUrl: z.string(),
+  resourceUri: z.string(),
+  jurisdiction: z.array(z.string()),
+  cluster: clusterSchema,
+  topics: z.array(z.string()),
+  propertyTypes: z.array(z.string()),
+  eras: z.array(z.string()),
+  buyingStages: z.array(z.string()),
+  updatedAt: z.string(),
+  reviewedAt: z.string().nullable(),
+  reviewDue: z.string().nullable(),
+  wordCount: z.number().int().nullable(),
+  readingTimeMin: z.number().int(),
+  limitations: z.string().nullable(),
+});
+
+const guideRecordSchema = z.object({
+  slug: z.string(),
+  pillar: z.boolean(),
+  resourceUri: z.string(),
+  canonicalUrl: z.string(),
+  question: z.string(),
+  title: z.string(),
+  summary: z.string(),
+  answer: z.string(),
+  updated: z.string(),
+  publishedAt: z.string().nullable(),
+  updatedAt: z.string(),
+  reviewedAt: z.string().nullable(),
+  reviewDue: z.string().nullable(),
+  jurisdiction: z.array(z.string()),
+  reviewedBy: z.string().nullable(),
+  methodology: z.string().nullable(),
+  limitations: z.string().nullable(),
+  researchNote: z.string().nullable(),
+  wordCount: z.number().int().nullable(),
+  readingTimeMin: z.number().int(),
+  cluster: clusterSchema,
+  topics: z.array(z.string()),
+  propertyTypes: z.array(z.string()),
+  eras: z.array(z.string()),
+  buyingStages: z.array(z.string()),
+  sections: z.array(guideSectionSchema),
+  faqs: z.array(z.object({ question: z.string(), answer: z.string() })),
+  checklistCandidates: z.array(z.object({ text: z.string(), section: z.string() })),
+  sources: z.array(guideSourceSchema),
+  related: z.array(z.string()),
+  contentMarkdown: z.string(),
+});
+
+const matchedSectionSchema = z.object({
+  id: z.string(),
+  heading: z.string(),
+  snippet: z.string(),
+  score: z.number(),
+});
+
+const searchResultSchema = z.object({
+  slug: z.string(),
+  title: z.string(),
+  question: z.string(),
+  summary: z.string(),
+  answer: z.string(),
+  canonicalUrl: z.string(),
+  resourceUri: z.string(),
+  jurisdiction: z.array(z.string()),
+  cluster: clusterSchema,
+  topics: z.array(z.string()),
+  propertyTypes: z.array(z.string()),
+  eras: z.array(z.string()),
+  buyingStages: z.array(z.string()),
+  updatedAt: z.string(),
+  reviewedAt: z.string().nullable(),
+  limitations: z.string().nullable(),
+  score: z.number(),
+  matchedTerms: z.array(z.string()),
+  matchedSections: z.array(matchedSectionSchema),
+});
+
+const checklistProfileSchema = z.object({
+  jurisdiction: z.string().optional(),
+  propertyType: z.string().optional(),
+  era: z.string().optional(),
+  buyingStage: z.string().optional(),
+  concerns: z.array(z.string()).optional(),
+});
+
+const buyerChecklistSchema = z.object({
+  profile: checklistProfileSchema,
+  guidanceBoundary: z.string(),
+  matchedGuides: z.array(z.object({
+    slug: z.string(),
+    title: z.string(),
+    canonicalUrl: z.string(),
+    answer: z.string(),
+  })),
+  items: z.array(z.object({
+    check: z.string(),
+    section: z.string(),
+    guideSlug: z.string(),
+    guideTitle: z.string(),
+    canonicalUrl: z.string(),
+  })),
+});
+
+export const listGuidesOutputSchema = z.object({
+  count: z.number().int().min(0),
+  generatedAt: z.string(),
+  guides: z.array(guideSummarySchema),
+});
+
+export const searchGuidesOutputSchema = z.object({
+  query: z.string(),
+  count: z.number().int().min(0),
+  matchStrength: z.enum(['none', 'weak', 'strong']),
+  results: z.array(searchResultSchema),
+  boundary: z.string(),
+});
+
+const guideSectionsResultSchema = guideSummarySchema.extend({
+  sections: z.array(guideSectionSchema),
+});
+
+export const getGuideOutputSchema = z.object({
+  guide: z.union([guideSummarySchema, guideSectionsResultSchema, guideRecordSchema]),
+  warning: z.string().optional(),
+  missingSectionIds: z.array(z.string()).optional(),
+});
+
+export const buildBuyerChecklistOutputSchema = z.object({
+  checklist: buyerChecklistSchema,
+});
+
 const stringProperty = { type: 'string' } as const;
 const clusterProperty = { type: 'string', enum: [...CLUSTER_IDS] } as const;
 
@@ -52,6 +214,8 @@ export const TOOL_CONTRACTS = {
     title: 'List Homechecker guides',
     description: 'List the published Homechecker guide catalogue, optionally filtered by jurisdiction, guide cluster, property type, construction era, or buying stage. Returns metadata only.',
     inputSchema: listGuidesInputSchema,
+    outputSchema: listGuidesOutputSchema,
+    outputFields: ['count', 'generatedAt', 'guides'],
     jsonInputSchema: {
       type: 'object',
       properties: {
@@ -69,6 +233,8 @@ export const TOOL_CONTRACTS = {
     title: 'Search Homechecker guidance',
     description: 'Search professionally authored Australian homebuyer guidance using a natural-language question. Use this for general property, inspection, disclosure, apartment, condition, maintenance, era and buying-process questions. It does not assess an actual property.',
     inputSchema: searchGuidesInputSchema,
+    outputSchema: searchGuidesOutputSchema,
+    outputFields: ['query', 'count', 'matchStrength', 'results', 'boundary'],
     jsonInputSchema: {
       type: 'object',
       properties: {
@@ -88,6 +254,8 @@ export const TOOL_CONTRACTS = {
     title: 'Get a Homechecker guide',
     description: 'Retrieve one canonical Homechecker guide by slug. Use a slug returned by list_guides or search_guides. Returns source links, review metadata, method and limitations with the guide.',
     inputSchema: getGuideInputSchema,
+    outputSchema: getGuideOutputSchema,
+    outputFields: ['guide', 'warning', 'missingSectionIds'],
     jsonInputSchema: {
       type: 'object',
       properties: {
@@ -103,6 +271,8 @@ export const TOOL_CONTRACTS = {
     title: 'Build a Homechecker buyer checklist',
     description: 'Build a deterministic, sourced checklist from the Homechecker guide corpus for a buyer context. This assembles general questions and checks; it does not analyse a listing, document or actual building.',
     inputSchema: buildBuyerChecklistInputSchema,
+    outputSchema: buildBuyerChecklistOutputSchema,
+    outputFields: ['checklist'],
     jsonInputSchema: {
       type: 'object',
       properties: {

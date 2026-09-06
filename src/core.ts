@@ -51,14 +51,14 @@ const SYNONYM_GROUPS = [
 ];
 
 const STATE_ALIASES: Record<string, string[]> = {
-  ACT: ['act', 'australian capital territory', 'canberra'],
-  NSW: ['nsw', 'new south wales'],
-  NT: ['nt', 'northern territory'],
-  QLD: ['qld', 'queensland'],
-  SA: ['sa', 'south australia'],
-  TAS: ['tas', 'tasmania'],
-  VIC: ['vic', 'victoria', 'victorian'],
-  WA: ['wa', 'western australia'],
+  ACT: ['australian capital territory', 'canberra'],
+  NSW: ['nsw', 'new south wales', 'sydney'],
+  NT: ['nt', 'northern territory', 'darwin'],
+  QLD: ['qld', 'queensland', 'brisbane'],
+  SA: ['sa', 'south australia', 'adelaide'],
+  TAS: ['tas', 'tasmania', 'hobart'],
+  VIC: ['vic', 'victoria', 'victorian', 'melbourne'],
+  WA: ['wa', 'western australia', 'perth'],
 };
 
 const DIRECTIVE_PATTERN = /\b(ask|check|compare|confirm|consider|document|establish|find|inspect|look|map|obtain|read|record|review|send|test|verify|write)\b/i;
@@ -114,18 +114,106 @@ function countOccurrences(haystack: string, term: string): number {
   return count;
 }
 
+type JurisdictionMention = { code: string; index: number; alias: string; negated: boolean };
+
+function jurisdictionMentions(query: string): JurisdictionMention[] {
+  const normalized = ` ${normalize(query)} `;
+  const mentions: JurisdictionMention[] = [];
+
+  // ACT is uniquely ambiguous because "Act" is also the ordinary legislation
+  // suffix. Treat ACT as the territory only when it is used as a location or
+  // directly qualifies residential-property language. This also makes ALL-CAPS
+  // legal questions such as "SALE OF LAND ACT ... VICTORIA" safe.
+  const actPatterns = [
+    /\b(?:in|for|within|across|from|to)\s+(?:the\s+)?(ACT)\b/gi,
+    /\b(ACT)\s+(?:home|house|property|apartment|unit|buyer|seller|contract|purchase|market)\b/g,
+  ];
+  for (const pattern of actPatterns) {
+    let match: RegExpExecArray | null;
+    while ((match = pattern.exec(query)) !== null) {
+      const rawAlias = match[1]!;
+      const aliasOffset = match.index + match[0].toLowerCase().lastIndexOf(rawAlias.toLowerCase());
+      const normalizedPrefix = normalize(query.slice(0, aliasOffset));
+      const index = (` ${normalizedPrefix} `).length - 1;
+      const before = normalized.slice(Math.max(0, index - 28), index + 1);
+      const negated = /\b(?:not|except|excluding|outside|rather than|not in)\s*$/.test(before.trimEnd());
+      mentions.push({ code: 'ACT', index, alias: 'act', negated });
+      if (match[0].length === 0) pattern.lastIndex += 1;
+    }
+  }
+
+  for (const [code, aliases] of Object.entries(STATE_ALIASES)) {
+    for (const alias of aliases) {
+      const normalizedAlias = normalize(alias);
+      const needle = ` ${normalizedAlias} `;
+      let offset = 0;
+      while ((offset = normalized.indexOf(needle, offset)) !== -1) {
+        const before = normalized.slice(Math.max(0, offset - 28), offset + 1);
+        const negated = /\b(?:not|except|excluding|outside|rather than|not in)\s*$/.test(before.trimEnd());
+        mentions.push({ code, index: offset, alias: normalizedAlias, negated });
+        offset += needle.length;
+      }
+    }
+  }
+
+  return mentions;
+}
+
+function mentionedJurisdictions(query: string): string[] {
+  return [...new Set(
+    jurisdictionMentions(query)
+      .filter((mention) => !mention.negated)
+      .map((mention) => mention.code),
+  )];
+}
+
+function isJurisdictionComparison(query: string, codes: string[]): boolean {
+  if (codes.length < 2) return false;
+  const q = normalize(query);
+  return /\b(?:compare|comparison|compared|versus|vs|difference|differences|between|both|across)\b/.test(q);
+}
+
 function detectJurisdiction(query: string): string | undefined {
   const normalized = ` ${normalize(query)} `;
-  for (const [code, aliases] of Object.entries(STATE_ALIASES)) {
-    if (aliases.some((alias) => normalized.includes(` ${normalize(alias)} `))) return code;
-  }
-  return undefined;
+  const positive = jurisdictionMentions(query).filter((mention) => !mention.negated);
+  const codes = [...new Set(positive.map((mention) => mention.code))];
+  if (codes.length === 1) return codes[0];
+  if (codes.length === 0) return undefined;
+  if (isJurisdictionComparison(query, codes)) return undefined;
+
+  // When several states are mentioned outside a genuine comparison, prefer a
+  // single state explicitly tied to the property/buying location. Otherwise
+  // leave jurisdiction unresolved rather than choosing by alias iteration.
+  const locationCandidates = positive.filter((mention) => {
+    const before = normalized.slice(Math.max(0, mention.index - 48), mention.index + 1).trimEnd();
+    return /\b(?:buying|purchasing|property|home|house|apartment|unit|located|based)\s+(?:a\s+|an\s+|the\s+)?(?:property\s+|home\s+|house\s+|apartment\s+|unit\s+)?in\s*$/.test(before);
+  });
+  const locationCodes = [...new Set(locationCandidates.map((mention) => mention.code))];
+  return locationCodes.length === 1 ? locationCodes[0] : undefined;
+}
+
+function jurisdictionsForSearch(options: SearchOptions): string[] {
+  const explicit = canonicalJurisdiction(options.jurisdiction);
+  if (explicit) return [explicit];
+
+  const mentioned = mentionedJurisdictions(options.query);
+  if (mentioned.length <= 1) return mentioned;
+
+  // Search is deliberately set-based when a query positively names more than
+  // one jurisdiction. Collapsing two positive state mentions to whichever one
+  // happens to look most like the property location can hide the other state's
+  // dedicated rule guide (for example VIC + QLD disclosure comparisons). A
+  // negated state has already been removed by jurisdictionMentions(), so
+  // retaining all remaining states is the conservative retrieval behaviour.
+  return mentioned;
 }
 
 function canonicalJurisdiction(value?: string): string | undefined {
   if (!value?.trim()) return undefined;
   const normalized = normalize(value);
   if (normalized === 'australia' || normalized === 'au') return 'Australia';
+  const exactCode = Object.keys(STATE_ALIASES).find((code) => normalized === code.toLowerCase());
+  if (exactCode) return exactCode;
   return detectJurisdiction(value) ?? value.trim();
 }
 
@@ -161,20 +249,28 @@ function detectConstructionYear(query: string): number | undefined {
 function detectEra(query: string): string | undefined {
   const q = normalize(query);
 
-  // A bare year can be the current year or a price/review reference, so only
-  // infer an era when the user ties it to construction/completion or directly
-  // describes a property as, for example, a "1935 house".
+  // Bare calendar years and generic words such as "modern" are common in
+  // finance, history and other unrelated questions. Only construction-linked
+  // years or explicit residential era language may become a structured era
+  // signal. Era metadata can improve an already relevant query; it must never
+  // manufacture relevance for "house price in 2020" or "modern portfolio
+  // theory".
   const constructionYear = detectConstructionYear(query);
   if (constructionYear !== undefined) {
     const era = eraForConstructionYear(constructionYear);
     if (era) return era;
   }
 
-  if (/pre 1920|victorian era|edwardian era/.test(q)) return 'pre-1920s';
-  if (/1920|1930|1940|interwar/.test(q)) return '1920s-1940s';
-  if (/1950|1960|1970|postwar/.test(q)) return '1950s-1970s';
-  if (/1980|1990/.test(q)) return '1980s-1990s';
-  if (/2000|2010|2020|modern|new build|near new/.test(q)) return '2000s-on';
+  const propertyContext = /\b(?:home|house|property|building|apartment|unit|townhouse|villa|weatherboard|brick|construction|built|constructed|inspect|condition|renovation|fabric|era|period)\b/.test(q);
+  if (!propertyContext) return undefined;
+
+  if (/\b(?:pre 1920s?|victorian era|edwardian era)\b/.test(q)) return 'pre-1920s';
+  if (/\b(?:1920s|1930s|1940s|interwar)\b/.test(q)) return '1920s-1940s';
+  if (/\b(?:1950s|1960s|1970s|postwar)\b/.test(q)) return '1950s-1970s';
+  if (/\b(?:1980s|1990s)\b/.test(q)) return '1980s-1990s';
+  if (/\b(?:2000s|2010s|2020s)\b/.test(q)) return '2000s-on';
+  if (/\bmodern\s+(?:home|house|property|building|apartment|unit|townhouse)\b/.test(q)) return '2000s-on';
+  if (/\b(?:new build|near new)\b/.test(q)) return '2000s-on';
   return undefined;
 }
 
@@ -226,7 +322,7 @@ function scoreSection(section: GuideRecord['sections'][number], terms: string[],
   return score;
 }
 
-function scoreGuide(guide: GuideRecord, options: SearchOptions, terms: string[]): { score: number; matchedTerms: string[] } {
+function scoreGuide(guide: GuideRecord, options: SearchOptions, terms: string[], inferredJurisdictions?: string[]): { score: number; matchedTerms: string[] } {
   const query = normalize(options.query);
   const matchedTerms = new Set<string>();
   let score = 0;
@@ -266,12 +362,12 @@ function scoreGuide(guide: GuideRecord, options: SearchOptions, terms: string[])
     if (termMatched) matchedTerms.add(term);
   }
 
-  const inferredJurisdiction = canonicalJurisdiction(options.jurisdiction) ?? detectJurisdiction(options.query);
+  const jurisdictions = inferredJurisdictions ?? jurisdictionsForSearch(options);
   const inferredEra = options.era ?? detectEra(options.query);
   const inferredPropertyType = options.propertyType ?? detectPropertyType(options.query);
 
-  if (inferredJurisdiction) {
-    if (guide.jurisdiction.includes(inferredJurisdiction)) score += 18;
+  if (jurisdictions.length > 0) {
+    if (jurisdictions.some((jurisdiction) => guide.jurisdiction.includes(jurisdiction))) score += 18;
     else if (guide.jurisdiction.includes('Australia')) score += 3;
     else score -= 8;
   }
@@ -394,6 +490,8 @@ const OUTSIDE_ANSWERABLE_SCOPE_PATTERNS: RegExp[] = [
   /\b(?:how much tax|tax treatment|tax deduction|tax deductible|claim .{0,30} on tax|claim .{0,30} as a deduction)\b/i,
   /\b(?:how much rent|rent (?:can|could|should) i charge)\b/i,
   /\b(?:house|home|property|apartment|unit)\b.{0,20}\bworth\b/i,
+  /\b(?:average|median|mean)\s+(?:house|home|property|apartment|unit)\s+(?:price|prices|value|values)\b/i,
+  /\b(?:house|home|property|apartment|unit)\s+(?:price|prices|value|values)\b/i,
 
   // Transaction decisions: due-diligence material may inform the decision,
   // but the corpus cannot tell a buyer what price to bid/offer or whether to buy.
@@ -438,9 +536,15 @@ function hasStrongStructuredMatch(query: string, results: GuideSearchResult[]): 
   const top = results[0];
   if (!top) return false;
 
-  // Explicit construction-era language is a high-confidence structured signal.
-  // Do not let generic words such as "inspect" dilute a correctly matched era
-  // guide below the lexical strong-match threshold.
+  // Explicit residential construction-era language is a useful structured
+  // signal, but it must not override confidence for a different outcome merely
+  // because a query contains an era word. Price/market/finance questions are
+  // outside this corpus even when they mention a modern or 1970s house.
+  const q = normalize(query);
+  if (/\b(?:price|prices|value|values|market|mortgage|loan|rent|rental|yield|portfolio|tax|interest rate|capital growth|investment return)\b/.test(q)) {
+    return false;
+  }
+
   const era = detectEra(query);
   return Boolean(era && metadataMatches(top.eras, era));
 }
@@ -457,19 +561,25 @@ export function searchGuides(options: SearchOptions): GuideSearchResult[] {
   const query = options.query.trim();
   if (!query) return [];
   const terms = expandedTerms(query);
-  const jurisdiction = canonicalJurisdiction(options.jurisdiction) ?? detectJurisdiction(query);
-  const normalizedOptions: SearchOptions = jurisdiction ? { ...options, jurisdiction } : options;
+  const jurisdictions = jurisdictionsForSearch(options);
+  const { jurisdiction: _requestedJurisdiction, ...optionsWithoutJurisdiction } = options;
+  const normalizedOptions: SearchOptions = jurisdictions.length === 1
+    ? { ...optionsWithoutJurisdiction, jurisdiction: jurisdictions[0]! }
+    : optionsWithoutJurisdiction;
 
   const candidates = guides.filter((guide) => {
     if (!(options.includePillar ?? false) && guide.pillar) return false;
     if (options.cluster && guide.cluster?.id !== options.cluster) return false;
-    if (jurisdiction && !(guide.jurisdiction.includes(jurisdiction) || guide.jurisdiction.includes('Australia'))) return false;
+    if (jurisdictions.length > 0 && !(
+      guide.jurisdiction.includes('Australia') ||
+      jurisdictions.some((jurisdiction) => guide.jurisdiction.includes(jurisdiction))
+    )) return false;
     return true;
   });
 
   const ranked = candidates
     .map((guide) => {
-      const { score, matchedTerms } = scoreGuide(guide, normalizedOptions, terms);
+      const { score, matchedTerms } = scoreGuide(guide, normalizedOptions, terms, jurisdictions);
       const matchedSections = guide.sections
         .map((section) => ({
           id: section.id,

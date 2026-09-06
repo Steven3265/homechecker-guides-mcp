@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import healthHandler from '../dist/api/health.js';
 import indexHandler from '../dist/api/index.js';
 import openapiHandler from '../dist/api/openapi.js';
+import mcpServerCardHandler from '../dist/api/mcp-server-card.js';
 import serverCardHandler from '../dist/api/server-card.js';
 import checklistHandler from '../dist/api/v1/checklist.js';
 import guidesHandler from '../dist/api/v1/guides.js';
@@ -106,6 +107,19 @@ assert.equal(payload.privacy.identifyingRequestHeadersLoggedByApplication, false
 assert.equal(payload.privacy.protocolMethodHeaderLoggedByApplication, true);
 assert.equal('requestHeadersLoggedByApplication' in payload.privacy, false);
 assert.ok(payload.corpus.snapshotGeneratedAt);
+assert.equal(payload.interfaces.serverCard, 'https://mcp.homechecker.com.au/mcp/server-card');
+assert.equal(String(res.headers.get('content-type')), 'application/json; charset=utf-8');
+
+res = call(mcpServerCardHandler, request('GET', '/mcp/server-card'));
+payload = body(res);
+assert.equal(payload.$schema, 'https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json');
+assert.equal(payload.name, 'io.github.Steven3265/homechecker-guides');
+assert.equal(payload.version, '1.2.0');
+assert.equal(payload.remotes[0].url, 'https://mcp.homechecker.com.au/mcp');
+assert.ok(payload.remotes[0].supportedProtocolVersions.includes('2026-07-28'));
+assert.equal(payload.icons[0].mimeType, 'image/png');
+assert.equal('tools' in payload, false, 'standards-track server card must use runtime tool discovery');
+assert.match(String(res.headers.get('content-type')), /application\/mcp-server-card\+json/);
 
 res = call(openapiHandler, request('GET', '/openapi.json'));
 payload = body(res);
@@ -121,4 +135,4 @@ assert.equal(payload.components.schemas.SearchResult.required.includes('readingT
 assert.ok(payload.components.schemas.GuideDetail.properties.sections, 'full guide schema must extend summary fields without conflicting allOf restrictions');
 assert.ok(payload.components.schemas.ChecklistResponse);
 
-console.log('HTTP adapters: attribution, boundaries, strict params, health, shared contracts and OpenAPI checks passed.');
+console.log('HTTP adapters: attribution, boundaries, server cards, strict params, health, shared contracts and OpenAPI checks passed.');

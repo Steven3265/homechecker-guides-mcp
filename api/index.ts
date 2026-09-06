@@ -13,7 +13,8 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
     endpoints: {
       mcp: '/mcp',
       health: '/health',
-      serverCard: '/server-card.json',
+      serverCard: '/mcp/server-card',
+      serviceMetadata: '/server-card.json',
       openapi: '/openapi.json',
       rest: {
         guides: '/v1/guides',

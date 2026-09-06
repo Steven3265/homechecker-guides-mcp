@@ -8,14 +8,15 @@ Public, read-only and deliberately separated from customer and assessment system
 
 The service exposes the current Homechecker guide system without connecting to the Moyne Ross portal, Supabase, customer records, payments, uploaded documents or the Homechecker assessment engine.
 
-**Version:** `1.1.1` · **Protocol:** MCP `2026-07-28` with stateless 2025-era compatibility · **Live endpoint:** `https://mcp.homechecker.com.au/mcp` · **Health:** [mcp.homechecker.com.au/health](https://mcp.homechecker.com.au/health) · **Official Registry:** `io.github.Steven3265/homechecker-guides` · **Connect it:** [homechecker.com.au/ai](https://homechecker.com.au/ai)
+**Version:** `1.2.0` · **Protocol:** MCP `2026-07-28` with stateless 2025-era compatibility · **Live endpoint:** `https://mcp.homechecker.com.au/mcp` · **Health:** [mcp.homechecker.com.au/health](https://mcp.homechecker.com.au/health) · **Official Registry:** `io.github.Steven3265/homechecker-guides` · **Connect it:** [homechecker.com.au/ai](https://homechecker.com.au/ai)
 
 ## Machine discovery surface
 
 Homechecker publishes one deterministic guide corpus through several interoperable discovery and execution surfaces.
 
 - **MCP:** `https://mcp.homechecker.com.au/mcp`
-- **First-party MCP server card:** `https://mcp.homechecker.com.au/server-card.json`
+- **MCP Server Card (experimental extension):** `https://mcp.homechecker.com.au/mcp/server-card`
+- **Extended Homechecker service metadata:** `https://mcp.homechecker.com.au/server-card.json`
 - **Read-only REST API:** `https://mcp.homechecker.com.au/v1/*`
 - **OpenAPI 3.1:** `https://mcp.homechecker.com.au/openapi.json`
 - **ARD catalogue:** `https://homechecker.com.au/.well-known/ai-catalog.json`
@@ -45,11 +46,11 @@ The authoritative server identity remains `io.github.Steven3265/homechecker-guid
 
 ## Protocol foundation
 
-Version 1.1.1 uses the MCP TypeScript SDK v2 server package and the `2026-07-28` protocol revision.
+Version 1.2.0 uses the MCP TypeScript SDK v2 server package and the `2026-07-28` protocol revision.
 
 The official `createMcpHandler` entry provides stateless per-request serving, `server/discover`, modern MCP routing headers, server identity and cache fields while retaining stateless compatibility for 2025-era HTTP clients during rollout.
 
-For modern Streamable HTTP requests, the SDK validates the MCP protocol-routing headers against the JSON-RPC request and rejects mismatches. Application telemetry reads the `Mcp-Method` protocol header for operational method identification but does not parse the JSON-RPC body for logging.
+For modern Streamable HTTP requests, the SDK validates MCP routing headers against the JSON-RPC request and rejects mismatches. The bare fetch endpoint now also applies the SDK's Host and Origin validation helpers before protocol handling, including `403` rejection for a supplied Origin outside the allowlist. Every tool advertises both an input schema and an output schema for `structuredContent`. Application telemetry reads the `Mcp-Method` protocol header for operational method identification but does not parse the JSON-RPC body for logging.
 
 The protocol shell can evolve independently of the durable parts of the product: the reviewed snapshot, deterministic retrieval, tool contracts and professional boundaries.
 
@@ -72,14 +73,14 @@ See [`docs/PROTOCOL-SUPPORT.md`](docs/PROTOCOL-SUPPORT.md), [`docs/RELEASE-1.0.m
 - **4 read-only MCP tools:** catalogue listing, natural-language search, canonical guide retrieval and a deterministic buyer checklist.
 - **Read-only HTTP adapters:** REST endpoints exposing the same deterministic list, search, retrieval and checklist functions.
 - **OpenAPI 3.1:** a machine-readable description of the REST surface for clients that do not speak MCP.
-- **First-party server card:** publisher, protocol, tools, schemas, interfaces, privacy properties and operating boundaries in one machine-readable document.
+- **Two discovery documents:** the standards-track experimental MCP Server Card at `/mcp/server-card` contains identity and remote connection details only; `/server-card.json` retains richer Homechecker service metadata for compatibility and diagnostics.
 - **4 Agent Skills:** portable workflows for Australian homebuyer due diligence, property documents, building-risk interpretation and home-ownership planning.
 - **Two MCP transports:** stateless remote Streamable HTTP at `/mcp` and modern/legacy-compatible local stdio.
 - **A bundled content snapshot:** rebuilt from Homechecker's public guide export at `https://homechecker.com.au/guides/export.json`. The repository needs no runtime access to the portal codebase.
 - **A browser-triggered refresh workflow:** Actions → **Refresh guides snapshot** regenerates, tests and opens a pull request. No local environment is required.
 - **Canonical model-facing links:** MCP-rendered text and `canonicalUrl` fields always use the clean Homechecker canonical URL. REST/WebMCP responses may add a separate `referralUrl` for attribution (`homechecker-rest` / `homechecker-webmcp`) without changing the URL an assistant is instructed to cite.
 - **Privacy-minimised operational telemetry:** application telemetry records operational fields such as MCP method, tool name, query length, coarse filters, counts, match strength, outcome and duration where applicable. Raw questions, session identifiers, IP addresses and identifying request-header values are not intentionally logged by the application. See `docs/SECURITY.md`.
-- **Tests and benchmark:** snapshot integrity, core search, release metadata, protocol and HTTP-adapter checks plus 14 representative buyer questions.
+- **Tests and retrieval evaluation:** snapshot integrity, core search, release metadata, protocol, HTTP-adapter and official MCP conformance checks plus 114 retrieval cases.
 
 ## Tools
 
@@ -189,7 +190,7 @@ Homechecker's `robots.txt` also advertises the catalogue through:
 Agentmap: https://homechecker.com.au/.well-known/ai-catalog.json
 ```
 
-The same machine identity is reinforced through `llms.txt`, the guide RSS feed, OpenAPI, the MCP server card, GitHub and the official MCP Registry.
+The same machine identity is reinforced through `llms.txt`, the guide RSS feed, OpenAPI, the standards-track experimental MCP Server Card, GitHub and the official MCP Registry.
 
 ## Resources
 
@@ -261,6 +262,7 @@ Machine service information:
 ```text
 http://localhost:3000/
 http://localhost:3000/health
+http://localhost:3000/mcp/server-card
 http://localhost:3000/server-card.json
 http://localhost:3000/openapi.json
 http://localhost:3000/v1/guides
@@ -297,9 +299,9 @@ This repository is configured as a standalone Vercel project.
 5. Attach `mcp.homechecker.com.au` to the project.
 6. Use `https://mcp.homechecker.com.au/mcp` as the remote MCP endpoint.
 
-The root route publishes service metadata, `/health` confirms the bundled guide count, `/server-card.json` publishes the first-party MCP card, `/openapi.json` describes the REST surface, and `/v1/*` provides read-only HTTP adapters.
+The root route publishes service metadata, `/health` confirms the bundled guide count, `/mcp/server-card` publishes the experimental MCP Server Card, `/server-card.json` retains the richer Homechecker service metadata document, `/openapi.json` describes the REST surface, and `/v1/*` provides read-only HTTP adapters.
 
-`ALLOWED_ORIGIN` is optional. It defaults to `*` because the connector is public and read-only. Set it only where a client requires a restricted browser origin.
+The MCP endpoint validates both `Host` and any supplied `Origin` header before protocol handling. Server-to-server MCP clients normally omit `Origin` and continue to work without configuration. Browser origins for Homechecker, current Claude surfaces, ChatGPT and loopback MCP Inspector use are allowed by default. Vercel deployment, branch and project-production aliases are admitted from `VERCEL_URL`, `VERCEL_BRANCH_URL` and `VERCEL_PROJECT_PRODUCTION_URL`; extra hosts can be supplied through `ALLOWED_HOSTS`. `ALLOWED_ORIGINS` is an authoritative exact-origin override (scheme, hostname and effective port), while a concrete legacy `ALLOWED_ORIGIN` preserves its prior exact single-origin restriction. Wildcard Origin validation is deliberately not supported; a historical `ALLOWED_ORIGIN=*` falls back to the safe built-in allowlist.
 
 ## Official MCP Registry
 
@@ -355,7 +357,7 @@ npm run benchmark
 npm run check
 ```
 
-The retrieval benchmark contains 14 representative Australian buyer questions. All 14 currently return an expected canonical guide within the top three.
+The retrieval evaluation contains 114 cases across every published spoke, multi-state retention, jurisdiction isolation, legislation-title/ACT ambiguity, era-confidence regressions, weak/background questions and correct-empty off-topic questions. The current baseline is 91.0% top-1 recall, 100% top-3 recall, 100% weak/background handling, 100% correct-empty handling, zero false-strong negatives and zero jurisdiction leakage (0/13 leakage probes).
 
 This is an internal retrieval benchmark, not an independent assessment of legal or technical accuracy.
 
@@ -368,7 +370,8 @@ api/
   index.ts                 service metadata
   mcp.ts                   Streamable HTTP MCP endpoint
   health.ts                health and snapshot status
-  server-card.ts           first-party MCP server card
+  mcp-server-card.ts       experimental MCP Server Card (identity + remote connection)
+  server-card.ts           extended Homechecker service metadata
   openapi.ts               OpenAPI 3.1 description
   v1/                      read-only REST adapters
 
