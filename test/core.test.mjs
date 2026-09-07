@@ -163,6 +163,45 @@ test('an empty result set says what the corpus does not cover', () => {
   assert.match(rendered, /does not cover finance, tax, valuation/i);
 });
 
+test('finance-only requests stay empty across conversational wording and property context', () => {
+  const queries = [
+    'How much capital gains tax will I owe on an investment property?',
+    'How much capital gains tax will I pay when I sell my investment property?',
+    'Calculate CGT on the sale of my Melbourne house.',
+    'Capital-gains tax on a house built in 1970 in Victoria',
+    'How does negative gearing work when buying an investment apartment?',
+    'What rental yield can I expect from a modern apartment in Sydney?',
+    'How much rental income will I receive from a house built in 1965?',
+    'Which mortgage should I choose when buying a home in NSW?',
+    'How much can I borrow with a home loan for this house?',
+    'Should I refinance my house in Queensland?',
+    'What interest rates apply when buying an apartment in Melbourne?',
+    'What investment returns should I expect from selling this house?',
+  ];
+  for (const query of queries) {
+    // Caller-supplied metadata must not turn a financial request into a match.
+    for (const options of [{}, { jurisdiction: 'VIC', limit: 10, includePillar: true }]) {
+      const results = searchGuides({ query, ...options });
+      assert.deepEqual(results, [], `expected no results for: ${query}`);
+      assert.match(renderSearchResults(results, query), /No Homechecker guide addresses that question/);
+    }
+  }
+});
+
+test('mixed finance and building questions retain relevant weak background', () => {
+  const queries = [
+    ['What renovation records should I keep for capital gains tax?', 'keeping-a-record-of-your-home'],
+    ['What home repair invoices should I keep for CGT?', 'keeping-a-record-of-your-home'],
+    ['Before choosing a mortgage, how do I read a building and pest inspection report?', 'how-to-read-a-building-and-pest-report'],
+    ['How do damp and moisture in a house affect rental yield?', 'damp-and-moisture-in-your-home'],
+  ];
+  for (const [query, expected] of queries) {
+    const results = searchGuides({ query });
+    assert.ok(results.some((result) => result.slug === expected), `missing useful background for: ${query}`);
+    assert.equal(isWeakMatch(query, results), true, `financial outcome must stay weak: ${query}`);
+  }
+});
+
 test('marginal off-topic questions are returned but flagged weak', () => {
   const results = searchGuides({ query: 'how much stamp duty do i pay in victoria' });
   assert.ok(results.length > 0, 'marginal queries still return context');

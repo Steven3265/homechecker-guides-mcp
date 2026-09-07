@@ -560,10 +560,27 @@ export function relevanceDensity(query: string, results: GuideSearchResult[]): n
  * off-topic reaches "strong". A hedge on a correct answer costs a sentence;
  * false confidence gets Homechecker cited on tax.
  */
+// Pure financing and investment-tax requests have no answer in this corpus.
+// Keep this independent of lexical scores: new editorial examples can otherwise
+// lift incidental words such as "much" or "investment" above the result floor.
+const FINANCIAL_ADVICE_PATTERN = /\b(?:capital gains(?: tax)?|cgt|negative gearing|mortgages?|home loans?|refinanc\w*|borrowing capacity|interest rates?|rental yields?|rental income|investment returns?)\b/i;
+
+function isFinanceOnlyQuery(query: string): boolean {
+  const q = normalize(query);
+  if (!FINANCIAL_ADVICE_PATTERN.test(q)) return false;
+
+  // A building/document topic can still supply useful background for a mixed
+  // request. A place, construction year, sale or residential noun alone cannot.
+  // Stamp duty and valuations retain the existing weak/background policy.
+  const hasGuideTopic = /\b(?:inspect\w*|building and pest|building biologist|condition|defects?|cracks?|cracking|damp|moisture|mould|water ingress|roof\w*|walls?|foundations?|wiring|plumbing|cladding|weatherboard|brick|maintenance|upkeep|renovat\w*|extension|alteration|insurance|insurer\w*|records?|warranties|invoices|repairs?|pest|asbestos|storm\w*|flood\w*|bushfire|strata|body corporate|owners corporation|section 32|vendor statement|seller disclosure|form 2|contract review|contract for sale|cooling off|due diligence|heritage overlay)\b/.test(q);
+  return !hasGuideTopic;
+}
+
 const OUTSIDE_ANSWERABLE_SCOPE_PATTERNS: RegExp[] = [
   // Financial, tax, valuation and investment outcomes. Homechecker may have
   // relevant building context, but it is not the authority for the outcome.
-  /\b(?:capital gains(?: tax)?|negative gearing|stamp duty|mortgage|home loan|borrowing capacity|interest rate|rental yield|market rent|rental income|property value|market value|valuation|capital growth|investment return)\b/i,
+  FINANCIAL_ADVICE_PATTERN,
+  /\b(?:stamp duty|market rent|property value|market value|valuation|capital growth)\b/i,
   /\b(?:how much tax|tax treatment|tax deduction|tax deductible|claim .{0,30} on tax|claim .{0,30} as a deduction)\b/i,
   /\b(?:how much rent|rent (?:can|could|should) i charge)\b/i,
   /\b(?:house|home|property|apartment|unit)\b.{0,20}\bworth\b/i,
@@ -638,6 +655,7 @@ export function searchGuides(options: SearchOptions): GuideSearchResult[] {
   const limit = Math.max(1, Math.min(options.limit ?? 5, 10));
   const query = options.query.trim();
   if (!query) return [];
+  if (isFinanceOnlyQuery(query)) return [];
   const terms = expandedTerms(query);
   const jurisdictions = jurisdictionsForSearch(options);
   const { jurisdiction: _requestedJurisdiction, ...optionsWithoutJurisdiction } = options;
