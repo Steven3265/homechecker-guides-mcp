@@ -8,6 +8,7 @@ import {
   listGuides,
   MIN_RESULT_SCORE,
   relevanceDensity,
+  residentialDomainEvidence,
   renderSearchResults,
   searchGuides,
   snapshot,
@@ -224,6 +225,62 @@ test('era metadata cannot manufacture a strong match for unrelated modern/year q
     const results = searchGuides({ query });
     if (results.length === 0) continue;
     assert.equal(isWeakMatch(query, results), true, `structured era signal leaked as strong: ${query}`);
+  }
+});
+
+
+test('open-world lexical collisions cannot manufacture strong Homechecker confidence', () => {
+  const collisions = [
+    'What is Section 32 of the Copyright Act?',
+    'What does section 32 of the Corporations Act say?',
+    'Explain geological strata',
+    'What is a unit test in software?',
+    'How long should I cool off after a workout?',
+    'How do art auctions work?',
+    'What is settlement risk in banking?',
+    'How do I remove mould from cheese?',
+    'What is Form 2 in a medical context?',
+    'What is a vendor statement in procurement?',
+    'What is a brick phone?',
+    'What is the population of Victoria?',
+    'Sydney weather tomorrow',
+    'What does movement mean in music?',
+    'What is an extension in a browser?',
+    'What does common property mean in mathematics?',
+  ];
+
+  for (const query of collisions) {
+    const results = searchGuides({ query });
+    if (results.length === 0) continue;
+    assert.equal(isWeakMatch(query, results), true, `lexical collision leaked as strong: ${query}`);
+  }
+
+  const genuine = [
+    'what is a section 32',
+    'is the crack in my wall a big deal',
+    'what should I check before buying an apartment with strata',
+    'how much does a building and pest inspection cost',
+  ];
+  for (const query of genuine) {
+    assert.ok(residentialDomainEvidence(query) >= 3, `missing residential-domain evidence: ${query}`);
+  }
+});
+
+
+test('domain gate preserves strong confidence for clear residential questions', () => {
+  const clearResidential = [
+    'Buying in NSW and I have the sale contract before signing. What disclosures should I check?',
+    'There are diagonal cracks around doors. How do I tell normal cosmetic cracking from movement that needs investigation?',
+    'What does a home need as it ages decade by decade?',
+    'What should I check before renovating my home?',
+    'What are common issues in a 1970s house?',
+    'Compare cooling-off periods in Victoria and NSW before I sign a contract.',
+    'Buying in Victoria and Queensland: compare disclosure requirements',
+  ];
+  for (const query of clearResidential) {
+    const results = searchGuides({ query });
+    assert.ok(results.length > 0, `expected residential results for: ${query}`);
+    assert.equal(isWeakMatch(query, results), false, `residential query unexpectedly weakened: ${query}`);
   }
 });
 

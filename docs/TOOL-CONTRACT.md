@@ -17,6 +17,8 @@ All four tools advertise both `inputSchema` and `outputSchema` through MCP disco
 
 **Returns:** ranked guides, matched terms, up to three matching sections, review metadata, canonical URLs and limitations.
 
+**Confidence:** `matchStrength` is query-level, not merely a ranking label. A result can be `strong` only when the query also contains credible residential-property domain evidence. Ambiguous lexical collisions may still return the closest guides as `weak` background, but must not be presented as an answer to the unrelated question.
+
 **Do not use it to:** claim that a defect, material, permit problem or legal consequence exists at a particular property.
 
 ## `get_guide`

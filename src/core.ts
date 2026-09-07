@@ -458,6 +458,83 @@ const RELATIVE_FLOOR = 0.18;
 export const MIN_RELEVANCE_PER_TERM = 3.5;
 export const WEAK_RELEVANCE_PER_TERM = 12;
 
+// Strong retrieval is allowed only when the query contains credible evidence
+// that the user is actually asking about an Australian residential-property
+// topic. Keyword overlap alone is not enough: terms such as `strata`, `unit`,
+// `settlement`, `auction`, `mould`, `Section 32` and `Form 2` all have valid
+// meanings outside Homechecker's corpus. The gate is intentionally conservative
+// and affects confidence only; ambiguous queries can still return weak/background
+// results for a caller to inspect.
+const DOMAIN_EVIDENCE_THRESHOLD = 3;
+
+const CLEAR_NON_PROPERTY_CONTEXT_PATTERNS: RegExp[] = [
+  /\b(?:software|programming|javascript|typescript|python|browser|chrome|unit test|design pattern|gis|dataset)\b/i,
+  /\b(?:copyright|patent|trademark|intellectual property|corporations act|privacy act|criminal law|company law|business law|procurement|banking|securities|portfolio theory)\b/i,
+  /\b(?:medical|medicine|hospital|clinical|workout|fitness|exercise|cheese|recipe)\b/i,
+  /\b(?:agriculture|crop|geology|mathematics|maths)\b/i,
+  /\b(?:music|theatre|advertising|ebay|tailoring|submarine|aircraft|airplane|vehicle|car)\b/i,
+  /\b(?:population|capital city)\b/i,
+];
+
+const DIRECT_RESIDENTIAL_PATTERNS: RegExp[] = [
+  /\b(?:building and pest|building inspection|building inspector|property inspection|pre[- ]purchase inspection|property condition report|building biologist|owners corporation|heritage overlay|brick veneer|double brick)\b/i,
+  /\bsection 32\b/i,
+  /\b(?:wall cracks?|cracks? in (?:(?:the|my|a|this|that) )?(?:wall|ceiling|brickwork)|(?:diagonal|structural|cosmetic) cracks?|cracks?.{0,35}(?:door|doors|window|windows|movement|structural|cosmetic))\b/i,
+  /\b(?:maintenance|upkeep)\b.{0,35}\b(?:repair|repairs|repair bills?|home|house|property|building)\b/i,
+  /\b(?:repair|repairs|repair bills?)\b.{0,35}\b(?:maintenance|upkeep)\b/i,
+  /\b(?:auction|bidding)\b.{0,35}\bdue diligence\b|\bdue diligence\b.{0,35}\b(?:auction|bidding)\b/i,
+  /\bcooling[- ]?off\b.{0,35}\b(?:buy|buying|buyer|contract|property|home|house|apartment)\b|\b(?:buy|buying|buyer|contract|property|home|house|apartment)\b.{0,35}\bcooling[- ]?off\b/i,
+  /\b(?:damp|mould|moisture|water ingress)\b.{0,35}\b(?:home|house|building|wall|window|ceiling|roof|bathroom|property)\b|\b(?:home|house|building|wall|window|ceiling|roof|bathroom|property)\b.{0,35}\b(?:damp|mould|moisture|water ingress)\b/i,
+  /\binsurance\b.{0,35}\b(?:home|house|property|roof|damage|condition|building)\b|\b(?:home|house|property|roof|damage|condition|building)\b.{0,35}\binsurance\b/i,
+  /\b(?:strata|body corporate|common property|owners corporation)\b.{0,35}\b(?:apartment|unit|lot|levy|levies|minutes|records|building|buy|buying|owner)\b|\b(?:apartment|unit|lot|levy|levies|minutes|records|building|buy|buying|owner)\b.{0,35}\b(?:strata|body corporate|common property|owners corporation)\b/i,
+  /\b(?:renovat\w*|extension|alteration)\b.{0,35}\b(?:home|house|property|building|planning|permit|approval)\b|\b(?:home|house|property|building|planning|permit|approval)\b.{0,35}\b(?:renovat\w*|extension|alteration)\b/i,
+  /\b(?:storm|storms|flood|flooding|bushfire|extreme weather|severe weather)\b.{0,35}\b(?:home|house|property|building)\b|\b(?:home|house|property|building)\b.{0,35}\b(?:storm|storms|flood|flooding|bushfire|extreme weather|severe weather)\b/i,
+  /\b(?:home|house|property)\b.{0,35}\b(?:records?|warranties|invoices|maintenance history)\b|\b(?:records?|warranties|invoices|maintenance history)\b.{0,35}\b(?:home|house|property)\b/i,
+  /\b(?:home|house|property)\b.{0,35}\b(?:age|ages|aging|ageing|decade|decades)\b|\b(?:age|ages|aging|ageing|decade|decades)\b.{0,35}\b(?:home|house|property)\b/i,
+];
+
+/**
+ * Coarse query-level evidence that the request belongs to Homechecker's domain.
+ * This is deliberately separate from guide ranking: it prevents one overloaded
+ * corpus keyword from manufacturing confidence without blocking weak/background
+ * retrieval. It is not a general intent classifier.
+ */
+export function residentialDomainEvidence(query: string): number {
+  const q = normalize(query);
+  if (!q) return 0;
+
+  const hasResidentialNoun = /\b(?:home|house|property|apartment|townhouse|dwelling|villa|residential|real estate)\b/.test(q);
+  const hasTransaction = /\b(?:buy|buying|buyer|purchase|purchasing|seller|selling|sale|offer|auction|bid|bidding|contract|settlement|cooling off|due diligence)\b/.test(q);
+  const hasCondition = /\b(?:inspect|inspection|condition|defect|defects|crack|cracks|cracking|damp|moisture|mould|roof|wall|foundation|wiring|plumbing|cladding|weatherboard|brick|maintenance|upkeep|renovation|extension|alteration|insurance|records|repairs|pest|asbestos|storm|storms|flood|flooding|bushfire)\b/.test(q);
+  const hasSharedBuilding = /\b(?:strata|body corporate|common property|levy|levies|owners corporation)\b/.test(q);
+  const hasDocumentCue = /\b(?:section 32|vendor statement|seller disclosure|form 2|contract for sale|sale contract|disclosure statement|disclosure requirements?)\b/.test(q);
+  const hasJurisdiction = mentionedJurisdictions(query).length > 0;
+  const direct = DIRECT_RESIDENTIAL_PATTERNS.some((pattern) => pattern.test(query));
+
+  // Explicitly non-property subject matter wins over a single overloaded cue.
+  // A genuinely residential query that also mentions software/finance/etc can
+  // still pass when it contains multiple independent property signals.
+  const nonPropertyContext = CLEAR_NON_PROPERTY_CONTEXT_PATTERNS.some((pattern) => pattern.test(query));
+
+  let score = direct ? 4 : 0;
+  if (hasResidentialNoun) score += 1.5;
+  if (hasTransaction) score += 1.2;
+  if (hasCondition) score += 1.2;
+  if (hasSharedBuilding) score += 1.2;
+  if (hasDocumentCue) score += 1.2;
+  if (hasJurisdiction) score += 0.4;
+
+  if (hasResidentialNoun && (hasTransaction || hasCondition || hasSharedBuilding || hasDocumentCue)) score += 1.5;
+  if (hasTransaction && (hasCondition || hasSharedBuilding || hasDocumentCue)) score += 0.8;
+  if (hasCondition && hasSharedBuilding) score += 0.8;
+  if (detectEra(query) !== undefined && hasResidentialNoun) score += 2;
+  if (/\bcooling[- ]?off\b/.test(q) && hasJurisdiction) score += 2;
+  if (detectConstructionYear(query) !== undefined && hasResidentialNoun) score += 1.5;
+
+  if (nonPropertyContext && !(hasResidentialNoun && (hasTransaction || hasCondition || hasSharedBuilding) && score >= 5)) return 0;
+  return Math.round(score * 10) / 10;
+}
+
 /** Significant terms in the raw query — not synonym-expanded, which would inflate the divisor. */
 export function significantTermCount(query: string): number {
   const terms = query.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((t) => t.length > 2);
@@ -552,6 +629,7 @@ function hasStrongStructuredMatch(query: string, results: GuideSearchResult[]): 
 export function isWeakMatch(query: string, results: GuideSearchResult[]): boolean {
   if (results.length === 0) return false;
   if (isOutsideAnswerableScope(query)) return true;
+  if (residentialDomainEvidence(query) < DOMAIN_EVIDENCE_THRESHOLD) return true;
   if (hasStrongStructuredMatch(query, results)) return false;
   return relevanceDensity(query, results) < WEAK_RELEVANCE_PER_TERM;
 }

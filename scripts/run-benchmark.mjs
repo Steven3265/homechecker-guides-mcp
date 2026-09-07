@@ -12,8 +12,8 @@ const [{ searchGuides, isWeakMatch }, benchmarkText] = await Promise.all([
 ]);
 const cases = JSON.parse(benchmarkText);
 
-if (!Array.isArray(cases) || cases.length < 114) {
-  throw new Error(`Benchmark must contain at least 114 cases; found ${Array.isArray(cases) ? cases.length : 0}.`);
+if (!Array.isArray(cases) || cases.length < 199) {
+  throw new Error(`Benchmark must contain at least 199 cases; found ${Array.isArray(cases) ? cases.length : 0}.`);
 }
 
 let positiveCases = 0;
@@ -23,6 +23,8 @@ let weakCases = 0;
 let weakCorrect = 0;
 let emptyCases = 0;
 let emptyCorrect = 0;
+let outsideCases = 0;
+let outsideSafe = 0;
 let falseStrong = 0;
 let jurisdictionCases = 0;
 let jurisdictionLeaks = 0;
@@ -55,6 +57,12 @@ for (const entry of cases) {
     if (ok) emptyCorrect += 1;
     if (results.length > 0 && !weak) falseStrong += 1;
     expectation = 'expected: no result';
+  } else if (entry.category === 'outside') {
+    outsideCases += 1;
+    ok = results.length === 0 || weak;
+    if (ok) outsideSafe += 1;
+    if (results.length > 0 && !weak) falseStrong += 1;
+    expectation = 'expected: weak/background or no result; never strong';
   } else {
     throw new Error(`${entry.id}: unknown benchmark category ${entry.category}`);
   }
@@ -84,7 +92,8 @@ console.log(`  positive top-1 recall: ${top1Hits}/${positiveCases} (${pct(top1Hi
 console.log(`  positive top-3 recall: ${top3Hits}/${positiveCases} (${pct(top3Hits, positiveCases)})`);
 console.log(`  weak/background:       ${weakCorrect}/${weakCases} (${pct(weakCorrect, weakCases)})`);
 console.log(`  correct-empty:         ${emptyCorrect}/${emptyCases} (${pct(emptyCorrect, emptyCases)})`);
-console.log(`  false-strong negatives:${falseStrong}/${weakCases + emptyCases} (${pct(falseStrong, weakCases + emptyCases)})`);
+console.log(`  open-world safe:       ${outsideSafe}/${outsideCases} (${pct(outsideSafe, outsideCases)})`);
+console.log(`  false-strong negatives:${falseStrong}/${weakCases + emptyCases + outsideCases} (${pct(falseStrong, weakCases + emptyCases + outsideCases)})`);
 console.log(`  jurisdiction leakage:  ${jurisdictionLeaks}/${jurisdictionCases}`);
 
 const top1Recall = positiveCases ? top1Hits / positiveCases : 0;
@@ -94,6 +103,7 @@ const passed =
   top3Hits === positiveCases &&
   weakCorrect === weakCases &&
   emptyCorrect === emptyCases &&
+  outsideSafe === outsideCases &&
   falseStrong === 0 &&
   jurisdictionLeaks === 0;
 

@@ -20,9 +20,9 @@
 - [ ] Deploy the repository root.
 - [ ] Ensure Vercel **Automatically expose System Environment Variables** is enabled, or set `ALLOWED_HOSTS` explicitly for any generated/branch/project aliases you intend to test. The request guard reads `VERCEL_URL`, `VERCEL_BRANCH_URL` and `VERCEL_PROJECT_PRODUCTION_URL`.
 - [ ] Check existing `ALLOWED_ORIGIN` / `ALLOWED_ORIGINS` values before rollout. `ALLOWED_ORIGINS` is now an authoritative exact-origin allowlist; scheme and effective port are significant, and a concrete legacy `ALLOWED_ORIGIN` remains an exact restriction rather than being widened by defaults.
-- [ ] Open `/health` and confirm `guides: 34`, version `1.2.0`, a 64-character `contentHash`, and the expected snapshot/latest-guide timestamps.
+- [ ] Open `/health` and confirm `guides: 34`, version `1.2.1`, a 64-character `contentHash`, and the expected snapshot/latest-guide timestamps.
 - [ ] Open `/` and confirm the public service metadata.
-- [ ] Open `/mcp/server-card` and confirm the experimental Server Card reports version `1.2.0`, the `/mcp` remote and protocol versions without enumerating tools/resources.
+- [ ] Open `/mcp/server-card` and confirm the experimental Server Card reports version `1.2.1`, the `/mcp` remote and protocol versions without enumerating tools/resources.
 - [ ] Open `/server-card.json` and confirm the extended Homechecker service metadata points to `/mcp/server-card`.
 - [ ] Confirm `/homechecker-icon-32.png` is publicly reachable.
 - [ ] Test the generated deployment URL, branch alias and project production alias with an MCP client. Test the production endpoint from the official loopback MCP Inspector as well; `localhost` / `127.0.0.1` browser origins are intentionally allowed for this public read-only service.

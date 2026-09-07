@@ -90,3 +90,8 @@ Moyne Ross engine
 ```
 
 That future layer should be a separate authenticated zone. It is intentionally absent from this repository.
+
+
+## Retrieval confidence
+
+Ranking and confidence are separate. `residentialDomainEvidence()` gates the `strong` label so overloaded corpus vocabulary can return weak/background material without manufacturing Homechecker authority outside residential property.

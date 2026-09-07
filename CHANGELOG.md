@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.1 — Open-world confidence calibration — 7 September 2026
+
+- Adds a query-level residential-domain evidence gate before any search result can be labelled `strong`. Overloaded terms such as `strata`, `unit`, `settlement`, `auction`, `mould`, `Form 2`, `vendor statement` and place names can still retrieve useful background, but cannot manufacture high confidence without credible residential-property context.
+- Preserves strong handling for genuinely distinctive Homechecker queries such as `Section 32`, wall-crack questions, building-and-pest inspections, owners-corporation material, brick veneer/double brick and other residential combinations.
+- Adds an 85-case open-world lexical-collision suite spanning software, law, finance, medicine, food, transport, weather, geography and other non-property meanings of Homechecker vocabulary. The benchmark now contains 199 cases total.
+- Extends the benchmark gate with an explicit `open-world safe` metric: collision probes may return weak/background material or nothing, but zero may be labelled strong.
+- Adds core regression coverage for the domain-evidence boundary while leaving ranking, the four-tool MCP surface, protocol behaviour and the bundled guide snapshot unchanged.
+
 ## 1.2.0 — Protocol trust and retrieval evaluation — 5 September 2026
 
 - Keeps every MCP model-facing Homechecker URL canonical; attribution remains an explicit REST/WebMCP `referralUrl` field rather than a query parameter in citable text.

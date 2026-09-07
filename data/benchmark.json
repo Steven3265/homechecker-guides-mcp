@@ -902,5 +902,430 @@
       "reading-a-contract-for-sale-nsw",
       "seller-disclosure-qld"
     ]
+  },
+  {
+    "id": "outside-001-what-is-section-32-of",
+    "category": "outside",
+    "query": "What is Section 32 of the Copyright Act?"
+  },
+  {
+    "id": "outside-002-what-does-section-32-of",
+    "category": "outside",
+    "query": "What does section 32 of the Corporations Act say?"
+  },
+  {
+    "id": "outside-003-explain-section-32-of-the",
+    "category": "outside",
+    "query": "Explain section 32 of the Privacy Act"
+  },
+  {
+    "id": "outside-004-what-is-section-32-in",
+    "category": "outside",
+    "query": "What is section 32 in criminal law?"
+  },
+  {
+    "id": "outside-005-explain-geological-strata",
+    "category": "outside",
+    "query": "Explain geological strata"
+  },
+  {
+    "id": "outside-006-how-are-rock-strata-dated",
+    "category": "outside",
+    "query": "How are rock strata dated?"
+  },
+  {
+    "id": "outside-007-what-is-a-unit-test",
+    "category": "outside",
+    "query": "What is a unit test in software?"
+  },
+  {
+    "id": "outside-008-explain-the-apartment-pattern-in",
+    "category": "outside",
+    "query": "Explain the apartment pattern in software architecture"
+  },
+  {
+    "id": "outside-009-how-long-should-i-cool",
+    "category": "outside",
+    "query": "How long should I cool off after a workout?"
+  },
+  {
+    "id": "outside-010-how-long-is-the-cooling",
+    "category": "outside",
+    "query": "How long is the cooling off period after exercise?"
+  },
+  {
+    "id": "outside-011-how-do-art-auctions-work",
+    "category": "outside",
+    "query": "How do art auctions work?"
+  },
+  {
+    "id": "outside-012-what-is-an-auction-in",
+    "category": "outside",
+    "query": "What is an auction in game theory?"
+  },
+  {
+    "id": "outside-013-how-do-online-ad-bidding",
+    "category": "outside",
+    "query": "How do online ad bidding strategies work?"
+  },
+  {
+    "id": "outside-014-what-is-settlement-risk-in",
+    "category": "outside",
+    "query": "What is settlement risk in banking?"
+  },
+  {
+    "id": "outside-015-explain-settlement-in-securities-trading",
+    "category": "outside",
+    "query": "Explain settlement in securities trading"
+  },
+  {
+    "id": "outside-016-what-does-movement-mean-in",
+    "category": "outside",
+    "query": "What does movement mean in music?"
+  },
+  {
+    "id": "outside-017-what-causes-cracks-in-ceramic",
+    "category": "outside",
+    "query": "What causes cracks in ceramic glaze?"
+  },
+  {
+    "id": "outside-018-why-does-paint-crack-on",
+    "category": "outside",
+    "query": "Why does paint crack on a canvas?"
+  },
+  {
+    "id": "outside-019-how-do-i-remove-mould",
+    "category": "outside",
+    "query": "How do I remove mould from cheese?"
+  },
+  {
+    "id": "outside-020-why-is-there-mould-on",
+    "category": "outside",
+    "query": "Why is there mould on bread?"
+  },
+  {
+    "id": "outside-021-what-does-moisture-mean-in",
+    "category": "outside",
+    "query": "What does moisture mean in soil science?"
+  },
+  {
+    "id": "outside-022-what-is-water-ingress-in",
+    "category": "outside",
+    "query": "What is water ingress in a submarine?"
+  },
+  {
+    "id": "outside-023-what-is-form-2-in",
+    "category": "outside",
+    "query": "What is Form 2 in a medical context?"
+  },
+  {
+    "id": "outside-024-what-is-form-2-used",
+    "category": "outside",
+    "query": "What is Form 2 used for at a hospital?"
+  },
+  {
+    "id": "outside-025-what-is-a-vendor-statement",
+    "category": "outside",
+    "query": "What is a vendor statement in procurement?"
+  },
+  {
+    "id": "outside-026-how-do-vendor-statements-work",
+    "category": "outside",
+    "query": "How do vendor statements work in enterprise purchasing?"
+  },
+  {
+    "id": "outside-027-what-is-seller-disclosure-on",
+    "category": "outside",
+    "query": "What is seller disclosure on eBay?"
+  },
+  {
+    "id": "outside-028-what-disclosures-must-an-online",
+    "category": "outside",
+    "query": "What disclosures must an online marketplace seller make?"
+  },
+  {
+    "id": "outside-029-what-is-a-contract-review",
+    "category": "outside",
+    "query": "What is a contract review in software procurement?"
+  },
+  {
+    "id": "outside-030-how-should-a-saas-contract",
+    "category": "outside",
+    "query": "How should a SaaS contract be reviewed?"
+  },
+  {
+    "id": "outside-031-what-is-a-brick-phone",
+    "category": "outside",
+    "query": "What is a brick phone?"
+  },
+  {
+    "id": "outside-032-why-is-my-phone-bricked",
+    "category": "outside",
+    "query": "Why is my phone bricked?"
+  },
+  {
+    "id": "outside-033-explain-brick-construction-in-a",
+    "category": "outside",
+    "query": "Explain brick construction in a pizza oven"
+  },
+  {
+    "id": "outside-034-what-is-a-weatherboard-in",
+    "category": "outside",
+    "query": "What is a weatherboard in theatre scenery?"
+  },
+  {
+    "id": "outside-035-how-do-i-maintain-a",
+    "category": "outside",
+    "query": "How do I maintain a bicycle?"
+  },
+  {
+    "id": "outside-036-what-does-preventative-maintenance-mean",
+    "category": "outside",
+    "query": "What does preventative maintenance mean for aircraft?"
+  },
+  {
+    "id": "outside-037-how-often-should-a-car",
+    "category": "outside",
+    "query": "How often should a car be serviced for maintenance?"
+  },
+  {
+    "id": "outside-038-what-is-an-extension-in",
+    "category": "outside",
+    "query": "What is an extension in a web browser?"
+  },
+  {
+    "id": "outside-039-how-do-chrome-extensions-work",
+    "category": "outside",
+    "query": "How do Chrome extensions work?"
+  },
+  {
+    "id": "outside-040-what-is-an-alteration-in",
+    "category": "outside",
+    "query": "What is an alteration in tailoring?"
+  },
+  {
+    "id": "outside-041-how-do-i-alter-a",
+    "category": "outside",
+    "query": "How do I alter a jacket sleeve?"
+  },
+  {
+    "id": "outside-042-what-is-subsidence-in-geology",
+    "category": "outside",
+    "query": "What is subsidence in geology?"
+  },
+  {
+    "id": "outside-043-what-causes-land-subsidence-around",
+    "category": "outside",
+    "query": "What causes land subsidence around a mine?"
+  },
+  {
+    "id": "outside-044-what-is-a-pest-in",
+    "category": "outside",
+    "query": "What is a pest in agriculture?"
+  },
+  {
+    "id": "outside-045-how-do-farmers-control-pests",
+    "category": "outside",
+    "query": "How do farmers control pests in crops?"
+  },
+  {
+    "id": "outside-046-how-does-a-body-corporate",
+    "category": "outside",
+    "query": "How does a body corporate work in business law?"
+  },
+  {
+    "id": "outside-047-what-is-a-corporate-body",
+    "category": "outside",
+    "query": "What is a corporate body in company law?"
+  },
+  {
+    "id": "outside-048-what-does-common-property-mean",
+    "category": "outside",
+    "query": "What does common property mean in mathematics?"
+  },
+  {
+    "id": "outside-049-what-is-a-levy-in",
+    "category": "outside",
+    "query": "What is a levy in taxation?"
+  },
+  {
+    "id": "outside-050-what-is-the-population-of",
+    "category": "outside",
+    "query": "What is the population of Victoria?"
+  },
+  {
+    "id": "outside-051-what-is-the-capital-of",
+    "category": "outside",
+    "query": "What is the capital of Queensland?"
+  },
+  {
+    "id": "outside-052-what-is-the-population-of",
+    "category": "outside",
+    "query": "What is the population of New South Wales?"
+  },
+  {
+    "id": "outside-053-what-is-the-capital-city",
+    "category": "outside",
+    "query": "What is the capital city of Western Australia?"
+  },
+  {
+    "id": "outside-054-who-is-the-premier-of",
+    "category": "outside",
+    "query": "Who is the premier of Victoria?"
+  },
+  {
+    "id": "outside-055-what-time-is-it-in",
+    "category": "outside",
+    "query": "What time is it in Sydney?"
+  },
+  {
+    "id": "outside-056-sydney-weather-tomorrow",
+    "category": "outside",
+    "query": "Sydney weather tomorrow"
+  },
+  {
+    "id": "outside-057-will-it-rain-in-melbourne",
+    "category": "outside",
+    "query": "Will it rain in Melbourne tomorrow?"
+  },
+  {
+    "id": "outside-058-what-is-the-weather-in",
+    "category": "outside",
+    "query": "What is the weather in Tokyo?"
+  },
+  {
+    "id": "outside-059-brisbane-airport-departures-today",
+    "category": "outside",
+    "query": "Brisbane airport departures today"
+  },
+  {
+    "id": "outside-060-perth-concert-tickets-this-weekend",
+    "category": "outside",
+    "query": "Perth concert tickets this weekend"
+  },
+  {
+    "id": "outside-061-darwin-evolution-theory-explained",
+    "category": "outside",
+    "query": "Darwin evolution theory explained"
+  },
+  {
+    "id": "outside-062-hobart-restaurant-recommendations",
+    "category": "outside",
+    "query": "Hobart restaurant recommendations"
+  },
+  {
+    "id": "outside-063-adelaide-football-results",
+    "category": "outside",
+    "query": "Adelaide football results"
+  },
+  {
+    "id": "outside-064-canberra-museum-opening-hours",
+    "category": "outside",
+    "query": "Canberra museum opening hours"
+  },
+  {
+    "id": "outside-065-what-is-home-page-routing",
+    "category": "outside",
+    "query": "What is home page routing in a browser?"
+  },
+  {
+    "id": "outside-066-how-do-i-change-my",
+    "category": "outside",
+    "query": "How do I change my home page in Chrome?"
+  },
+  {
+    "id": "outside-067-what-is-house-music",
+    "category": "outside",
+    "query": "What is house music?"
+  },
+  {
+    "id": "outside-068-recommend-a-house-music-playlist",
+    "category": "outside",
+    "query": "Recommend a house music playlist"
+  },
+  {
+    "id": "outside-069-what-is-property-in-javascript",
+    "category": "outside",
+    "query": "What is property in JavaScript?"
+  },
+  {
+    "id": "outside-070-explain-object-properties-in-python",
+    "category": "outside",
+    "query": "Explain object properties in Python"
+  },
+  {
+    "id": "outside-071-what-is-a-residential-proxy",
+    "category": "outside",
+    "query": "What is a residential proxy?"
+  },
+  {
+    "id": "outside-072-how-do-residential-proxies-work",
+    "category": "outside",
+    "query": "How do residential proxies work for web scraping?"
+  },
+  {
+    "id": "outside-073-what-is-an-inspection-in",
+    "category": "outside",
+    "query": "What is an inspection in manufacturing quality control?"
+  },
+  {
+    "id": "outside-074-how-do-aircraft-inspections-work",
+    "category": "outside",
+    "query": "How do aircraft inspections work?"
+  },
+  {
+    "id": "outside-075-what-is-a-condition-report",
+    "category": "outside",
+    "query": "What is a condition report for a rental car?"
+  },
+  {
+    "id": "outside-076-how-do-insurance-premiums-work",
+    "category": "outside",
+    "query": "How do insurance premiums work for cars?"
+  },
+  {
+    "id": "outside-077-what-is-an-insurance-claim",
+    "category": "outside",
+    "query": "What is an insurance claim excess on a phone?"
+  },
+  {
+    "id": "outside-078-what-does-due-diligence-mean",
+    "category": "outside",
+    "query": "What does due diligence mean in a company acquisition?"
+  },
+  {
+    "id": "outside-079-explain-due-diligence-for-buying",
+    "category": "outside",
+    "query": "Explain due diligence for buying a business"
+  },
+  {
+    "id": "outside-080-what-is-a-special-levy",
+    "category": "outside",
+    "query": "What is a special levy in government finance?"
+  },
+  {
+    "id": "outside-081-what-are-strata-in-cloud",
+    "category": "outside",
+    "query": "What are strata in cloud layers?"
+  },
+  {
+    "id": "outside-082-what-is-a-building-block",
+    "category": "outside",
+    "query": "What is a building block in programming?"
+  },
+  {
+    "id": "outside-083-what-is-a-foundation-model",
+    "category": "outside",
+    "query": "What is a foundation model in AI?"
+  },
+  {
+    "id": "outside-084-how-do-planning-permits-work",
+    "category": "outside",
+    "query": "How do planning permits work for a music festival?"
+  },
+  {
+    "id": "outside-085-what-is-a-heritage-overlay",
+    "category": "outside",
+    "query": "What is a heritage overlay in a GIS dataset?"
   }
 ]

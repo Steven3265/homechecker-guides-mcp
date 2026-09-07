@@ -8,7 +8,7 @@ Public, read-only and deliberately separated from customer and assessment system
 
 The service exposes the current Homechecker guide system without connecting to the Moyne Ross portal, Supabase, customer records, payments, uploaded documents or the Homechecker assessment engine.
 
-**Version:** `1.2.0` · **Protocol:** MCP `2026-07-28` with stateless 2025-era compatibility · **Live endpoint:** `https://mcp.homechecker.com.au/mcp` · **Health:** [mcp.homechecker.com.au/health](https://mcp.homechecker.com.au/health) · **Official Registry:** `io.github.Steven3265/homechecker-guides` · **Connect it:** [homechecker.com.au/ai](https://homechecker.com.au/ai)
+**Version:** `1.2.1` · **Protocol:** MCP `2026-07-28` with stateless 2025-era compatibility · **Live endpoint:** `https://mcp.homechecker.com.au/mcp` · **Health:** [mcp.homechecker.com.au/health](https://mcp.homechecker.com.au/health) · **Official Registry:** `io.github.Steven3265/homechecker-guides` · **Connect it:** [homechecker.com.au/ai](https://homechecker.com.au/ai)
 
 ## Machine discovery surface
 
@@ -46,7 +46,7 @@ The authoritative server identity remains `io.github.Steven3265/homechecker-guid
 
 ## Protocol foundation
 
-Version 1.2.0 uses the MCP TypeScript SDK v2 server package and the `2026-07-28` protocol revision.
+Version 1.2.1 uses the MCP TypeScript SDK v2 server package and the `2026-07-28` protocol revision.
 
 The official `createMcpHandler` entry provides stateless per-request serving, `server/discover`, modern MCP routing headers, server identity and cache fields while retaining stateless compatibility for 2025-era HTTP clients during rollout.
 
@@ -54,7 +54,7 @@ For modern Streamable HTTP requests, the SDK validates MCP routing headers again
 
 The protocol shell can evolve independently of the durable parts of the product: the reviewed snapshot, deterministic retrieval, tool contracts and professional boundaries.
 
-See [`docs/PROTOCOL-SUPPORT.md`](docs/PROTOCOL-SUPPORT.md), [`docs/RELEASE-1.0.md`](docs/RELEASE-1.0.md), [`docs/RELEASE-1.0.1.md`](docs/RELEASE-1.0.1.md) and [`CHANGELOG.md`](CHANGELOG.md).
+See [`docs/PROTOCOL-SUPPORT.md`](docs/PROTOCOL-SUPPORT.md), [`docs/RELEASE-1.2.1.md`](docs/RELEASE-1.2.1.md) and [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Explore the Homechecker guides
 
@@ -80,7 +80,7 @@ See [`docs/PROTOCOL-SUPPORT.md`](docs/PROTOCOL-SUPPORT.md), [`docs/RELEASE-1.0.m
 - **A browser-triggered refresh workflow:** Actions → **Refresh guides snapshot** regenerates, tests and opens a pull request. No local environment is required.
 - **Canonical model-facing links:** MCP-rendered text and `canonicalUrl` fields always use the clean Homechecker canonical URL. REST/WebMCP responses may add a separate `referralUrl` for attribution (`homechecker-rest` / `homechecker-webmcp`) without changing the URL an assistant is instructed to cite.
 - **Privacy-minimised operational telemetry:** application telemetry records operational fields such as MCP method, tool name, query length, coarse filters, counts, match strength, outcome and duration where applicable. Raw questions, session identifiers, IP addresses and identifying request-header values are not intentionally logged by the application. See `docs/SECURITY.md`.
-- **Tests and retrieval evaluation:** snapshot integrity, core search, release metadata, protocol, HTTP-adapter and official MCP conformance checks plus 114 retrieval cases.
+- **Tests and retrieval evaluation:** snapshot integrity, core search, release metadata, protocol, HTTP-adapter and official MCP conformance checks plus 199 retrieval cases, including an 85-query open-world collision suite.
 
 ## Tools
 
@@ -357,7 +357,7 @@ npm run benchmark
 npm run check
 ```
 
-The retrieval evaluation contains 114 cases across every published spoke, multi-state retention, jurisdiction isolation, legislation-title/ACT ambiguity, era-confidence regressions, weak/background questions and correct-empty off-topic questions. The current baseline is 91.0% top-1 recall, 100% top-3 recall, 100% weak/background handling, 100% correct-empty handling, zero false-strong negatives and zero jurisdiction leakage (0/13 leakage probes).
+The retrieval evaluation contains 199 cases across every published spoke, multi-state retention, jurisdiction isolation, legislation-title/ACT ambiguity, era-confidence regressions, weak/background questions, correct-empty off-topic questions and an 85-query open-world collision suite. The current calibration baseline is 91.1% top-1 recall, 100% top-3 recall, 100% weak/background handling, 100% correct-empty handling, 100% open-world safety, zero false-strong negatives (0/109) and zero jurisdiction leakage (0/13 leakage probes).
 
 This is an internal retrieval benchmark, not an independent assessment of legal or technical accuracy.
 

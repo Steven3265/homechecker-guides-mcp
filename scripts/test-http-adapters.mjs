@@ -114,7 +114,7 @@ res = call(mcpServerCardHandler, request('GET', '/mcp/server-card'));
 payload = body(res);
 assert.equal(payload.$schema, 'https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json');
 assert.equal(payload.name, 'io.github.Steven3265/homechecker-guides');
-assert.equal(payload.version, '1.2.0');
+assert.equal(payload.version, '1.2.1');
 assert.equal(payload.remotes[0].url, 'https://mcp.homechecker.com.au/mcp');
 assert.ok(payload.remotes[0].supportedProtocolVersions.includes('2026-07-28'));
 assert.equal(payload.icons[0].mimeType, 'image/png');
