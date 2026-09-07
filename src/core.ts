@@ -35,9 +35,9 @@ const SYNONYM_GROUPS = [
   ['owners corporation', 'owner corporation', 'strata', 'body corporate', 'common property'],
   ['building inspection', 'building and pest', 'pre purchase inspection', 'property inspection'],
   ['building report', 'inspection report', 'pre purchase report'],
-  ['cooling off', 'cooling period', 'rescission period'],
+  ['cooling off', 'cooling period', 'rescission period', 'pull out after signing', 'back out after signing', 'withdraw after signing'],
   ['auction', 'bid', 'bidding'],
-  ['damp', 'moisture', 'mould', 'water ingress'],
+  ['damp', 'moisture', 'mould', 'water ingress', 'rainwater ingress', 'condensation'],
   ['crack', 'cracking', 'movement', 'settlement', 'subsidence'],
   ['weatherboard', 'timber cladding', 'timber home'],
   ['brick veneer', 'double brick', 'masonry'],
@@ -329,11 +329,11 @@ function scoreGuide(guide: GuideRecord, options: SearchOptions, terms: string[],
 
   const fields: Array<[string, number]> = [
     [guide.slug, 7],
-    [guide.question, 10],
-    [guide.title, 10],
+    [guide.question, 12],
+    [guide.title, 12],
     [guide.summary, 5],
     [guide.answer, 6],
-    [guide.topics.join(' '), 5],
+    [guide.topics.join(' '), 7],
     [guide.cluster?.label ?? '', 4],
     [guide.propertyTypes.join(' '), 4],
     [guide.eras.join(' '), 5],
@@ -354,7 +354,7 @@ function scoreGuide(guide: GuideRecord, options: SearchOptions, terms: string[],
         termMatched = true;
       }
     }
-    const bodyOccurrences = Math.min(countOccurrences(guide.contentMarkdown, term), 5);
+    const bodyOccurrences = Math.min(countOccurrences(guide.contentMarkdown, term), 3);
     if (bodyOccurrences) {
       score += bodyOccurrences * 1.25;
       termMatched = true;
@@ -407,43 +407,17 @@ export function getGuide(slug: string): GuideRecord | undefined {
 }
 
 // ── Relevance floors ──────────────────────────────────────────────────
-// Keyword scoring always produces a best-ranked guide, even for a question
-// this corpus does not answer. "How much stamp duty do I pay in Victoria"
-// scored 55 against the heritage-overlay guide — higher than several
-// correct retrievals elsewhere — purely on incidental matches for
-// "victoria" and "pay". The calling model receives one guide with our
-// canonical URL attached and no way to tell 55 from 284, so it cites
-// Homechecker for a subject we have never written about.
+// Keyword scoring always produces a best-ranked guide, even when the corpus
+// does not answer the question. Absolute and relative floors therefore remove
+// unambiguous noise before a caller can mistake a lexical neighbour for an
+// answer. These are corpus-calibrated values, not universal constants.
 //
-// Two bands, calibrated against the benchmark set and a panel of
-// deliberately off-topic finance queries:
-//
-//   score < MIN_RESULT_SCORE      never returned. Unambiguous noise.
-//                                 Highest suppressed off-topic: 9.75.
-//                                 Lowest observed real query:   22.25.
-//
-//   top < WEAK_MATCH_CEILING      returned, but flagged weak so the caller
-//                                 can hedge or decline.
-//
-// The second margin is THIN and deliberately documented as such: the
-// lowest benchmark case scores 59.75 and the highest off-topic noise
-// scores 55.25, so the ceiling sits in a four-point gap. That is a real
-// property of keyword scoring on a 34-guide corpus, not a number to
-// trust blindly — a marginal on-topic query and a marginal off-topic one
-// genuinely look alike by score alone. The band is pinned by tests in
-// test/core.test.mjs; if scoring drifts, they fail rather than the
-// behaviour silently degrading. A false "weak" only adds a hedge to a
-// correct answer, whereas a false "strong" gets us cited for a subject
-// we never covered, so the ceiling is set to favour hedging.
-//
-// RELATIVE_FLOOR trims the tail. A result scoring under this fraction of
-// the top hit is padding, and padding gets blended into answers as though
-// it were relevant — which is how one strong guide becomes a vague
-// three-guide summary.
-//
-// These are corpus-calibrated absolutes, not universal constants. Re-run
-// scripts/run-benchmark.mjs after any substantial change to the guide set
-// and re-check that the two bands still separate.
+// The enriched corpus changes the ranking problem: long guides legitimately
+// mention many adjacent concepts. After enrichment, question/title/topic fields carry
+// more authority and repeated body occurrences saturate after three hits per
+// term. RELATIVE_FLOOR still trims the low-scoring tail so one strong guide is
+// not diluted by padding. Re-run the benchmark after any material corpus or
+// scoring change.
 export const MIN_RESULT_SCORE = 12;
 const RELATIVE_FLOOR = 0.18;
 
@@ -472,7 +446,7 @@ const CLEAR_NON_PROPERTY_CONTEXT_PATTERNS: RegExp[] = [
   /\b(?:copyright|patent|trademark|intellectual property|corporations act|privacy act|criminal law|company law|business law|procurement|banking|securities|portfolio theory)\b/i,
   /\b(?:medical|medicine|hospital|clinical|workout|fitness|exercise|cheese|recipe)\b/i,
   /\b(?:agriculture|crop|geology|mathematics|maths)\b/i,
-  /\b(?:music|theatre|advertising|ebay|tailoring|submarine|aircraft|airplane|vehicle|car)\b/i,
+  /\b(?:music|theatre|movie|film|set design|stage scenery|stage set|advertising|ebay|tailoring|submarine|aircraft|airplane|vehicle|car)\b/i,
   /\b(?:population|capital city)\b/i,
 ];
 
@@ -485,7 +459,8 @@ const DIRECT_RESIDENTIAL_PATTERNS: RegExp[] = [
   /\b(?:auction|bidding)\b.{0,35}\bdue diligence\b|\bdue diligence\b.{0,35}\b(?:auction|bidding)\b/i,
   /\bcooling[- ]?off\b.{0,35}\b(?:buy|buying|buyer|contract|property|home|house|apartment)\b|\b(?:buy|buying|buyer|contract|property|home|house|apartment)\b.{0,35}\bcooling[- ]?off\b/i,
   /\b(?:damp|mould|moisture|water ingress)\b.{0,35}\b(?:home|house|building|wall|window|ceiling|roof|bathroom|property)\b|\b(?:home|house|building|wall|window|ceiling|roof|bathroom|property)\b.{0,35}\b(?:damp|mould|moisture|water ingress)\b/i,
-  /\binsurance\b.{0,35}\b(?:home|house|property|roof|damage|condition|building)\b|\b(?:home|house|property|roof|damage|condition|building)\b.{0,35}\binsurance\b/i,
+  /\b(?:insurance|insurer)\b.{0,35}\b(?:home|house|property|roof|damage|condition|building)\b|\b(?:home|house|property|roof|damage|condition|building)\b.{0,35}\b(?:insurance|insurer)\b/i,
+  /\b(?:vendor|seller)\b.{0,30}\b(?:building|inspection) report\b|\b(?:building|inspection) report\b.{0,30}\b(?:vendor|seller|rely|reliance)\b/i,
   /\b(?:strata|body corporate|common property|owners corporation)\b.{0,35}\b(?:apartment|unit|lot|levy|levies|minutes|records|building|buy|buying|owner)\b|\b(?:apartment|unit|lot|levy|levies|minutes|records|building|buy|buying|owner)\b.{0,35}\b(?:strata|body corporate|common property|owners corporation)\b/i,
   /\b(?:renovat\w*|extension|alteration)\b.{0,35}\b(?:home|house|property|building|planning|permit|approval)\b|\b(?:home|house|property|building|planning|permit|approval)\b.{0,35}\b(?:renovat\w*|extension|alteration)\b/i,
   /\b(?:storm|storms|flood|flooding|bushfire|extreme weather|severe weather)\b.{0,35}\b(?:home|house|property|building)\b|\b(?:home|house|property|building)\b.{0,35}\b(?:storm|storms|flood|flooding|bushfire|extreme weather|severe weather)\b/i,
@@ -505,7 +480,7 @@ export function residentialDomainEvidence(query: string): number {
 
   const hasResidentialNoun = /\b(?:home|house|property|apartment|townhouse|dwelling|villa|residential|real estate)\b/.test(q);
   const hasTransaction = /\b(?:buy|buying|buyer|purchase|purchasing|seller|selling|sale|offer|auction|bid|bidding|contract|settlement|cooling off|due diligence)\b/.test(q);
-  const hasCondition = /\b(?:inspect|inspection|condition|defect|defects|crack|cracks|cracking|damp|moisture|mould|roof|wall|foundation|wiring|plumbing|cladding|weatherboard|brick|maintenance|upkeep|renovation|extension|alteration|insurance|records|repairs|pest|asbestos|storm|storms|flood|flooding|bushfire)\b/.test(q);
+  const hasCondition = /\b(?:inspect|inspection|condition|defect|defects|crack|cracks|cracking|damp|moisture|mould|condensation|rainwater|ingress|roof|wall|foundation|wiring|plumbing|cladding|weatherboard|brick|maintenance|upkeep|renovation|extension|alteration|insurance|insurer|records|repairs|pest|asbestos|storm|storms|flood|flooding|bushfire)\b/.test(q);
   const hasSharedBuilding = /\b(?:strata|body corporate|common property|levy|levies|owners corporation)\b/.test(q);
   const hasDocumentCue = /\b(?:section 32|vendor statement|seller disclosure|form 2|contract for sale|sale contract|disclosure statement|disclosure requirements?)\b/.test(q);
   const hasJurisdiction = mentionedJurisdictions(query).length > 0;
@@ -551,14 +526,11 @@ export function relevanceDensity(query: string, results: GuideSearchResult[]): n
 /**
  * True when results exist but none strongly answers the query.
  *
- * Calibration accepts two deliberate false flags rather than any false
- * confidence. "Should I buy or rent a home in Australia in 2026" scores
- * 11.63 per term — higher than the genuine benchmark question about
- * weatherboard houses at 8.54 — because it is built entirely from corpus
- * vocabulary. No keyword threshold separates those two, so the ceiling is
- * set above both: the weatherboard question gets hedged, and nothing
- * off-topic reaches "strong". A hedge on a correct answer costs a sentence;
- * false confidence gets Homechecker cited on tax.
+ * Confidence is deliberately layered. Explicit outside-scope outcomes and
+ * weak residential-domain evidence always win first. A construction-era match
+ * or an authoritative synonym match in the top guide's question/title/topics
+ * can then recover confidence for clear paraphrases without relying on body
+ * density alone. Everything else falls back to relevance-per-term.
  */
 // Pure financing and investment-tax requests have no answer in this corpus.
 // Keep this independent of lexical scores: new editorial examples can otherwise
@@ -626,6 +598,18 @@ export function isOutsideAnswerableScope(query: string): boolean {
   return OUTSIDE_ANSWERABLE_SCOPE_PATTERNS.some((pattern) => pattern.test(query));
 }
 
+function hasStrongTopicalMatch(query: string, results: GuideSearchResult[]): boolean {
+  const top = results[0];
+  if (!top) return false;
+
+  const q = normalize(query);
+  const authority = normalize([top.title, top.question, top.summary, top.topics.join(' ')].join(' '));
+  return SYNONYM_GROUPS.some((group) =>
+    group.some((phrase) => q.includes(normalize(phrase))) &&
+    group.some((phrase) => authority.includes(normalize(phrase))),
+  );
+}
+
 function hasStrongStructuredMatch(query: string, results: GuideSearchResult[]): boolean {
   const top = results[0];
   if (!top) return false;
@@ -647,7 +631,7 @@ export function isWeakMatch(query: string, results: GuideSearchResult[]): boolea
   if (results.length === 0) return false;
   if (isOutsideAnswerableScope(query)) return true;
   if (residentialDomainEvidence(query) < DOMAIN_EVIDENCE_THRESHOLD) return true;
-  if (hasStrongStructuredMatch(query, results)) return false;
+  if (hasStrongStructuredMatch(query, results) || hasStrongTopicalMatch(query, results)) return false;
   return relevanceDensity(query, results) < WEAK_RELEVANCE_PER_TERM;
 }
 
@@ -735,6 +719,26 @@ function candidateScore(text: string, terms: string[], section: string): number 
   return score;
 }
 
+function isChecklistCandidateUsable(candidate: GuideRecord['checklistCandidates'][number]): boolean {
+  const section = normalize(candidate.section);
+  const text = normalize(candidate.text);
+
+  // Provider/example rows are evidence supporting the editorial guide, not
+  // buyer actions. Turning them into imperatives creates nonsense such as
+  // "Check Sydney: CSI combined building and pest price...". Keep the
+  // underlying guide available, but do not promote those rows into tasks.
+  if (/\bprovider (?:fee )?examples?\b/.test(section)) return false;
+  if (/\bnamed provider examples?\b/.test(section)) return false;
+  if (/^(?:sydney|melbourne|brisbane|adelaide|perth|hobart|darwin|canberra)\b/.test(text) && /\b(?:price|fee|checked|gst)\b/.test(text)) return false;
+
+  return true;
+}
+
+function hasAuctionIntent(profile: ChecklistProfile): boolean {
+  const text = normalize([profile.buyingStage, ...(profile.concerns ?? [])].filter(Boolean).join(' '));
+  return /\b(?:auction|bid|bidding)\b/.test(text);
+}
+
 function normalizeChecklistText(text: string): string {
   const clean = text
     .replace(/\*\*([^*]+)\*\*/g, '$1')
@@ -764,7 +768,21 @@ export function buildBuyerChecklist(profile: ChecklistProfile, limit = 12): Buye
     ...(profile.era ? { era: profile.era } : {}),
     ...(profile.buyingStage ? { buyingStage: profile.buyingStage } : {}),
   };
-  const matched = searchGuides(searchOptions);
+  let matched = searchGuides(searchOptions);
+
+  // A checklist is a planning surface rather than a pure search result. If the
+  // buyer explicitly says auction/bid, preserve at least one auction-specific
+  // source even when dense era/condition guides would otherwise fill all six
+  // retrieval slots.
+  if (hasAuctionIntent(profile) && !matched.some((result) => result.topics.some((topic) => /\bauction\b/i.test(topic)))) {
+    const auctionMatch = searchGuides({
+      query: 'auction due diligence before bidding at auction',
+      limit: 3,
+      ...(profile.jurisdiction ? { jurisdiction: profile.jurisdiction } : {}),
+    }).find((result) => result.topics.some((topic) => /\bauction\b/i.test(topic)));
+    if (auctionMatch) matched = [...matched.slice(0, 5), auctionMatch];
+  }
+
   const terms = expandedTerms(query);
   const items: Array<BuyerChecklistItem & { score: number }> = [];
 
@@ -772,6 +790,7 @@ export function buildBuyerChecklist(profile: ChecklistProfile, limit = 12): Buye
     const guide = getGuide(result.slug);
     if (!guide) continue;
     const candidates = guide.checklistCandidates
+      .filter(isChecklistCandidateUsable)
       .map((candidate) => ({ ...candidate, score: candidateScore(candidate.text, terms, candidate.section) }))
       .sort((a, b) => b.score - a.score)
       .slice(0, 3);

@@ -92,6 +92,7 @@ test('insurer wording retrieves insurance guidance ahead of incidental building-
   for (const query of queries) {
     const results = searchGuides({ query, limit: 3 });
     assert.equal(results[0]?.slug, 'home-condition-and-insurance', query);
+    assert.equal(isWeakMatch(query, results), false, `insurance query unexpectedly weak: ${query}`);
   }
 
   // Insurance vocabulary also applies outside residential property. Expanding
@@ -99,6 +100,18 @@ test('insurer wording retrieves insurance guidance ahead of incidental building-
   const query = 'What should I tell my car insurer about previous accident damage?';
   const results = searchGuides({ query, limit: 3 });
   assert.ok(results.length === 0 || isWeakMatch(query, results));
+});
+
+test('authoritative topic matches recover clear residential paraphrases without relying on body density', () => {
+  const cases = [
+    ['How do I tell condensation from rainwater ingress in a house?', 'damp-and-moisture-in-your-home'],
+    ['The vendor supplied a building report. Can I rely on it?', 'how-to-read-a-building-and-pest-report'],
+  ];
+  for (const [query, expected] of cases) {
+    const results = searchGuides({ query, limit: 5 });
+    assert.equal(results[0]?.slug, expected, query);
+    assert.equal(isWeakMatch(query, results), false, `clear residential paraphrase unexpectedly weak: ${query}`);
+  }
 });
 
 test('buyer checklist is deterministic, sourced and bounded', () => {
@@ -119,6 +132,42 @@ test('buyer checklist is deterministic, sourced and bounded', () => {
   assert.ok(first.items.some((item) => item.guideSlug === 'damp-and-moisture-in-your-home'));
   assert.match(first.guidanceBoundary, /does not assess the actual property/i);
   assert.doesNotMatch(first.guidanceBoundary, /utm_source=/);
+});
+
+test('movie and film set wording cannot manufacture strong brick-veneer confidence', () => {
+  const queries = [
+    'What is brick veneer in a movie set?',
+    'How is brick veneer used on a film set?',
+    'What is brick veneer in stage scenery?',
+  ];
+  for (const query of queries) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.ok(results.length === 0 || isWeakMatch(query, results), `false-strong collision: ${query}`);
+  }
+});
+
+test('buyer checklist does not turn provider price examples into tasks', () => {
+  const jurisdictions = ['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'];
+  for (const jurisdiction of jurisdictions) {
+    const checklist = buildBuyerChecklist({
+      jurisdiction,
+      concerns: ['building inspection', 'cost', 'condition'],
+    }, 12);
+    const text = checklist.items.map((item) => item.check).join('\n');
+    assert.doesNotMatch(text, /Check (?:sydney|melbourne|brisbane|adelaide|perth|hobart|darwin|canberra):/i, jurisdiction);
+    assert.doesNotMatch(text, /(?:Building Biology NSW|Wave Building Biology|Buildingbiology Services Australia)/i, jurisdiction);
+  }
+});
+
+test('buyer checklist preserves an explicit auction concern when condition material is dense', () => {
+  const checklist = buildBuyerChecklist({
+    jurisdiction: 'NSW',
+    propertyType: 'house',
+    era: 'pre-1920s',
+    concerns: ['auction', 'roof', 'damp', 'cracks', 'insurance'],
+  }, 12);
+  assert.ok(checklist.matchedGuides.some((guide) => /auction/.test(guide.slug)), 'expected an auction-specific source guide');
+  assert.ok(checklist.items.some((item) => /auction/.test(item.guideSlug)), 'expected at least one auction-sourced checklist item');
 });
 
 test('buyer checklist accepts a full jurisdiction name', () => {
