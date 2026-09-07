@@ -83,6 +83,24 @@ test('search selects owners corporation guidance', () => {
   assert.ok(['reading-your-owners-corporation-report', 'buying-an-apartment-strata'].includes(results[0]?.slug ?? ''));
 });
 
+test('insurer wording retrieves insurance guidance ahead of incidental building-condition matches', () => {
+  const queries = [
+    'If the house has old wiring, roof issues or previous damage, how should I describe that risk to an insurer?',
+    'What should I tell insurers about old wiring and previous roof damage to my house?',
+    'How does roof condition affect what an insurer needs to know about my home?',
+  ];
+  for (const query of queries) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.equal(results[0]?.slug, 'home-condition-and-insurance', query);
+  }
+
+  // Insurance vocabulary also applies outside residential property. Expanding
+  // it must preserve the existing confidence boundary for those questions.
+  const query = 'What should I tell my car insurer about previous accident damage?';
+  const results = searchGuides({ query, limit: 3 });
+  assert.ok(results.length === 0 || isWeakMatch(query, results));
+});
+
 test('buyer checklist is deterministic, sourced and bounded', () => {
   const profile = {
     jurisdiction: 'VIC',

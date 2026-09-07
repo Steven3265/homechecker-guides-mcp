@@ -43,7 +43,7 @@ const SYNONYM_GROUPS = [
   ['brick veneer', 'double brick', 'masonry'],
   ['apartment', 'unit', 'strata lot'],
   ['renovation', 'extension', 'alteration', 'building work'],
-  ['insurance', 'insurability', 'premium', 'claim'],
+  ['insurance', 'insurer', 'insurability', 'premium', 'claim'],
   ['maintenance', 'upkeep', 'preventative work'],
   ['1950s', '1960s', '1970s', 'postwar'],
   ['1920s', '1930s', '1940s', 'interwar'],
