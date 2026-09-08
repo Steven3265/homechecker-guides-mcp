@@ -50,6 +50,13 @@ const SYNONYM_GROUPS = [
   ['2000s', '2010s', '2020s', 'modern home'],
 ];
 
+const AUTHORITY_SYNONYM_GROUPS = [
+  ...SYNONYM_GROUPS,
+  ['home', 'house', 'dwelling', 'residential property'],
+  ['issue', 'issues', 'problem', 'problems', 'red flag', 'red flags', 'warning sign', 'warning signs'],
+  ['report limitation', 'report limitations', 'blind spot', 'blind spots', 'reliance', 'rely'],
+];
+
 const STATE_ALIASES: Record<string, string[]> = {
   ACT: ['australian capital territory', 'canberra'],
   NSW: ['nsw', 'new south wales', 'sydney'],
@@ -441,72 +448,57 @@ export const WEAK_RELEVANCE_PER_TERM = 12;
 // results for a caller to inspect.
 const DOMAIN_EVIDENCE_THRESHOLD = 3;
 
-const CLEAR_NON_PROPERTY_CONTEXT_PATTERNS: RegExp[] = [
-  /\b(?:software|programming|javascript|typescript|python|browser|chrome|unit test|design pattern|gis|dataset)\b/i,
-  /\b(?:copyright|patent|trademark|intellectual property|corporations act|privacy act|criminal law|company law|business law|procurement|banking|securities|portfolio theory)\b/i,
-  /\b(?:medical|medicine|hospital|clinical|workout|fitness|exercise|cheese|recipe)\b/i,
-  /\b(?:agriculture|crop|geology|mathematics|maths)\b/i,
-  /\b(?:music|theatre|movie|film|set design|stage scenery|stage set|advertising|ebay|tailoring|submarine|aircraft|airplane|vehicle|car)\b/i,
-  /\b(?:population|capital city)\b/i,
-];
-
+// Confidence is deliberately separate from retrieval. Search may return a
+// relevant guide for inspection even when Homechecker is not entitled to call
+// it a strong answer. The gate below is positive and evidence-led: it asks
+// whether the query is residentially grounded, how much of the query's meaning
+// the corpus can actually support, and what kind of conclusion the user is
+// asking the corpus to make. It does not maintain an ever-growing blacklist of
+// unrelated domains.
 const DIRECT_RESIDENTIAL_PATTERNS: RegExp[] = [
-  /\b(?:building and pest|building inspection|building inspector|property inspection|pre[- ]purchase inspection|property condition report|building biologist|owners corporation|heritage overlay|brick veneer|double brick)\b/i,
+  /\b(?:building and pest|building inspection|pre[- ]purchase inspection|property inspection|property condition report|building biologist|owners corporation|body corporate|common property|heritage overlay|brick veneer|double brick|weatherboard home)\b/i,
   /\bsection 32\b/i,
-  /\b(?:wall cracks?|cracks? in (?:(?:the|my|a|this|that) )?(?:wall|ceiling|brickwork)|(?:diagonal|structural|cosmetic) cracks?|cracks?.{0,35}(?:door|doors|window|windows|movement|structural|cosmetic))\b/i,
-  /\b(?:maintenance|upkeep)\b.{0,35}\b(?:repair|repairs|repair bills?|home|house|property|building)\b/i,
-  /\b(?:repair|repairs|repair bills?)\b.{0,35}\b(?:maintenance|upkeep)\b/i,
+  /\b(?:vendor statement|seller disclosure|contract for sale|sale contract)\b/i,
+  /\b(?:vendor|seller)\b.{0,30}\b(?:building|inspection) report\b|\b(?:building|inspection) report\b.{0,30}\b(?:vendor|seller|rely|reliance)\b/i,
+  /\b(?:wall cracks?|diagonal cracks?|structural cracks?|cosmetic cracks?)\b|\bcracks?\b.{0,20}\bwall\b|\bwall\b.{0,20}\bcracks?\b/i,
+  /\b(?:damp|mould|moisture|water ingress|condensation)\b.{0,35}\b(?:home|house|building|wall|window|ceiling|roof|bathroom|property)\b|\b(?:home|house|building|wall|window|ceiling|roof|bathroom|property)\b.{0,35}\b(?:damp|mould|moisture|water ingress|condensation)\b/i,
   /\b(?:auction|bidding)\b.{0,35}\bdue diligence\b|\bdue diligence\b.{0,35}\b(?:auction|bidding)\b/i,
   /\bcooling[- ]?off\b.{0,35}\b(?:buy|buying|buyer|contract|property|home|house|apartment)\b|\b(?:buy|buying|buyer|contract|property|home|house|apartment)\b.{0,35}\bcooling[- ]?off\b/i,
-  /\b(?:damp|mould|moisture|water ingress)\b.{0,35}\b(?:home|house|building|wall|window|ceiling|roof|bathroom|property)\b|\b(?:home|house|building|wall|window|ceiling|roof|bathroom|property)\b.{0,35}\b(?:damp|mould|moisture|water ingress)\b/i,
   /\b(?:insurance|insurer)\b.{0,35}\b(?:home|house|property|roof|damage|condition|building)\b|\b(?:home|house|property|roof|damage|condition|building)\b.{0,35}\b(?:insurance|insurer)\b/i,
-  /\b(?:vendor|seller)\b.{0,30}\b(?:building|inspection) report\b|\b(?:building|inspection) report\b.{0,30}\b(?:vendor|seller|rely|reliance)\b/i,
   /\b(?:strata|body corporate|common property|owners corporation)\b.{0,35}\b(?:apartment|unit|lot|levy|levies|minutes|records|building|buy|buying|owner)\b|\b(?:apartment|unit|lot|levy|levies|minutes|records|building|buy|buying|owner)\b.{0,35}\b(?:strata|body corporate|common property|owners corporation)\b/i,
   /\b(?:renovat\w*|extension|alteration)\b.{0,35}\b(?:home|house|property|building|planning|permit|approval)\b|\b(?:home|house|property|building|planning|permit|approval)\b.{0,35}\b(?:renovat\w*|extension|alteration)\b/i,
-  /\b(?:storm|storms|flood|flooding|bushfire|extreme weather|severe weather)\b.{0,35}\b(?:home|house|property|building)\b|\b(?:home|house|property|building)\b.{0,35}\b(?:storm|storms|flood|flooding|bushfire|extreme weather|severe weather)\b/i,
-  /\b(?:home|house|property)\b.{0,35}\b(?:records?|warranties|invoices|maintenance history)\b|\b(?:records?|warranties|invoices|maintenance history)\b.{0,35}\b(?:home|house|property)\b/i,
-  /\b(?:home|house|property)\b.{0,35}\b(?:age|ages|aging|ageing|decade|decades)\b|\b(?:age|ages|aging|ageing|decade|decades)\b.{0,35}\b(?:home|house|property)\b/i,
 ];
 
 /**
- * Coarse query-level evidence that the request belongs to Homechecker's domain.
- * This is deliberately separate from guide ranking: it prevents one overloaded
- * corpus keyword from manufacturing confidence without blocking weak/background
- * retrieval. It is not a general intent classifier.
+ * Positive evidence that a request belongs to Homechecker's residential domain.
+ * This deliberately does not subtract points for named non-property contexts;
+ * those are handled by whole-query authority coverage below. That means a new
+ * collision such as a sculpture, aircraft or software term does not require a
+ * new exclusion rule.
  */
 export function residentialDomainEvidence(query: string): number {
   const q = normalize(query);
   if (!q) return 0;
 
-  const hasResidentialNoun = /\b(?:home|house|property|apartment|townhouse|dwelling|villa|residential|real estate)\b/.test(q);
-  const hasTransaction = /\b(?:buy|buying|buyer|purchase|purchasing|seller|selling|sale|offer|auction|bid|bidding|contract|settlement|cooling off|due diligence)\b/.test(q);
-  const hasCondition = /\b(?:inspect|inspection|condition|defect|defects|crack|cracks|cracking|damp|moisture|mould|condensation|rainwater|ingress|roof|wall|foundation|wiring|plumbing|cladding|weatherboard|brick|maintenance|upkeep|renovation|extension|alteration|insurance|insurer|records|repairs|pest|asbestos|storm|storms|flood|flooding|bushfire)\b/.test(q);
-  const hasSharedBuilding = /\b(?:strata|body corporate|common property|levy|levies|owners corporation)\b/.test(q);
-  const hasDocumentCue = /\b(?:section 32|vendor statement|seller disclosure|form 2|contract for sale|sale contract|disclosure statement|disclosure requirements?)\b/.test(q);
-  const hasJurisdiction = mentionedJurisdictions(query).length > 0;
+  const residentialNoun = /\b(?:home|house|apartment|townhouse|dwelling|villa|residential)\b/.test(q);
+  // `property` alone is intentionally weaker because the word has legal,
+  // software and commercial meanings outside residential real estate.
+  const propertyNoun = /\bproperty\b/.test(q);
+  const transaction = /\b(?:buy|buying|buyer|purchase|purchasing|seller|selling|sale|offer|auction|bid|bidding|contract|settlement|cooling off|due diligence)\b/.test(q);
+  const buildingCue = /\b(?:building|inspect\w*|condition|defect|defects|crack|cracks|cracking|damp|moisture|mould|condensation|ingress|roof|wall|foundation|wiring|plumbing|cladding|weatherboard|brick|maintenance|upkeep|renovat\w*|extension|alteration|insurance|insurer|records|repairs|pest|asbestos|strata|body corporate|owners corporation|heritage overlay)\b/.test(q);
+  const documentCue = /\b(?:section 32|vendor statement|seller disclosure|form 2|contract for sale|sale contract|disclosure statement)\b/.test(q);
   const direct = DIRECT_RESIDENTIAL_PATTERNS.some((pattern) => pattern.test(query));
 
-  // Explicitly non-property subject matter wins over a single overloaded cue.
-  // A genuinely residential query that also mentions software/finance/etc can
-  // still pass when it contains multiple independent property signals.
-  const nonPropertyContext = CLEAR_NON_PROPERTY_CONTEXT_PATTERNS.some((pattern) => pattern.test(query));
-
-  let score = direct ? 4 : 0;
-  if (hasResidentialNoun) score += 1.5;
-  if (hasTransaction) score += 1.2;
-  if (hasCondition) score += 1.2;
-  if (hasSharedBuilding) score += 1.2;
-  if (hasDocumentCue) score += 1.2;
-  if (hasJurisdiction) score += 0.4;
-
-  if (hasResidentialNoun && (hasTransaction || hasCondition || hasSharedBuilding || hasDocumentCue)) score += 1.5;
-  if (hasTransaction && (hasCondition || hasSharedBuilding || hasDocumentCue)) score += 0.8;
-  if (hasCondition && hasSharedBuilding) score += 0.8;
-  if (detectEra(query) !== undefined && hasResidentialNoun) score += 2;
-  if (/\bcooling[- ]?off\b/.test(q) && hasJurisdiction) score += 2;
-  if (detectConstructionYear(query) !== undefined && hasResidentialNoun) score += 1.5;
-
-  if (nonPropertyContext && !(hasResidentialNoun && (hasTransaction || hasCondition || hasSharedBuilding) && score >= 5)) return 0;
+  let score = direct ? 3.2 : 0;
+  if (residentialNoun) score += 1.8;
+  if (propertyNoun) score += 0.5;
+  if (transaction) score += 1;
+  if (buildingCue) score += 1;
+  if (documentCue) score += 1.5;
+  if ((residentialNoun || propertyNoun) && (transaction || buildingCue || documentCue)) score += 1.3;
+  if (transaction && (buildingCue || documentCue)) score += 0.7;
+  if (detectEra(query) !== undefined && (residentialNoun || propertyNoun)) score += 1.5;
+  if (detectConstructionYear(query) !== undefined && (residentialNoun || propertyNoun)) score += 1;
   return Math.round(score * 10) / 10;
 }
 
@@ -523,116 +515,334 @@ export function relevanceDensity(query: string, results: GuideSearchResult[]): n
   return top.score / significantTermCount(query);
 }
 
-/**
- * True when results exist but none strongly answers the query.
- *
- * Confidence is deliberately layered. Explicit outside-scope outcomes and
- * weak residential-domain evidence always win first. A construction-era match
- * or an authoritative synonym match in the top guide's question/title/topics
- * can then recover confidence for clear paraphrases without relying on body
- * density alone. Everything else falls back to relevance-per-term.
- */
 // Pure financing and investment-tax requests have no answer in this corpus.
 // Keep this independent of lexical scores: new editorial examples can otherwise
-// lift incidental words such as "much" or "investment" above the result floor.
+// lift incidental words above the result floor.
 const FINANCIAL_ADVICE_PATTERN = /\b(?:capital gains(?: tax)?|cgt|negative gearing|mortgages?|home loans?|refinanc\w*|borrowing capacity|interest rates?|rental yields?|rental income|investment returns?)\b/i;
 
 function isFinanceOnlyQuery(query: string): boolean {
   const q = normalize(query);
   if (!FINANCIAL_ADVICE_PATTERN.test(q)) return false;
-
-  // A building/document topic can still supply useful background for a mixed
-  // request. A place, construction year, sale or residential noun alone cannot.
-  // Stamp duty and valuations retain the existing weak/background policy.
   const hasGuideTopic = /\b(?:inspect\w*|building and pest|building biologist|condition|defects?|cracks?|cracking|damp|moisture|mould|water ingress|roof\w*|walls?|foundations?|wiring|plumbing|cladding|weatherboard|brick|maintenance|upkeep|renovat\w*|extension|alteration|insurance|insurer\w*|records?|warranties|invoices|repairs?|pest|asbestos|storm\w*|flood\w*|bushfire|strata|body corporate|owners corporation|section 32|vendor statement|seller disclosure|form 2|contract review|contract for sale|cooling off|due diligence|heritage overlay)\b/.test(q);
   return !hasGuideTopic;
 }
 
-const OUTSIDE_ANSWERABLE_SCOPE_PATTERNS: RegExp[] = [
-  // Financial, tax, valuation and investment outcomes. Homechecker may have
-  // relevant building context, but it is not the authority for the outcome.
-  FINANCIAL_ADVICE_PATTERN,
-  /\b(?:stamp duty|market rent|property value|market value|valuation|capital growth)\b/i,
-  /\b(?:how much tax|tax treatment|tax deduction|tax deductible|claim .{0,30} on tax|claim .{0,30} as a deduction)\b/i,
-  /\b(?:how much rent|rent (?:can|could|should) i charge)\b/i,
-  /\b(?:house|home|property|apartment|unit)\b.{0,20}\bworth\b/i,
-  /\b(?:average|median|mean)\s+(?:house|home|property|apartment|unit)\s+(?:price|prices|value|values)\b/i,
-  /\b(?:house|home|property|apartment|unit)\s+(?:price|prices|value|values)\b/i,
+type RequestedClaims = { determine: boolean; recommend: boolean; quantities: string[] };
 
-  // Transaction decisions: due-diligence material may inform the decision,
-  // but the corpus cannot tell a buyer what price to bid/offer or whether to buy.
-  /\b(?:how much|what) should i (?:bid|offer)\b/i,
-  /\bshould i (?:buy|purchase|bid on|make an offer on)\b/i,
-  /\bis (?:this|that|the) (?:house|home|property|apartment|unit) (?:a )?good investment\b/i,
+// Preserve independent requests. A supported cost clause cannot erase a
+// property-specific safety/legal decision elsewhere in the same question.
+function requestClauses(query: string): string[] {
+  return query.split(/[?!;]+|\.(?=\s|$)|\b(?:and|or|but|also)\s+(?=(?:is|are|does|do|can|could|will|would|has|have|how|what|which|should)\b)/i)
+    .map(normalize).filter(Boolean);
+}
 
-  // Legal conclusions. Document-reading guides remain useful background only.
-  /\b(?:is|are) .{0,60}\b(?:legally binding|enforceable|valid contract|void|illegal)\b/i,
-  /\b(?:can|should) i sue\b/i,
+function asksForTransactionRecommendation(q: string, guidance: boolean): boolean {
+  if (guidance) return false;
 
-  // Live/local provider selection requires information this frozen corpus does not hold.
-  /\b(?:best|recommend|find me|who is) .{0,40}\b(?:building inspector|building and pest inspector|inspector|engineer|surveyor)\b/i,
+  // Classify the *decision structure*, not a particular pronoun. Guidance such
+  // as "what should I check before buying" is handled above and stays strong;
+  // these forms ask Homechecker to choose whether/how the user should transact.
+  const directDecision = /^(?:should|would)\s+(?:i|we|you|they|he|she)\s+(?:buy|purchase|rent|bid)\b/.test(q) ||
+    /^(?:should|would)\s+(?:i|we|you|they|he|she)\s+(?:make|place|submit)\s+(?:an?\s+)?offer\b/.test(q);
+  if (directDecision) return true;
 
-  // Repair-price estimates are outside the corpus unless Homechecker has written
-  // the dedicated cost guide. Keep this deliberately narrow so the published
-  // inspection/biologist cost guides remain answerable.
-  /\b(?:underpinning|restumping|re stumping|rewire|rewiring|roof replacement|re roofing|foundation repair|structural repair)\b.{0,40}\b(?:cost|price|how much)\b/i,
-  /\b(?:cost|price|how much)\b.{0,40}\b(?:underpinning|restumping|re stumping|rewire|rewiring|roof replacement|re roofing|foundation repair|structural repair)\b/i,
+  const delegatedDecision = /\b(?:do|would|could|can)\s+you\s+(?:recommend|advise)\s+(?:that\s+)?(?:(?:i|we|me|us)\s+)?(?:buy|buying|purchase|purchasing|rent|renting|bid|bidding)\b/.test(q) ||
+    /\bdo you think\s+(?:i|we|they|he|she)\s+should\s+(?:buy|purchase|rent|bid)\b/.test(q);
+  if (delegatedDecision) return true;
 
-  // Live market metrics, binary financial choices and property-specific
-  // regulatory/outcome determinations require current or address-specific evidence.
-  /\b(?:auction clearance rate|auction clearance rates|clearance rate)\b/i,
-  /\bshould i (?:rent or buy|buy or rent)\b/i,
-  /\b(?:will|would|can) (?:the )?(?:council|planning authority) .{0,30}\b(?:approve|accept|permit)\b/i,
-  /\b(?:is|are) (?:this|that|the|my) .{0,60}\b(?:compliant|code compliant)\b/i,
-  /\b(?:will|could) (?:this|that|the|my) .{0,50}\b(?:collapse|fall down|structurally fail)\b/i,
-];
+  const residentialAsset = /\b(?:home|house|apartment|townhouse|dwelling|residential property|property)\b/.test(q);
+  const transactionAction = /\b(?:buy|buying|purchase|purchasing|rent|renting|bid|bidding)\b|\b(?:make|making|place|placing|submit|submitting)\s+(?:an?\s+)?offer\b/.test(q);
+  if (!residentialAsset || !transactionAction) return false;
+
+  // Evaluative/chooser forms are recommendations even when they avoid the
+  // first-person "should I" wording: "is this a good house to buy?",
+  // "which house should we buy?", etc.
+  const evaluativeDecision = /\b(?:good|bad|smart|wise|sensible|right|wrong)\b/.test(q) &&
+    /^(?:is|are|would|will)\b/.test(q);
+  const chooserDecision = /^(?:which|what)\b.*\b(?:should|would)\s+(?:i|we|you|they|he|she)\s+(?:buy|purchase|rent|bid)\b/.test(q);
+  return evaluativeDecision || chooserDecision;
+}
+
+function requestedClaims(query: string): RequestedClaims {
+  const claims: RequestedClaims = { determine: false, recommend: false, quantities: [] };
+  for (const q of requestClauses(query)) {
+    // Methods and document-reading tasks are guidance. Words such as approval,
+    // cover and best do not by themselves make a request a determination.
+    const guidance = /^(?:how (?:do|does|can|could|should)|what (?:records?|documents?|evidence|checks?|steps?|questions?|does)|what is (?:the )?best way|explain)\b/.test(q);
+    const outcome = /\b(?:prove|proof|definitely|unsafe|safe|failed|failure|toxic|sick|illness|liable|liability|legally valid|binding|enforceable|void|illegal|reasonable|fair|compliant|compliance|approve|approval|permit|covered|cover|coverage|collapse|structurally sound|structurally unsafe)\b/.test(q);
+    const decision = /^(?:is|are|does|do|can|could|will|would|has|have)\b/.test(q);
+    if (outcome && (decision || (!guidance && /\b(?:compliance|liability|coverage|approval|validity)\b/.test(q)))) claims.determine = true;
+
+    const provider = /\b(?:inspector|engineer|surveyor|provider|agent|policy|bank)\b/.test(q);
+    if ((!guidance && provider && /\b(?:best|recommend|recommendation|find me|who should i|which)\b/.test(q)) ||
+        asksForTransactionRecommendation(q, guidance)) claims.recommend = true;
+
+    const amount = /\b(?:how much|what price|what value|cost|costs|price|prices|fee|fees|rate|rates)\b/.test(q);
+    // "Worth it" asks about usefulness, unlike "what is this house worth?".
+    const valuation = /\bworth\b(?! it\b)/.test(q);
+    if ((amount && !guidance) || valuation) claims.quantities.push(q);
+  }
+  return claims;
+}
+
+
+const AUTHORITY_STOP_WORDS = new Set([
+  'a','an','and','are','as','at','be','been','before','by','can','could','do','does','did','for','from','had','has','have','how','i','if','in','into','is','it','its','me','my','of','on','or','our','should','that','the','their','them','then','there','these','they','this','those','to','was','we','were','what','when','where','which','who','will','with','would','you','your',
+  'about','after','also','anything','before','big','compare','comparison','deal','different','explain','help','indicate','indicates','know','look','mean','means','need','please','read','requirement','requirements','tell','think','understand','use','using','want','way',
+  // Task wording is handled by requestedClaims, not subject-matter coverage.
+  'best','check','checking','investigate','prepare','preparing','preparation',
+]);
+
+function tokenVariants(token: string): string[] {
+  const out = new Set([token]);
+  if (token.length > 4 && token.endsWith('ies')) out.add(`${token.slice(0, -3)}y`);
+  if (token.length > 4 && token.endsWith('es')) out.add(token.slice(0, -2));
+  if (token.length > 3 && token.endsWith('s')) out.add(token.slice(0, -1));
+  if (token.length > 5 && token.endsWith('ed')) out.add(token.slice(0, -2));
+  if (token.length > 6 && token.endsWith('ing')) out.add(token.slice(0, -3));
+  return [...out];
+}
+
+function authorityMeaningTokens(value: string): string[] {
+  const tokens = rawTokens(value)
+    .filter((token) => token.length > 2 && !AUTHORITY_STOP_WORDS.has(token))
+    .flatMap(tokenVariants);
+  return [...new Set(tokens)];
+}
+
+function guidePrimaryAuthority(result: GuideSearchResult): string {
+  return [result.title, result.question, result.summary, result.answer].join(' ');
+}
+
+function guideContextAuthority(result: GuideSearchResult): string {
+  return [
+    result.topics.join(' '),
+    result.propertyTypes.join(' '),
+    result.eras.join(' '),
+    result.buyingStages.join(' '),
+    result.jurisdiction.join(' '),
+    result.cluster?.label ?? '',
+  ].join(' ');
+}
+
+function guideStructuredAuthority(result: GuideSearchResult): string {
+  const guide = getGuide(result.slug);
+  if (!guide) return '';
+  return [
+    ...guide.sections.map((section) => section.heading),
+    ...guide.checklistCandidates.map((candidate) => candidate.text),
+    guide.limitations ?? '',
+  ].join(' ');
+}
+
+type CachedAuthority = {
+  primary: string;
+  primaryNormalized: string;
+  primaryTokens: Set<string>;
+  structured: string;
+  structuredNormalized: string;
+  structuredTokens: Set<string>;
+  contextual: string;
+  contextualTokens: Set<string>;
+};
+
+const authorityCache = new Map<string, CachedAuthority>();
+
+function cachedAuthority(result: GuideSearchResult): CachedAuthority {
+  const existing = authorityCache.get(result.slug);
+  if (existing) return existing;
+  const primary = guidePrimaryAuthority(result);
+  const structured = guideStructuredAuthority(result);
+  const contextual = guideContextAuthority(result);
+  const built: CachedAuthority = {
+    primary,
+    primaryNormalized: normalize(primary),
+    primaryTokens: new Set(authorityMeaningTokens(primary)),
+    structured,
+    structuredNormalized: normalize(structured),
+    structuredTokens: new Set(authorityMeaningTokens(structured)),
+    contextual,
+    contextualTokens: new Set(authorityMeaningTokens(contextual)),
+  };
+  authorityCache.set(result.slug, built);
+  return built;
+}
+
+function queryHasSynonymSupport(query: string, authority: string, token: string): boolean {
+  const q = normalize(query);
+  const a = normalize(authority);
+  return AUTHORITY_SYNONYM_GROUPS.some((group) => {
+    const queryPhrases = group.filter((phrase) => q.includes(normalize(phrase)));
+    if (queryPhrases.length === 0) return false;
+    const tokenBelongs = queryPhrases.some((phrase) => authorityMeaningTokens(phrase).some((part) => tokenVariants(part).some((variant) => variant === token)));
+    return tokenBelongs && group.some((phrase) => a.includes(normalize(phrase)));
+  });
+}
+
+function tokenSupportedByResult(query: string, token: string, result: GuideSearchResult, primaryOnly = false): number {
+  const variants = tokenVariants(token);
+  const cached = cachedAuthority(result);
+  if (variants.some((variant) => cached.primaryTokens.has(variant))) return 1;
+  if (queryHasSynonymSupport(query, cached.primary, token)) return 1;
+  if (primaryOnly) return 0;
+
+  if (['home', 'house', 'dwelling', 'property'].includes(token) && result.propertyTypes.length > 0) return 0.8;
+  const era = detectEra(query);
+  if (/^(?:18|19|20)\d{2}$/.test(token) && era && metadataMatches(result.eras, era)) return 0.8;
+  if (/^(?:1920s|1930s|1940s|1950s|1960s|1970s|1980s|1990s|2000s|2010s|2020s)$/.test(token) && era && metadataMatches(result.eras, era)) return 0.8;
+
+  if (variants.some((variant) => cached.structuredTokens.has(variant))) return 0.8;
+  if (queryHasSynonymSupport(query, cached.structured, token)) return 0.8;
+  if (variants.some((variant) => cached.contextualTokens.has(variant))) return 0.6;
+  if (variants.some((variant) => ['buy', 'buying', 'buyer', 'purchase', 'purchasing', 'sale', 'selling', 'contract', 'sign', 'signing', 'auction', 'bid', 'bidding'].includes(variant)) && result.buyingStages.length > 0) return 0.6;
+
+  // Jurisdiction is contextual evidence, not subject-matter authority.
+  for (const [code, aliases] of Object.entries(STATE_ALIASES)) {
+    if (!result.jurisdiction.includes(code) && !result.jurisdiction.includes('Australia')) continue;
+    if (aliases.some((alias) => authorityMeaningTokens(alias).some((part) => variants.includes(part)))) return 0.6;
+  }
+  return 0;
+}
+
+function hasAffirmativeResidentialContext(query: string): boolean {
+  const q = normalize(query);
+  const residentialNoun = /\b(?:home|house|apartment|townhouse|dwelling|villa|residential)\b/.test(q);
+  const propertyNoun = /\bproperty\b/.test(q);
+  // Transaction verbs/stages are stronger grounding than role nouns such as
+  // "vendor", which also occur in procurement and other non-property domains.
+  const transaction = /\b(?:buy|buying|buyer|purchase|purchasing|selling|sale|offer|auction|bid|bidding|contract|settlement|cooling off|due diligence|sign|signing)\b/.test(q);
+  const buildingOrDocument = /\b(?:building|inspection|report|condition|defect|crack\w*|damp|moisture|mould|roof|wall|foundation|wiring|plumbing|cladding|weatherboard|brick|maintenance|renovat\w*|extension|insurance|strata|owners corporation|body corporate|section 32|vendor statement|seller disclosure|form 2|heritage overlay|sale contract|contract for sale|disclosure|disclosures)\b/.test(q);
+  const physicalResidentialCue = /\b(?:building|defect|crack|damp|moisture|mould|roof|wall|foundation|wiring|plumbing|cladding|weatherboard|brick|maintenance|renovat\w*|extension|insurance|strata|owners corporation|body corporate)\b/.test(q);
+  const relationalResidential = [
+    /\b(?:strata|owners corporation|body corporate)\b.{0,30}\b(?:records?|minutes|reports?)\b/,
+    /\bcracks?\b.{0,20}\bwall\b|\bwall\b.{0,20}\bcracks?\b/,
+    /\b(?:diagonal|structural|cosmetic)\s+cracks?\b|\bcracks?\b.{0,30}\b(?:doors?|windows?|movement|structural|cosmetic)\b/,
+    /\brenovat\w*\b.{0,25}\b(?:planning|permit|approval|building)\b|\b(?:planning|permit|approval|building)\b.{0,25}\brenovat\w*\b/,
+    /\b(?:vendor|seller)\b.{0,25}\b(?:building|inspection) report\b|\b(?:building|inspection) report\b.{0,25}\b(?:vendor|seller|rely|reliance)\b/,
+    /\b(?:auction|bidding)\b.{0,30}\bdue diligence\b|\bdue diligence\b.{0,30}\b(?:auction|bidding)\b/,
+    /\bcooling off\b.{0,30}\b(?:buy|buying|contract|sign|signing)\b|\b(?:buy|buying|contract|sign|signing)\b.{0,30}\bcooling off\b/,
+  ].some((pattern) => pattern.test(q));
+  if (residentialNoun && (transaction || buildingOrDocument || detectEra(query) !== undefined || detectConstructionYear(query) !== undefined)) return true;
+  if (propertyNoun && (transaction || physicalResidentialCue)) return true;
+  if (transaction && buildingOrDocument) return true;
+  if (/\bcooling off\b/.test(q) && /\b(?:contract|sign|signing|buy|buying|buyer)\b/.test(q)) return true;
+  if (relationalResidential) return true;
+  return false;
+}
+
+function contentTokensInOrder(value: string): string[] {
+  return rawTokens(value).filter((token) => token.length > 2 && !AUTHORITY_STOP_WORDS.has(token));
+}
+
+function primaryPhraseCoverage(query: string, result: GuideSearchResult): number {
+  const tokens = contentTokensInOrder(query);
+  if (tokens.length <= 1) return tokens.length === 1 ? tokenSupportedByResult(query, tokens[0]!, result, true) : 0;
+  const primary = cachedAuthority(result).primaryNormalized;
+  let total = 0;
+  let supported = 0;
+  for (let index = 0; index < tokens.length - 1; index += 1) {
+    const left = tokens[index]!;
+    const right = tokens[index + 1]!;
+    total += 1;
+    const phrase = `${left} ${right}`;
+    if (primary.includes(phrase)) {
+      supported += 1;
+      continue;
+    }
+    // A synonym concept can bridge wording such as warning-sign/red-flag or
+    // insurer/insurance without making unrelated residual phrases disappear.
+    const leftSupported = queryHasSynonymSupport(query, primary, left);
+    const rightSupported = queryHasSynonymSupport(query, primary, right);
+    if (leftSupported && rightSupported) supported += 0.8;
+  }
+  return total ? supported / total : 0;
+}
+
+function authorityCoverage(query: string, results: GuideSearchResult[], topOnly = false): number {
+  const tokens = authorityMeaningTokens(query);
+  if (tokens.length === 0 || results.length === 0) return 0;
+  const considered = topOnly ? results.slice(0, 1) : results.slice(0, 3);
+  let supported = 0;
+  for (const token of tokens) {
+    let best = 0;
+    for (const result of considered) best = Math.max(best, tokenSupportedByResult(query, token, result, topOnly));
+    supported += best;
+  }
+  return supported / tokens.length;
+}
+
+// A contextual qualifier can change the subject of an otherwise familiar
+// question. Require support for its meaning-bearing words independently of the
+// overall average; extra residential vocabulary must not dilute an unknown
+// setting. This uses corpus evidence rather than a list of excluded domains.
+function hasUnsupportedContext(query: string, results: GuideSearchResult[]): boolean {
+  for (const clause of requestClauses(query)) {
+    const qualifiers = clause.matchAll(/\b(?:in|within|inside|under|for|as)\s+(.+?)(?=\b(?:in|within|inside|under|for|as|before|after|and|or|but)\b|$)/g);
+    for (const match of qualifiers) {
+      const tokens = contentTokensInOrder(match[1]!);
+      if (tokens.some((token) => !results.slice(0, 3).some((result) => tokenSupportedByResult(query, token, result) > 0))) return true;
+    }
+  }
+  return false;
+}
+
+function supportsQuantification(query: string, results: GuideSearchResult[]): boolean {
+  const top = results[0];
+  if (!top) return false;
+  // Quantitative questions are strong only when the guide advertises that
+  // quantitative task in its authored question/title, not merely because a
+  // long article mentions a cost somewhere.
+  const primary = normalize(`${top.title} ${top.question}`);
+  if (!/\b(?:cost|costs|price|prices|fee|fees)\b/.test(primary)) return false;
+  return authorityCoverage(query, results, true) >= 0.62;
+}
+
+function lacksDedicatedStateAuthority(query: string, results: GuideSearchResult[]): boolean {
+  const jurisdictions = mentionedJurisdictions(query);
+  if (jurisdictions.length !== 1) return false;
+  const q = normalize(query);
+  const stateDocumentQuestion = /\b(?:seller disclosure|vendor statement|contract disclosure|contract disclosures|disclosure requirement|disclosure requirements|contract for sale|sale contract)\b/.test(q);
+  if (!stateDocumentQuestion) return false;
+  const jurisdiction = jurisdictions[0]!;
+  return !results.some((result) => result.cluster?.id === 'state-rules' && result.jurisdiction.includes(jurisdiction));
+}
 
 /**
- * True when a query is property-adjacent but asks Homechecker to determine an
- * outcome its frozen editorial corpus is not designed to determine. Results
- * can still be returned as useful background; they simply must not be labelled
- * a strong answer. Keep this list narrow and explicit rather than attempting a
- * general-purpose intent classifier.
+ * True when relevant material exists but the corpus should not present it as a
+ * strong answer. Retrieval and authority are intentionally different things.
  */
-export function isOutsideAnswerableScope(query: string): boolean {
-  return OUTSIDE_ANSWERABLE_SCOPE_PATTERNS.some((pattern) => pattern.test(query));
-}
-
-function hasStrongTopicalMatch(query: string, results: GuideSearchResult[]): boolean {
-  const top = results[0];
-  if (!top) return false;
-
-  const q = normalize(query);
-  const authority = normalize([top.title, top.question, top.summary, top.topics.join(' ')].join(' '));
-  return SYNONYM_GROUPS.some((group) =>
-    group.some((phrase) => q.includes(normalize(phrase))) &&
-    group.some((phrase) => authority.includes(normalize(phrase))),
-  );
-}
-
-function hasStrongStructuredMatch(query: string, results: GuideSearchResult[]): boolean {
-  const top = results[0];
-  if (!top) return false;
-
-  // Explicit residential construction-era language is a useful structured
-  // signal, but it must not override confidence for a different outcome merely
-  // because a query contains an era word. Price/market/finance questions are
-  // outside this corpus even when they mention a modern or 1970s house.
-  const q = normalize(query);
-  if (/\b(?:price|prices|value|values|market|mortgage|loan|rent|rental|yield|portfolio|tax|interest rate|capital growth|investment return)\b/.test(q)) {
-    return false;
-  }
-
-  const era = detectEra(query);
-  return Boolean(era && metadataMatches(top.eras, era));
-}
-
 export function isWeakMatch(query: string, results: GuideSearchResult[]): boolean {
   if (results.length === 0) return false;
-  if (isOutsideAnswerableScope(query)) return true;
-  if (residentialDomainEvidence(query) < DOMAIN_EVIDENCE_THRESHOLD) return true;
-  if (hasStrongStructuredMatch(query, results) || hasStrongTopicalMatch(query, results)) return false;
-  return relevanceDensity(query, results) < WEAK_RELEVANCE_PER_TERM;
+
+  const claims = requestedClaims(query);
+  if (FINANCIAL_ADVICE_PATTERN.test(normalize(query))) return true;
+  if (claims.determine || claims.recommend) return true;
+  if (claims.quantities.some((clause) => !supportsQuantification(clause, results))) return true;
+  if (hasUnsupportedContext(query, results)) return true;
+  if (lacksDedicatedStateAuthority(query, results)) return true;
+
+  const canWeave = hasAffirmativeResidentialContext(query);
+  // Ungrounded questions must be explained by the winning guide itself. This
+  // prevents several loosely related guides from stitching incidental words
+  // together into fake authority. Once the query is affirmatively residential,
+  // multi-guide coverage is allowed because weaving is a feature of the corpus.
+  const coverage = authorityCoverage(query, results, !canWeave);
+  if (coverage < (canWeave ? 0.70 : 0.78)) return true;
+  const exactAuthoredMatch = includesTerm(results[0]!.question, query) || includesTerm(results[0]!.title, query);
+  if (!canWeave && !exactAuthoredMatch && primaryPhraseCoverage(query, results[0]!) < 0.5) return true;
+
+  // Keep a small relevance floor as a final retrieval-quality backstop. It no
+  // longer decides authority on its own.
+  return relevanceDensity(query, results) < MIN_RELEVANCE_PER_TERM;
+}
+
+function hasStructuredRetrievalSignal(query: string, results: GuideSearchResult[]): boolean {
+  const top = results[0];
+  if (!top) return false;
+  const era = detectEra(query);
+  if (era && metadataMatches(top.eras, era)) return true;
+  const canWeave = hasAffirmativeResidentialContext(query);
+  return authorityCoverage(query, results, !canWeave) >= (canWeave ? 0.58 : 0.78);
 }
 
 export function searchGuides(options: SearchOptions): GuideSearchResult[] {
@@ -703,35 +913,79 @@ export function searchGuides(options: SearchOptions): GuideSearchResult[] {
 
   // Query-level suppression: if even the best hit is thin relative to how
   // much was asked, the corpus does not address the question.
-  if (relevanceDensity(query, ranked) < MIN_RELEVANCE_PER_TERM && !hasStrongStructuredMatch(query, ranked)) return [];
+  if (relevanceDensity(query, ranked) < MIN_RELEVANCE_PER_TERM && !hasStructuredRetrievalSignal(query, ranked)) return [];
   return ranked;
 }
 
 function candidateScore(text: string, terms: string[], section: string): number {
-  let score = DIRECTIVE_PATTERN.test(text) ? 6 : 0;
+  let score = authoredActionText(text) ? 8 : 0;
   for (const term of terms) {
     if (includesTerm(text, term)) score += term.includes(' ') ? 6 : 2;
   }
   if (text.endsWith('?')) score += 1;
-  if (section === 'Questions to resolve') score -= 3;
-  if (/^(what|is|does|do|are|can|how)\b/i.test(text)) score -= 1;
-  if (text.length > 220) score -= 1;
+  if (section === 'Questions to resolve') score -= 2;
+  if (text.length > 240) score -= 1;
   return score;
 }
 
-function isChecklistCandidateUsable(candidate: GuideRecord['checklistCandidates'][number]): boolean {
-  const section = normalize(candidate.section);
-  const text = normalize(candidate.text);
+const ACTION_VERBS = /^(?:ask|check|compare|confirm|consider|document|establish|find|inspect|investigate|look|map|obtain|read|record|review|send|set|start|test|verify|write|describe|insure|keep|make|note|trace|date|measure|clarify|define|identify|understand)\b/i;
 
-  // Provider/example rows are evidence supporting the editorial guide, not
-  // buyer actions. Turning them into imperatives creates nonsense such as
-  // "Check Sydney: CSI combined building and pest price...". Keep the
-  // underlying guide available, but do not promote those rows into tasks.
-  if (/\bprovider (?:fee )?examples?\b/.test(section)) return false;
-  if (/\bnamed provider examples?\b/.test(section)) return false;
-  if (/^(?:sydney|melbourne|brisbane|adelaide|perth|hobart|darwin|canberra)\b/.test(text) && /\b(?:price|fee|checked|gst)\b/.test(text)) return false;
+function stripChecklistFormatting(text: string): string {
+  return text
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
-  return true;
+/**
+ * Return an action only when the author actually wrote one. A labelled evidence
+ * row such as "Sydney: provider price..." or "1950s-70s: material..." is not
+ * converted into an imperative. If the text has a descriptive label followed
+ * by a genuinely authored directive, use the directive after the label.
+ */
+function authoredActionText(text: string): string | undefined {
+  const clean = stripChecklistFormatting(text);
+  if (!clean) return undefined;
+  if (ACTION_VERBS.test(clean)) return clean;
+  const colon = clean.indexOf(':');
+  if (colon > 0 && colon < 90) {
+    const label = clean.slice(0, colon).trim();
+    if (/^(?:did|does|do|is|are|can|could|will|would|what|which|how|where|when|who)\b/i.test(label) && label.endsWith('?')) return label;
+    const detail = clean.slice(colon + 1).trim();
+    if (ACTION_VERBS.test(detail)) return detail;
+    if (/^(?:did|does|do|is|are|can|could|will|would|what|which|how|where|when|who)\b/i.test(detail) && detail.endsWith('?')) return detail;
+  }
+  if (/^(?:did|does|do|is|are|can|could|will|would|what|which|how|where|when|who)\b/i.test(clean) && clean.endsWith('?')) return clean;
+  return undefined;
+}
+
+function eraRange(value?: string): [number, number] | undefined {
+  if (!value) return undefined;
+  const q = normalize(value);
+  if (/\bpre 1920s?\b/.test(q)) return [1800, 1919];
+  if (/\b(?:1920s 1940s|1920s 40s|interwar)\b/.test(q)) return [1920, 1949];
+  if (/\b(?:1950s 1970s|1950s 70s|postwar)\b/.test(q)) return [1950, 1979];
+  if (/\b(?:1980s 1990s|1980s 90s)\b/.test(q)) return [1980, 1999];
+  if (/\b(?:2000s on|2000s onward|2000s onwards|2000s|2010s|2020s|modern)\b/.test(q)) return [2000, 2039];
+  return undefined;
+}
+
+function candidateEraRange(text: string): [number, number] | undefined {
+  const q = normalize(text);
+  if (/\bpre 1920s?\b/.test(q)) return [1800, 1919];
+  if (/\b1920s 40s\b|\b1920s 1940s\b/.test(q)) return [1920, 1949];
+  if (/\b1950s 70s\b|\b1950s 1970s\b/.test(q)) return [1950, 1979];
+  if (/\b1980s 90s\b|\b1980s 1990s\b/.test(q)) return [1980, 1999];
+  if (/\b2000s onward\b|\b2000s onwards\b/.test(q)) return [2000, 2039];
+  return undefined;
+}
+
+function eraCompatible(candidateText: string, profileEra?: string): boolean {
+  const candidate = candidateEraRange(candidateText);
+  const wanted = eraRange(profileEra);
+  if (!candidate || !wanted) return true;
+  return candidate[0] <= wanted[1] && wanted[0] <= candidate[1];
 }
 
 function hasAuctionIntent(profile: ChecklistProfile): boolean {
@@ -740,21 +994,81 @@ function hasAuctionIntent(profile: ChecklistProfile): boolean {
 }
 
 function normalizeChecklistText(text: string): string {
-  const clean = text
-    .replace(/\*\*([^*]+)\*\*/g, '$1')
-    .replace(/\s+/g, ' ')
-    .trim();
-  const colon = clean.indexOf(':');
-  if (colon > 0 && colon < 70 && !/^(ask|check|confirm|compare|establish|escalate|find|inspect|look|map|obtain|read|record|review|send|test|verify|write)\b/i.test(clean)) {
-    const label = clean.slice(0, colon).trim().toLowerCase();
-    const detail = clean.slice(colon + 1).trim();
-    return `Check ${label}: ${detail}`;
+  return authoredActionText(text) ?? stripChecklistFormatting(text);
+}
+
+function authoredChecklistCandidates(guide: GuideRecord, profileEra?: string): GuideRecord['checklistCandidates'] {
+  const usable = (candidate: GuideRecord['checklistCandidates'][number]) =>
+    Boolean(authoredActionText(candidate.text)) && eraCompatible(candidate.text, profileEra);
+  const existing = guide.checklistCandidates.filter(usable);
+  if (existing.length > 0) return existing;
+
+  // The export's candidates come from lists/tables. Some guides express their
+  // actions in prose instead. Use an authored opening sentence from a general
+  // paragraph, preserving its wording and source section. Never turn a table
+  // description or an illustrative example into an instruction.
+  return guide.sections.flatMap((section) => {
+    if (/\b(?:example|illustrative)\b/i.test(section.heading)) return [];
+    return section.markdown.split(/\n\s*\n/).flatMap((paragraph) => {
+      const raw = paragraph.trim();
+      if (!raw || /^(?:#|\||>|[-*+]\s|\d+\.\s)/.test(raw)) return [];
+      const text = stripChecklistFormatting(raw).split(/(?<=[.!?])\s+/)[0]!;
+      // Only a leading directive: question labels and explanatory prose do not
+      // provide enough context for this fallback.
+      const candidate = { text, section: section.heading };
+      return ACTION_VERBS.test(text) && usable(candidate) ? [candidate] : [];
+    });
+  });
+}
+
+function resultExplainsConcern(result: GuideSearchResult, concern: string): boolean {
+  const authority = normalize(`${result.title} ${result.question} ${result.summary} ${result.topics.join(' ')}`);
+  const terms = expandedTerms(concern);
+  return terms.some((term) => includesTerm(authority, term));
+}
+
+function preserveExplicitConcerns(
+  matched: GuideSearchResult[],
+  profile: ChecklistProfile,
+  maxGuides: number,
+): GuideSearchResult[] {
+  const concerns = [...new Set((profile.concerns ?? []).map(normalize).filter(Boolean))].sort();
+  const pool = new Map(matched.map((result) => [result.slug, result]));
+  const coverage = new Map<string, Set<string>>();
+  const requests = [...concerns];
+  if (hasAuctionIntent(profile)) requests.push('auction due diligence before bidding');
+
+  // Collect all representatives before selecting. Once a concern's source is
+  // found it participates in the selection alongside every other concern;
+  // later concerns cannot overwrite it in a reserved last slot.
+  for (const concern of [...new Set(requests)].sort()) {
+    const direct = searchGuides({
+      query: `${profile.propertyType ?? 'residential property'} ${concern}`,
+      limit: 3,
+      ...(profile.jurisdiction ? { jurisdiction: profile.jurisdiction } : {}),
+      ...(profile.propertyType ? { propertyType: profile.propertyType } : {}),
+    }).find((result) => {
+      const guide = getGuide(result.slug);
+      return resultExplainsConcern(result, concern) && guide !== undefined &&
+        authoredChecklistCandidates(guide, profile.era).length > 0;
+    });
+    if (!direct) continue;
+    pool.set(direct.slug, direct);
+    const covered = coverage.get(direct.slug) ?? new Set<string>();
+    covered.add(concern);
+    coverage.set(direct.slug, covered);
   }
-  return clean;
+
+  const originalRank = new Map(matched.map((result, index) => [result.slug, index]));
+  const priority = (a: GuideSearchResult, b: GuideSearchResult) =>
+    (coverage.get(b.slug)?.size ?? 0) - (coverage.get(a.slug)?.size ?? 0) ||
+    (originalRank.get(a.slug) ?? maxGuides) - (originalRank.get(b.slug) ?? maxGuides) ||
+    a.slug.localeCompare(b.slug);
+  return [...pool.values()].sort(priority).slice(0, maxGuides);
 }
 
 export function buildBuyerChecklist(profile: ChecklistProfile, limit = 12): BuyerChecklist {
-  const concerns = (profile.concerns ?? []).filter(Boolean);
+  const concerns = [...new Set((profile.concerns ?? []).map(normalize).filter(Boolean))].sort();
   const query = [profile.jurisdiction, profile.propertyType, profile.era, profile.buyingStage, ...concerns]
     .filter(Boolean)
     .join(' ')
@@ -769,19 +1083,7 @@ export function buildBuyerChecklist(profile: ChecklistProfile, limit = 12): Buye
     ...(profile.buyingStage ? { buyingStage: profile.buyingStage } : {}),
   };
   let matched = searchGuides(searchOptions);
-
-  // A checklist is a planning surface rather than a pure search result. If the
-  // buyer explicitly says auction/bid, preserve at least one auction-specific
-  // source even when dense era/condition guides would otherwise fill all six
-  // retrieval slots.
-  if (hasAuctionIntent(profile) && !matched.some((result) => result.topics.some((topic) => /\bauction\b/i.test(topic)))) {
-    const auctionMatch = searchGuides({
-      query: 'auction due diligence before bidding at auction',
-      limit: 3,
-      ...(profile.jurisdiction ? { jurisdiction: profile.jurisdiction } : {}),
-    }).find((result) => result.topics.some((topic) => /\bauction\b/i.test(topic)));
-    if (auctionMatch) matched = [...matched.slice(0, 5), auctionMatch];
-  }
+  matched = preserveExplicitConcerns(matched, profile, 6);
 
   const terms = expandedTerms(query);
   const items: Array<BuyerChecklistItem & { score: number }> = [];
@@ -789,8 +1091,7 @@ export function buildBuyerChecklist(profile: ChecklistProfile, limit = 12): Buye
   for (const result of matched) {
     const guide = getGuide(result.slug);
     if (!guide) continue;
-    const candidates = guide.checklistCandidates
-      .filter(isChecklistCandidateUsable)
+    const candidates = authoredChecklistCandidates(guide, profile.era)
       .map((candidate) => ({ ...candidate, score: candidateScore(candidate.text, terms, candidate.section) }))
       .sort((a, b) => b.score - a.score)
       .slice(0, 3);

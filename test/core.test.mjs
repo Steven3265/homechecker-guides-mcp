@@ -529,3 +529,194 @@ test('answerability guard does not weaken topics Homechecker explicitly covers',
     assert.equal(isWeakMatch(query, results), false, `answerable query unexpectedly weak: ${query}`);
   }
 });
+
+test('authority coverage rejects unexplained non-residential context without named-domain exclusions', () => {
+  const collisions = [
+    'What does brick veneer mean in a spacecraft habitat module?',
+    'What does Section 32 mean in an aircraft maintenance manual?',
+    'What does a property condition report mean in a rental car fleet system?',
+    'How do I render a heritage overlay layer in a game engine?',
+    'What should a building inspection cover for a museum exhibit?',
+    'What is a vendor statement in corporate procurement?',
+  ];
+
+  for (const query of collisions) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.ok(results.length === 0 || isWeakMatch(query, results), `unexplained context leaked as strong: ${query}`);
+  }
+});
+
+test('claim mode separates general guidance from property-specific determinations', () => {
+  const guidance = [
+    'What can diagonal cracking indicate in a house?',
+    'What evidence should I collect about damp in my house?',
+    'How can home condition affect insurance?',
+  ];
+  for (const query of guidance) {
+    const results = searchGuides({ query, limit: 5 });
+    assert.ok(results.length > 0, `expected guidance for: ${query}`);
+    assert.equal(isWeakMatch(query, results), false, `general guidance unexpectedly weak: ${query}`);
+  }
+
+  const determinations = [
+    'Does this diagonal crack mean the foundations have failed?',
+    'Can mould in my house make my child sick?',
+    'Is this Section 32 legally valid?',
+    'Will my insurer definitely cover roof damage on this house?',
+    'Is a special levy of $50,000 reasonable for this apartment building?',
+  ];
+  for (const query of determinations) {
+    const results = searchGuides({ query, limit: 5 });
+    assert.ok(results.length === 0 || isWeakMatch(query, results), `specific determination leaked as strong: ${query}`);
+  }
+});
+
+test('checklist uses authored actions, preserves explicit concerns and excludes incompatible era rows', () => {
+  const checklist = buildBuyerChecklist({
+    jurisdiction: 'VIC',
+    propertyType: 'house',
+    era: '1950s-1970s',
+    buyingStage: 'before offer or auction',
+    concerns: ['cracking', 'damp', 'auction'],
+  }, 12);
+
+  const sources = new Set(checklist.items.map((item) => item.guideSlug));
+  assert.ok(sources.has('cracks-structural-or-cosmetic'));
+  assert.ok(sources.has('damp-and-moisture-in-your-home'));
+  assert.ok([...sources].some((slug) => /auction/.test(slug)));
+
+  const text = checklist.items.map((item) => item.check).join('\n');
+  assert.doesNotMatch(text, /^Check (?:sydney|melbourne|brisbane|adelaide|perth|hobart|darwin|canberra):/im);
+  assert.doesNotMatch(text, /\b(?:Pre-1920s|1920s.?40s|1980s.?90s|2000s onward)\b/i);
+});
+
+test('authored questions retain strong confidence in their own guidance', () => {
+  for (const guide of guides.filter((guide) => !guide.pillar)) {
+    const results = searchGuides({ query: guide.question, limit: 5 });
+    assert.equal(results[0]?.slug, guide.slug, `wrong guide for: ${guide.question}`);
+    assert.equal(isWeakMatch(guide.question, results), false, `authored question weakened: ${guide.question}`);
+  }
+});
+
+test('methods and document checks are not mistaken for determinations or provider selection', () => {
+  const queries = [
+    ['Is a building inspection worth it before auction?', 'building-inspection-before-auction'],
+    ['How do I check planning approval records before renovating my home?', 'planning-a-renovation'],
+    ['What records should I review about council approval for my home renovation?', 'planning-a-renovation'],
+    ['What is the best way to investigate damp in a house?', 'damp-and-moisture-in-your-home'],
+    ['What is the best way to choose a building and pest inspector?', 'how-to-choose-a-building-and-pest-inspector'],
+    ['What does a building inspection cover before buying a house?', 'how-to-read-a-building-and-pest-report'],
+    ['How do I read strata meeting minutes?', 'reading-your-owners-corporation-report'],
+  ];
+  for (const [query, slug] of queries) {
+    const results = searchGuides({ query, limit: 5 });
+    assert.ok(results.some((result) => result.slug === slug), `missing guidance for: ${query}`);
+    assert.equal(isWeakMatch(query, results), false, `guidance weakened: ${query}`);
+  }
+});
+
+test('a supported cost request cannot authorise a separate property-specific conclusion', () => {
+  const cost = 'How much does a building and pest inspection cost?';
+  const costResults = searchGuides({ query: cost });
+  assert.equal(costResults[0]?.slug, 'building-and-pest-inspection-cost');
+  assert.equal(isWeakMatch(cost, costResults), false);
+  const queries = [
+    'Is this house structurally safe?',
+    'Is this house structurally safe, and how much does a building and pest inspection cost?',
+    'How much does a building and pest inspection cost, and is this house structurally safe?',
+    'How much does a building and pest inspection cost? Is this house structurally safe?',
+    'Is this building inspection report legally valid, and how much does a building inspection cost?',
+    'Is a $500 building and pest inspection fee reasonable for this house?',
+    'Is a $500.50 building and pest inspection fee reasonable for this house?',
+  ];
+  for (const query of queries) {
+    const results = searchGuides({ query, limit: 5 });
+    assert.ok(results.length > 0, `expected useful background: ${query}`);
+    assert.equal(isWeakMatch(query, results), true, `determination leaked as strong: ${query}`);
+  }
+});
+
+test('unsupported settings cannot be diluted by residential vocabulary', () => {
+  const cases = [
+    'What should I check before buying a house in Monopoly?',
+    'What should I check before buying a house in a video game?',
+    'What should I check before buying a house within Zorblaxia?',
+    'What does Section 32 mean in an aircraft maintenance manual?',
+    'What does brick veneer mean in a spacecraft habitat module?',
+    'What should a building inspection cover for a museum exhibit?',
+  ];
+  for (const query of cases) {
+    const results = searchGuides({ query, limit: 5 });
+    assert.ok(results.length === 0 || isWeakMatch(query, results), `unsupported setting accepted: ${query}`);
+  }
+  for (const query of [
+    'What should I check before buying an apartment in NSW?',
+    'What should I check in a house built in 1965?',
+    'What evidence should I collect about damp in my house?',
+  ]) {
+    const results = searchGuides({ query, limit: 5 });
+    assert.ok(results.length > 0, `missing residential guidance: ${query}`);
+    assert.equal(isWeakMatch(query, results), false, `supported context weakened: ${query}`);
+  }
+});
+
+test('multiple initially missing concern sources survive regardless of input order', () => {
+  const profile = {
+    jurisdiction: 'VIC', propertyType: 'house', era: '1950s-1970s',
+    buyingStage: 'before offer or auction',
+  };
+  const orders = [
+    ['damp', 'renovation', 'records'], ['records', 'renovation', 'damp'],
+    ['renovation', 'damp', 'records'], ['damp', 'records', 'renovation'],
+  ];
+  let reference;
+  for (const concerns of orders) {
+    const checklist = buildBuyerChecklist({ ...profile, concerns }, 12);
+    const slugs = new Set(checklist.items.map((item) => item.guideSlug));
+    for (const slug of ['damp-and-moisture-in-your-home', 'planning-a-renovation', 'keeping-a-record-of-your-home']) {
+      assert.ok(slugs.has(slug), `dropped ${slug} for ${concerns}`);
+    }
+    assert.ok([...slugs].some((slug) => slug.includes('auction')));
+    // The renovation export has descriptive table candidates. Its actions
+    // must come from actual authored prose, not an invented "Check" prefix.
+    for (const item of checklist.items.filter((item) => item.guideSlug === 'planning-a-renovation')) {
+      assert.ok(getGuide(item.guideSlug).sections.some((section) => section.heading === item.section && section.markdown.includes(item.check)));
+    }
+    assert.ok(checklist.matchedGuides.length <= 6);
+    assert.ok(checklist.items.length <= 12);
+    const selection = { matchedGuides: checklist.matchedGuides, items: checklist.items };
+    if (reference) assert.deepEqual(selection, reference, 'concern order changed selected guidance');
+    reference = selection;
+  }
+});
+
+test('transaction recommendations are weak across ordinary decision phrasing', () => {
+  const decisions = [
+    'Should we buy this house?',
+    'Would you buy this house?',
+    'Would you bid on this house?',
+    'Should we make an offer on this apartment?',
+    'Is this a good house to buy?',
+    'Do you recommend buying this house?',
+    'Which house should we buy?',
+  ];
+  for (const query of decisions) {
+    const results = searchGuides({ query, limit: 5 });
+    assert.ok(results.length > 0, `expected useful background: ${query}`);
+    assert.equal(isWeakMatch(query, results), true, `transaction decision leaked as strong: ${query}`);
+  }
+});
+
+test('transaction guidance stays strong when the user asks how to investigate or prepare', () => {
+  const guidance = [
+    'What should I check before buying a house?',
+    'What should I check before bidding at auction?',
+    'How should I prepare before bidding at auction?',
+  ];
+  for (const query of guidance) {
+    const results = searchGuides({ query, limit: 5 });
+    assert.ok(results.length > 0, `expected transaction guidance: ${query}`);
+    assert.equal(isWeakMatch(query, results), false, `transaction guidance unexpectedly weak: ${query}`);
+  }
+});
+
