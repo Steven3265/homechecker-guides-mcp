@@ -28,11 +28,17 @@ permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: homechecker-snapshot-refresh
+  cancel-in-progress: false
+
 jobs:
   refresh:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ github.event.repository.default_branch }}
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -43,9 +49,11 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Rebuild snapshot from the public export
+        env:
+          EXPORT_URL: ${{ github.event.inputs.export_url }}
         run: |
-          if [ -n "${{ github.event.inputs.export_url }}" ]; then
-            node scripts/snapshot-guides.mjs --url "${{ github.event.inputs.export_url }}"
+          if [ -n "$EXPORT_URL" ]; then
+            node scripts/snapshot-guides.mjs --url "$EXPORT_URL"
           else
             node scripts/snapshot-guides.mjs
           fi
@@ -57,19 +65,38 @@ jobs:
       - name: Open a pull request if the snapshot changed
         env:
           GH_TOKEN: ${{ github.token }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           if git diff --quiet -- data/guides.json; then
             echo "Snapshot already matches the export — nothing to do."
             exit 0
           fi
-          BRANCH="snapshot-refresh-$(date -u +%Y%m%d-%H%M%S)"
+          BRANCH="automation/guides-snapshot-refresh"
+          PR_NUMBER=$(gh pr list --state open --head "$BRANCH" --base "$BASE_BRANCH" --json number --jq '.[0].number // empty')
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+            git fetch origin "$BRANCH:refs/remotes/origin/$BRANCH"
+            if [ -n "$PR_NUMBER" ]; then
+              # Each run rebuilds from main; pending content can therefore
+              # acquire a new generatedAt without any publication change.
+              PENDING_MATCH=$(node scripts/compare-pending-snapshot.mjs "origin/$BRANCH")
+              if [ "$PENDING_MATCH" = "equal" ]; then
+                echo "The open refresh PR already contains this snapshot content."
+                exit 0
+              fi
+            fi
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
           git add data/guides.json
           git commit -m "Refresh guides snapshot from public export"
-          git push origin "$BRANCH"
+          git push --force-with-lease origin "$BRANCH"
+          if [ -n "$PR_NUMBER" ]; then
+            echo "Updated refresh PR #$PR_NUMBER."
+            exit 0
+          fi
           gh pr create \
+            --base "$BASE_BRANCH" \
             --title "Refresh guides snapshot" \
             --head "$BRANCH" \
             --body "Regenerated \`data/guides.json\` from the public Homechecker guide export. The complete release validation suite passed in this workflow run. Merging redeploys the connector on Vercel."
