@@ -20,7 +20,8 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
     buyingStage: optionalParam(url, 'buyingStage'),
     includePillar,
   }).slice(0, limit).map(guideSummary);
-  logApi('guides', { count: matches.length, jurisdiction: optionalParam(url, 'jurisdiction'), cluster });
+  logApi('guides', { count: matches.length, jurisdictionProvided: Boolean(optionalParam(url, 'jurisdiction')), cluster });
+  // Header-dependent attribution must not be reused by a shared cache.
   const source = referralSource(req);
-  sendJson(res, 200, addReferralUrls({ generatedAt: snapshot.generatedAt, count: matches.length, guides: matches }, source));
+  sendJson(res, 200, addReferralUrls({ generatedAt: snapshot.generatedAt, count: matches.length, guides: matches }, source), 'no-store');
 }

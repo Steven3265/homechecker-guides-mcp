@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /mcp
+Allow: /mcp/server-card
 Disallow: /v1/
 Disallow: /api/

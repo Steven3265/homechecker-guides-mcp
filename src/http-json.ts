@@ -1,5 +1,8 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
+// HEAD runs normal route validation and headers; only its body is suppressed.
+const headResponses = new WeakSet<ServerResponse>();
+
 const REFERRAL_SOURCES = {
   webmcp: 'homechecker-webmcp',
   rest: 'homechecker-rest',
@@ -20,7 +23,7 @@ export function publicJsonHeaders(res: ServerResponse, cacheControl = 'public, m
 export function sendJson(res: ServerResponse, status: number, body: unknown, cacheControl?: string, contentType?: string): void {
   res.statusCode = status;
   publicJsonHeaders(res, cacheControl, contentType);
-  res.end(JSON.stringify(body));
+  res.end(headResponses.has(res) ? undefined : JSON.stringify(body));
 }
 
 export function handleOptions(req: IncomingMessage, res: ServerResponse): boolean {
@@ -33,14 +36,13 @@ export function handleOptions(req: IncomingMessage, res: ServerResponse): boolea
 
 export function handleHead(req: IncomingMessage, res: ServerResponse): boolean {
   if (req.method !== 'HEAD') return false;
-  res.statusCode = 200;
-  publicJsonHeaders(res, 'no-store');
-  res.end();
+  headResponses.add(res);
   return true;
 }
 
 export function requireGet(req: IncomingMessage, res: ServerResponse): boolean {
-  if (handleOptions(req, res) || handleHead(req, res)) return false;
+  if (handleOptions(req, res)) return false;
+  if (handleHead(req, res)) return true;
   if (req.method === 'GET') return true;
   res.setHeader('Allow', 'GET, HEAD, OPTIONS');
   sendJson(res, 405, { error: 'Method not allowed', allowed: ['GET', 'HEAD', 'OPTIONS'] }, 'no-store');

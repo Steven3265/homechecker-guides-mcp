@@ -136,3 +136,53 @@ assert.ok(payload.components.schemas.GuideDetail.properties.sections, 'full guid
 assert.ok(payload.components.schemas.ChecklistResponse);
 
 console.log('HTTP adapters: attribution, boundaries, server cards, strict params, health, shared contracts and OpenAPI checks passed.');
+
+// Regression coverage for discovery, attribution and release verification.
+const { default: guideHandler } = await import('../dist/api/v1/guide.js');
+const { assertRegistryRelease } = await import('./verify-registry-release.mjs');
+for (const [handler, url] of [
+  [guideHandler, '/v1/guide?slug=reading-a-section-32'],
+  [guidesHandler, '/v1/guides'],
+  [searchHandler, '/v1/search?query=section%2032'],
+  [checklistHandler, '/v1/checklist?jurisdiction=VIC'],
+]) {
+  for (const source of ['rest', 'webmcp']) {
+    const response = call(handler, request('GET', url, { 'x-homechecker-source': source }));
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+    assert.match(response.body, new RegExp(`utm_source=homechecker-${source}`));
+  }
+}
+for (const [handler, url, status] of [
+  [guideHandler, '/v1/guide?slug=reading-a-section-32', 200],
+  [guideHandler, '/v1/guide?slug=unknown-guide', 404],
+  [guideHandler, '/v1/guide', 400],
+  [searchHandler, '/v1/search', 400],
+  [mcpServerCardHandler, '/mcp/server-card', 200],
+]) {
+  const get = call(handler, request('GET', url));
+  const head = call(handler, request('HEAD', url));
+  assert.equal(get.statusCode, status);
+  assert.equal(head.statusCode, status);
+  assert.deepEqual(head.headers, get.headers);
+  assert.equal(head.body, '');
+}
+const logs = [];
+const originalError = console.error;
+try {
+  console.error = (value) => logs.push(value);
+  call(checklistHandler, request('GET', '/v1/checklist?jurisdiction=PRIVATE_MARKER&propertyType=PRIVATE_MARKER&era=PRIVATE_MARKER'));
+  call(guidesHandler, request('GET', '/v1/guides?jurisdiction=PRIVATE_MARKER'));
+  call(guideHandler, request('GET', '/v1/guide?slug=PRIVATE_MARKER'));
+} finally {
+  console.error = originalError;
+}
+assert.equal(logs.length, 3);
+assert.doesNotMatch(logs.join('\n'), /PRIVATE_MARKER/);
+const expectedRelease = { name: 'example/server', version: '1.2.1', remotes: [{ type: 'streamable-http', url: 'https://example.com/mcp' }] };
+assertRegistryRelease({ server: expectedRelease }, expectedRelease);
+assert.throws(() => assertRegistryRelease({ server: { ...expectedRelease, version: '1.2.0' } }, expectedRelease));
+assert.throws(() => assertRegistryRelease({ server: { ...expectedRelease, name: 'other/server' } }, expectedRelease));
+assert.throws(() => assertRegistryRelease({ server: { ...expectedRelease, remotes: [{ type: 'streamable-http', url: 'https://wrong.example/mcp' }] } }, expectedRelease));
+assert.throws(() => assertRegistryRelease({}, expectedRelease));
+console.log('Discovery/REST repair regressions and exact Registry release assertions passed.');

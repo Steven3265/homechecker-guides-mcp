@@ -24,7 +24,7 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
       },
     },
     discovery: {
-      ard: 'https://homechecker.com.au/.well-known/ai-catalog.json',
+      ard: 'https://homechecker.com.au/.well-known/ard.json',
       llms: 'https://homechecker.com.au/llms.txt',
       aiDocumentation: 'https://homechecker.com.au/ai',
       repository: 'https://github.com/Steven3265/homechecker-guides-mcp',

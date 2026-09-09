@@ -48,7 +48,7 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
       rest: 'https://mcp.homechecker.com.au/v1',
       openapi: 'https://mcp.homechecker.com.au/openapi.json',
       serverCard: 'https://mcp.homechecker.com.au/mcp/server-card',
-      ard: 'https://homechecker.com.au/.well-known/ai-catalog.json',
+      ard: 'https://homechecker.com.au/.well-known/ard.json',
     },
     privacy: {
       rawQuestionsLogged: false,

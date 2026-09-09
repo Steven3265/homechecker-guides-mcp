@@ -30,6 +30,7 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
   });
   const matchStrength = results.length === 0 ? 'none' : isWeakMatch(query, results) ? 'weak' : 'strong';
   logApi('search', { queryLength: query.length, count: results.length, matchStrength, top: results[0]?.slug });
+  // Header-dependent attribution must not be reused by a shared cache.
   const source = referralSource(req);
   sendJson(res, 200, addReferralUrls({
     query,
@@ -37,5 +38,5 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
     matchStrength,
     results,
     boundary: searchGuidanceBoundary(matchStrength),
-  }, source), 'public, max-age=60, s-maxage=300');
+  }, source), 'no-store');
 }

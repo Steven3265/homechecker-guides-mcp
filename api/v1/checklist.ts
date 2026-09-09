@@ -17,8 +17,9 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
   const limit = intParam(url, res, 'limit', 12, 4, 20);
   if (limit === undefined) return;
   const checklist = buildBuyerChecklist(profile, limit);
-  logApi('checklist', { jurisdiction: profile.jurisdiction, propertyType: profile.propertyType, era: profile.era, concerns: concerns.length, items: checklist.items.length });
+  logApi('checklist', { jurisdictionProvided: Boolean(profile.jurisdiction), propertyTypeProvided: Boolean(profile.propertyType), eraProvided: Boolean(profile.era), concerns: concerns.length, items: checklist.items.length });
+  // Header-dependent attribution must not be reused by a shared cache.
   const source = referralSource(req);
   const attributed = addReferralUrls(checklist, source);
-  sendJson(res, 200, { checklist: attributed }, 'public, max-age=60, s-maxage=300');
+  sendJson(res, 200, { checklist: attributed }, 'no-store');
 }

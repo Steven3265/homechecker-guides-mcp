@@ -214,3 +214,14 @@ assert.match(dependabotText, /package-ecosystem:\s*npm/, 'Dependabot must watch 
 assert.match(dependabotText, /package-ecosystem:\s*github-actions/, 'Dependabot must watch GitHub Actions pins');
 
 console.log(`Validated release metadata, publisher identity, discovery surfaces and pinned CI supply chain for ${packageJson.name} ${packageJson.version}.`);
+
+// Discovery cards must remain crawlable even though the transport is excluded.
+const robotsText = await readFile(new URL('../public/robots.txt', import.meta.url), 'utf8');
+assert.match(robotsText, /^Allow:\s*\/mcp\/server-card\s*$/m);
+assert.match(robotsText, /^Disallow:\s*\/mcp\s*$/m);
+assert.match(refreshWorkflowText, /group:\s*homechecker-snapshot-refresh/);
+assert.match(refreshWorkflowText, /BRANCH="automation\/guides-snapshot-refresh"/);
+assert.match(refreshWorkflowText, /gh pr list --state open/);
+assert.match(publishWorkflowText, /node scripts\/verify-registry-release\.mjs/);
+assert.match(refreshWorkflowText, /PENDING_MATCH=\$\(node scripts\/compare-pending-snapshot\.mjs/);
+await import('./test-pending-snapshot.mjs');

@@ -15,11 +15,12 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
     return;
   }
   const guide = getGuide(slug);
-  logApi('guide', { slug, found: Boolean(guide) });
+  logApi('guide', { slug: guide?.slug, found: Boolean(guide) });
   if (!guide) {
     sendJson(res, 404, { error: 'Guide not found', slug }, 'no-store');
     return;
   }
+  // Header-dependent attribution must not be reused by a shared cache.
   const source = referralSource(req);
-  sendJson(res, 200, addReferralUrls({ guide: { ...guideSummary(guide), sections: guide.sections, faqs: guide.faqs, sources: guide.sources, contentMarkdown: guide.contentMarkdown } }, source));
+  sendJson(res, 200, addReferralUrls({ guide: { ...guideSummary(guide), sections: guide.sections, faqs: guide.faqs, sources: guide.sources, contentMarkdown: guide.contentMarkdown } }, source), 'no-store');
 }

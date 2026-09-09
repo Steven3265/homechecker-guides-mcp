@@ -19,7 +19,7 @@ Homechecker publishes one deterministic guide corpus through several interoperab
 - **Extended Homechecker service metadata:** `https://mcp.homechecker.com.au/server-card.json`
 - **Read-only REST API:** `https://mcp.homechecker.com.au/v1/*`
 - **OpenAPI 3.1:** `https://mcp.homechecker.com.au/openapi.json`
-- **ARD catalogue:** `https://homechecker.com.au/.well-known/ai-catalog.json`
+- **ARD catalogue:** `https://homechecker.com.au/.well-known/ard.json`
 - **Agent Skills:** `skills/*/SKILL.md`
 - **Homechecker llms.txt:** `https://homechecker.com.au/llms.txt`
 - **Guide RSS feed:** `https://homechecker.com.au/guides/feed.xml`
@@ -179,7 +179,7 @@ Organises maintenance, records, renovation preparation and ownership planning us
 Homechecker's first-party Agentic Resource Discovery catalogue is published at:
 
 ```text
-https://homechecker.com.au/.well-known/ai-catalog.json
+https://homechecker.com.au/.well-known/ard.json
 ```
 
 It describes the Homechecker MCP and all four Agent Skills using domain-anchored identifiers and representative natural-language queries.
@@ -187,7 +187,7 @@ It describes the Homechecker MCP and all four Agent Skills using domain-anchored
 Homechecker's `robots.txt` also advertises the catalogue through:
 
 ```text
-Agentmap: https://homechecker.com.au/.well-known/ai-catalog.json
+Agentmap: https://homechecker.com.au/.well-known/ard.json
 ```
 
 The same machine identity is reinforced through `llms.txt`, the guide RSS feed, OpenAPI, the standards-track experimental MCP Server Card, GitHub and the official MCP Registry.

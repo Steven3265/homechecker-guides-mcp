@@ -45,7 +45,7 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
       'io.homechecker/discovery': {
         serviceMetadata: 'https://mcp.homechecker.com.au/server-card.json',
         openapi: 'https://mcp.homechecker.com.au/openapi.json',
-        aiCatalogue: 'https://homechecker.com.au/.well-known/ai-catalog.json',
+        aiCatalogue: 'https://homechecker.com.au/.well-known/ard.json',
       },
     },
   }, 'public, max-age=300, s-maxage=3600', 'application/mcp-server-card+json; charset=utf-8');
