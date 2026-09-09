@@ -68,17 +68,4 @@ jobs:
           fi
 
       - name: Verify official listing
-        run: |
-          sleep 5
-
-          RESPONSE=$(curl --fail --silent --show-error \
-            "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.Steven3265/homechecker-guides")
-
-          echo "$RESPONSE" | head -c 2000
-          echo ""
-
-          echo "$RESPONSE" \
-            | grep -F 'io.github.Steven3265/homechecker-guides' \
-            >/dev/null
-
-          echo "Homechecker Guides is listed in the official MCP Registry."
+        run: node scripts/verify-registry-release.mjs
