@@ -4,6 +4,7 @@ import {
   originValidationResponse,
 } from '@modelcontextprotocol/server';
 import { createMcpServer } from './server.js';
+import { clientLabel, runWithClient } from './client-label.js';
 
 const mcpHandler = createMcpHandler(createMcpServer, {
   // Serve the 2026-07-28 stateless protocol while retaining the SDK's
@@ -224,9 +225,9 @@ function rpcMethods(request: Request): string[] {
   return method ? [method] : [];
 }
 
-function logRequest(methods: string[], status: number, durationMs: number): void {
+function logRequest(methods: string[], client: string, status: number, durationMs: number): void {
   try {
-    console.error(JSON.stringify({ evt: 'mcp_request', methods, status, durationMs, at: new Date().toISOString() }));
+    console.error(JSON.stringify({ evt: 'mcp_request', methods, client, status, durationMs, at: new Date().toISOString() }));
   } catch {
     // Never let telemetry interfere with protocol handling.
   }
@@ -259,13 +260,14 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
 
   const started = Date.now();
   const methods = rpcMethods(request);
+  const client = clientLabel(request.headers.get('User-Agent'));
 
   try {
-    const response = withCommonHeaders(await mcpHandler.fetch(request), request);
-    logRequest(methods, response.status, Date.now() - started);
+    const response = withCommonHeaders(await runWithClient(client, () => mcpHandler.fetch(request)), request);
+    logRequest(methods, client, response.status, Date.now() - started);
     return response;
   } catch (error) {
-    logRequest(methods, 500, Date.now() - started);
+    logRequest(methods, client, 500, Date.now() - started);
     console.error('[homechecker-mcp] request failed', error);
     const headers = corsHeaders(request);
     headers.set('Content-Type', 'application/json; charset=utf-8');

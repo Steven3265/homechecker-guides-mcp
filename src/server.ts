@@ -20,6 +20,7 @@ import {
   isWeakMatch,
   snapshot,
 } from './core.js';
+import { currentClient } from './client-label.js';
 
 const readOnlyAnnotations = {
   readOnlyHint: true,
@@ -37,10 +38,12 @@ function textAndStructured(structuredContent: Record<string, unknown>, text: str
 
 // Privacy-minimised operational telemetry, written to stderr so hosted logs
 // capture it without corrupting the stdio protocol channel. Raw search text,
-// headers, addresses and client identifiers are never logged.
+// headers, addresses and client identifiers are never logged; only a coarse
+// client family (for example "claude" or "chatgpt") derived from User-Agent.
 function logUse(tool: string, detail: Record<string, unknown>): void {
   try {
-    console.error(JSON.stringify({ evt: 'tool_call', tool, ...detail, at: new Date().toISOString() }));
+    const client = currentClient();
+    console.error(JSON.stringify({ evt: 'tool_call', tool, ...(client ? { client } : {}), ...detail, at: new Date().toISOString() }));
   } catch {
     // Never let telemetry interfere with serving the request.
   }

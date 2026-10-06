@@ -8,6 +8,7 @@ import checklistHandler from '../dist/api/v1/checklist.js';
 import guidesHandler from '../dist/api/v1/guides.js';
 import searchHandler from '../dist/api/v1/search.js';
 import { TOOL_CONTRACTS, searchGuidanceBoundary } from '../dist/src/contracts.js';
+import { clientLabel, currentClient, runWithClient } from '../dist/src/client-label.js';
 
 class MockResponse {
   constructor() {
@@ -185,4 +186,15 @@ assert.throws(() => assertRegistryRelease({ server: { ...expectedRelease, versio
 assert.throws(() => assertRegistryRelease({ server: { ...expectedRelease, name: 'other/server' } }, expectedRelease));
 assert.throws(() => assertRegistryRelease({ server: { ...expectedRelease, remotes: [{ type: 'streamable-http', url: 'https://wrong.example/mcp' }] } }, expectedRelease));
 assert.throws(() => assertRegistryRelease({}, expectedRelease));
+// Client telemetry is a coarse family label, never the raw User-Agent.
+assert.equal(clientLabel('Claude-User/1.0 (+https://www.anthropic.com)'), 'claude');
+assert.equal(clientLabel('openai-mcp/1.0.0'), 'chatgpt');
+assert.equal(clientLabel('Cursor/1.4.2 (darwin arm64)'), 'cursor');
+assert.equal(clientLabel('python-httpx/0.28.1'), 'python');
+assert.equal(clientLabel('Mozilla/5.0 (Macintosh) Safari/605.1.15'), 'browser');
+assert.equal(clientLabel('SomeNewAgent/2.0 PRIVATE_MARKER'), 'other');
+assert.equal(clientLabel(''), 'unknown');
+assert.equal(clientLabel(null), 'unknown');
+assert.equal(currentClient(), undefined);
+assert.equal(await runWithClient('claude', async () => { await Promise.resolve(); return currentClient(); }), 'claude');
 console.log('Discovery/REST repair regressions and exact Registry release assertions passed.');
