@@ -35,6 +35,7 @@ const SYNONYM_GROUPS = [
   ['owners corporation', 'owner corporation', 'strata', 'body corporate', 'common property'],
   ['building inspection', 'building and pest', 'pre purchase inspection', 'property inspection'],
   ['building report', 'inspection report', 'pre purchase report'],
+  ['desktop report', 'desktop reports', 'desktop review', 'desktop property report', 'desktop assessment'],
   ['cooling off', 'cooling period', 'rescission period', 'pull out after signing', 'back out after signing', 'withdraw after signing'],
   ['auction', 'bid', 'bidding'],
   ['damp', 'moisture', 'mould', 'water ingress', 'rainwater ingress', 'condensation'],
@@ -271,7 +272,9 @@ function detectEra(query: string): string | undefined {
   const propertyContext = /\b(?:home|house|property|building|apartment|unit|townhouse|villa|weatherboard|brick|construction|built|constructed|inspect|condition|renovation|fabric|era|period)\b/.test(q);
   if (!propertyContext) return undefined;
 
-  if (/\b(?:pre 1920s?|victorian era|edwardian era)\b/.test(q)) return 'pre-1920s';
+  // "Period home" is the common Australian listing term for pre-1920s houses.
+  // "Victorian home" is deliberately excluded: it can also mean a home in Victoria.
+  if (/\b(?:pre 1920s?|victorian era|edwardian era|period (?:home|homes|house|houses)|federation (?:era|home|homes|house|houses)|edwardian (?:home|homes|house|houses))\b/.test(q)) return 'pre-1920s';
   if (/\b(?:1920s|1930s|1940s|interwar)\b/.test(q)) return '1920s-1940s';
   if (/\b(?:1950s|1960s|1970s|postwar)\b/.test(q)) return '1950s-1970s';
   if (/\b(?:1980s|1990s)\b/.test(q)) return '1980s-1990s';
@@ -726,6 +729,15 @@ function hasAffirmativeResidentialContext(query: string): boolean {
   if (propertyNoun && (transaction || physicalResidentialCue)) return true;
   if (transaction && buildingOrDocument) return true;
   if (/\bcooling off\b/.test(q) && /\b(?:contract|sign|signing|buy|buying|buyer)\b/.test(q)) return true;
+  // Victoria's Section 32 is a property document; naming the state alongside it
+  // is enough residential grounding (unlike a bare "section 32").
+  if (
+    /\bsection 32\b/.test(q) &&
+    /\b(?:victoria|victorian|vic|melbourne)\b/.test(q) &&
+    // Another named instrument ("section 32 of the Charter") changes the subject.
+    !/\b(?:charter|code|regulations?|police|crimes?|constitution)\b/.test(q) &&
+    (!/\bact\b/.test(q) || /\bsale of land act\b/.test(q))
+  ) return true;
   if (relationalResidential) return true;
   return false;
 }

@@ -722,3 +722,38 @@ test('transaction guidance stays strong when the user asks how to investigate or
   }
 });
 
+
+// Phrasings taken from Homechecker's Search Console data (October 2026). Each
+// must route to its dedicated guide first and keep strong confidence.
+test('real search phrasings route to the dedicated guide with strong confidence', () => {
+  const cases = [
+    ['what is a period home', 'period-homes-pre-1920s'],
+    ['What does a Section 32 include in Victoria?', 'reading-a-section-32'],
+    ['section 32 victoria', 'reading-a-section-32'],
+    ['what is a vendor statement', 'reading-a-section-32'],
+    ['What is a desktop report when buying a house?', 'desktop-vs-physical-report'],
+    ['how to tell if a house is double brick', 'brick-veneer-vs-double-brick'],
+    ['how to monitor wall cracks', 'cracks-structural-or-cosmetic'],
+    ['cooling off period victoria', 'cooling-off-period-by-state'],
+    ['building biologist prices', 'building-biologist-cost'],
+    ['strata risks for apartment buyers', 'strata-risks-for-owners'],
+  ];
+  for (const [query, expected] of cases) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.equal(results[0]?.slug, expected, `wrong top guide for: ${query}`);
+    assert.equal(isWeakMatch(query, results), false, `weakened: ${query}`);
+  }
+});
+
+test('"period" and "Section 32" do not borrow authority from other meanings', () => {
+  const periodResults = searchGuides({ query: 'period home meaning', limit: 3 });
+  assert.equal(periodResults[0]?.slug, 'period-homes-pre-1920s');
+  for (const query of [
+    'What does section 32 of the Victorian Charter of Human Rights say?',
+    'Section 32 of the Victorian Crimes Act',
+    'section 32 victoria police',
+  ]) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.ok(results.length === 0 || isWeakMatch(query, results), `false strong: ${query}`);
+  }
+});
