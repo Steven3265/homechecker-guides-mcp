@@ -680,7 +680,9 @@ test('multiple initially missing concern sources survive regardless of input ord
     // The renovation export has descriptive table candidates. Its actions
     // must come from actual authored prose, not an invented "Check" prefix.
     for (const item of checklist.items.filter((item) => item.guideSlug === 'planning-a-renovation')) {
-      assert.ok(getGuide(item.guideSlug).sections.some((section) => section.heading === item.section && section.markdown.includes(item.check)));
+      // Inline links are authored prose too: compare against the section text
+      // with Markdown link syntax reduced to its visible words.
+      assert.ok(getGuide(item.guideSlug).sections.some((section) => section.heading === item.section && section.markdown.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').includes(item.check)));
     }
     assert.ok(checklist.matchedGuides.length <= 6);
     assert.ok(checklist.items.length <= 12);
