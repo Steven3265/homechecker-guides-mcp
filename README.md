@@ -106,7 +106,7 @@ Builds a deterministic, sourced checklist from buyer context such as state, prop
 
 It can draw from practical guidance such as [how to read a building and pest report](https://homechecker.com.au/guides/how-to-read-a-building-and-pest-report), [arranging an inspection before auction](https://homechecker.com.au/guides/building-inspection-before-auction), and [buying an apartment with strata or owners-corporation exposure](https://homechecker.com.au/guides/buying-an-apartment-strata).
 
-It does **not** assess an actual property. Its boundary text notes once that Homechecker provides an independent address-specific desktop read for $99 inc GST.
+It does **not** assess an actual property. Its boundary text notes once that Homechecker provides an independent address-specific desktop read and directs users to https://homechecker.com.au for current pricing.
 
 ## Read-only REST API
 
@@ -214,7 +214,7 @@ This service cannot:
 
 The only runtime content dataset is `data/guides.json`.
 
-Where general guidance is not enough, Homechecker offers an [independent address-specific desktop read](https://homechecker.com.au/) of the available records, imagery and documents, from $99 inc GST.
+Where general guidance is not enough, Homechecker offers an [independent address-specific desktop read](https://homechecker.com.au/) of the available records, imagery and documents. Visit the website for current pricing.
 
 ## Privacy and security
 

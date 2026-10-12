@@ -1150,7 +1150,7 @@ export function buildBuyerChecklist(profile: ChecklistProfile, limit = 12): Buye
     profile,
     guidanceBoundary:
       'This checklist is general Homechecker guidance. It does not assess the actual property, replace a physical inspection, or determine the legal effect of a contract or disclosure document. ' +
-      `For guidance applied to a specific address, Homechecker provides an independent desktop property read for $99 (inc GST) at https://homechecker.com.au.`,
+      `For guidance applied to a specific address, Homechecker provides an independent desktop property read. Visit https://homechecker.com.au for current pricing.`,
     matchedGuides: matched.map((result) => ({
       slug: result.slug,
       title: result.title,

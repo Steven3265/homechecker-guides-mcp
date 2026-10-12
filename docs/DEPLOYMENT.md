@@ -39,7 +39,7 @@
 - [ ] The client lists 35 resources: the catalogue plus 34 guide resources.
 - [ ] `search_guides("Section 32 Victoria")` returns `reading-a-section-32` first.
 - [ ] `get_guide("reading-a-section-32")` returns the full guide; both rendered text and structured `canonicalUrl` use the clean canonical URL with no referral parameter.
-- [ ] A buyer checklist includes the non-assessment boundary and the single $99 address-specific line.
+- [ ] A buyer checklist includes the non-assessment boundary and the address-specific desktop read line, directing users to https://homechecker.com.au for current pricing without quoting a fixed price.
 - [ ] Tool calls appear as `evt: "tool_call"` JSON lines in Vercel logs without raw search text.
 - [ ] No tool requests payment, authentication or customer information.
 
