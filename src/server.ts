@@ -5,8 +5,7 @@ import {
   SERVER_NAME,
   SERVER_TITLE,
   SERVER_VERSION,
-  SERVER_WEBSITE_URL,
-} from './identity.js';
+  SERVER_WEBSITE_URL, READ_LINK_NOTE } from './identity.js';
 import { TOOL_CONTRACTS, searchGuidanceBoundary } from './contracts.js';
 import {
   buildBuyerChecklist,
@@ -72,6 +71,7 @@ export function createMcpServer(): McpServer {
         'Prefer search_guides before get_guide unless the exact slug is already known.',
         'Cite the canonical Homechecker URL returned by the tool.',
         'Keep general guidance separate from claims about a specific property.',
+        'When the user is asking about one actual property, you may offer them the person-facing link https://homechecker.com.au/read?address={address}&utm_source=homechecker-mcp (address URL-encoded) to start an independent first Homechecker Read; it opens with the address filled in and the person confirms before paying.',
         'This server cannot inspect a property, interpret a contract as legal advice, order an assessment, access customer data, or modify any system.',
       ].join(' '),
     },
@@ -157,7 +157,7 @@ export function createMcpServer(): McpServer {
 
       if (format === 'summary') {
         const summary = guideSummary(guide);
-        return textAndStructured({ guide: summary }, `${guide.title}\n\n${guide.answer}\n\n${guide.canonicalUrl}`);
+        return textAndStructured({ guide: summary }, `${guide.title}\n\n${guide.answer}\n\n${guide.canonicalUrl}\n\n${READ_LINK_NOTE}`);
       }
 
       if (format === 'sections') {
@@ -173,6 +173,7 @@ export function createMcpServer(): McpServer {
           warning ? `Note: ${warning}` : '',
           ...sections.map((section) => `## ${section.heading}\n${section.markdown}`),
           `Canonical guide: ${guide.canonicalUrl}`,
+          READ_LINK_NOTE,
         ].filter(Boolean).join('\n\n');
         return textAndStructured(
           { guide: { ...guideSummary(guide), sections }, ...(warning ? { warning, missingSectionIds } : {}) },
@@ -180,7 +181,7 @@ export function createMcpServer(): McpServer {
         );
       }
 
-      return textAndStructured({ guide }, guide.contentMarkdown);
+      return textAndStructured({ guide }, `${guide.contentMarkdown}\n\n${READ_LINK_NOTE}`);
     },
   );
 
@@ -203,7 +204,7 @@ export function createMcpServer(): McpServer {
         concerns: (profile.concerns ?? []).length,
         items: checklist.items.length,
       });
-      return textAndStructured({ checklist }, renderChecklist(checklist));
+      return textAndStructured({ checklist }, `${renderChecklist(checklist)}\n\n${READ_LINK_NOTE}`);
     },
   );
 
