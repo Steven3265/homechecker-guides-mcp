@@ -302,7 +302,7 @@ async function main() {
 
   const resources = await postModern({ id: 'resources', method: 'resources/list' });
   assert.equal(resources.response.status, 200);
-  assert.equal(resources.payload.result.resources.length, 35);
+  assert.equal(resources.payload.result.resources.length, 45);
   assert.ok(resources.payload.result.resources.some((resource) => resource.uri === 'homechecker://catalogue'));
   assert.ok(
     resources.payload.result.resources.some(

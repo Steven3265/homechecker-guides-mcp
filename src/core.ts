@@ -29,7 +29,7 @@ const STOP_WORDS = new Set([
 ]);
 
 const SYNONYM_GROUPS = [
-  ['section 32', 'vendor statement', 'vendor disclosure', 'victorian disclosure'],
+  ['section 32', 'vendor statement', 'vendor disclosure', 'victorian disclosure', 'sale of land act'],
   ['contract for sale', 'sale contract', 'contract review'],
   ['form 2', 'seller disclosure', 'queensland disclosure'],
   ['owners corporation', 'owner corporation', 'strata', 'body corporate', 'common property'],
@@ -102,21 +102,25 @@ function expandedTerms(query: string): string[] {
   return [...terms];
 }
 
-function includesTerm(haystack: string, term: string): boolean {
-  const normalizedHaystack = normalize(haystack);
-  const normalizedTerm = normalize(term);
-  if (!normalizedTerm) return false;
-  return normalizedHaystack.includes(normalizedTerm);
+// A term must start at a word boundary, so "best" does not match inside
+// "asbestos" and "art" does not match inside "start". The end stays open so a
+// query stem such as "crack" still matches "cracking".
+function startsAtWordBoundary(haystack: string, index: number): boolean {
+  return index === 0 || !/[a-z0-9]/.test(haystack[index - 1]!);
 }
 
-function countOccurrences(haystack: string, term: string): number {
+function includesTerm(haystack: string, term: string): boolean {
+  return countOccurrences(haystack, term, 1) > 0;
+}
+
+function countOccurrences(haystack: string, term: string, stopAt = Infinity): number {
   const h = normalize(haystack);
   const t = normalize(term);
   if (!t) return 0;
   let count = 0;
   let offset = 0;
-  while ((offset = h.indexOf(t, offset)) !== -1) {
-    count += 1;
+  while (count < stopAt && (offset = h.indexOf(t, offset)) !== -1) {
+    if (startsAtWordBoundary(h, offset)) count += 1;
     offset += Math.max(t.length, 1);
   }
   return count;
@@ -393,6 +397,9 @@ function scoreGuide(guide: GuideRecord, options: SearchOptions, terms: string[],
     else score -= 12;
   }
   if (options.cluster && guide.cluster?.id === options.cluster) score += 14;
+  // Insurance intent: when the question is about what to tell an insurer,
+  // the insurance guide is the authority and building-element guides support it.
+  if (/\b(?:insurer|insurers|insurance|insurability)\b/.test(query) && guide.topics.includes('insurance')) score += 24;
   if (options.buyingStage && metadataMatches(guide.buyingStages, options.buyingStage)) score += 12;
 
   if (guide.pillar) score *= 0.52;
@@ -470,6 +477,9 @@ const DIRECT_RESIDENTIAL_PATTERNS: RegExp[] = [
   /\b(?:insurance|insurer)\b.{0,35}\b(?:home|house|property|roof|damage|condition|building)\b|\b(?:home|house|property|roof|damage|condition|building)\b.{0,35}\b(?:insurance|insurer)\b/i,
   /\b(?:strata|body corporate|common property|owners corporation)\b.{0,35}\b(?:apartment|unit|lot|levy|levies|minutes|records|building|buy|buying|owner)\b|\b(?:apartment|unit|lot|levy|levies|minutes|records|building|buy|buying|owner)\b.{0,35}\b(?:strata|body corporate|common property|owners corporation)\b/i,
   /\b(?:renovat\w*|extension|alteration)\b.{0,35}\b(?:home|house|property|building|planning|permit|approval)\b|\b(?:home|house|property|building|planning|permit|approval)\b.{0,35}\b(?:renovat\w*|extension|alteration)\b/i,
+  // Building elements covered by their own guides (roof, wet areas, subfloor,
+  // services and outdoor structures) are residential on their own.
+  /\b(?:retaining walls?|balcon\w*|balustrad\w*|termites?|switchboards?|safety switch\w*|hot water (?:system|service|unit)s?|stormwater|subfloors?|restump\w*|reblock\w*|shower (?:leak\w*|waterproof\w*)|leaking showers?|waterproofing|roof (?:leak\w*|tiles?|restoration|space)|gutters?|downpipes?)\b/i,
 ];
 
 /**
@@ -488,7 +498,7 @@ export function residentialDomainEvidence(query: string): number {
   // software and commercial meanings outside residential real estate.
   const propertyNoun = /\bproperty\b/.test(q);
   const transaction = /\b(?:buy|buying|buyer|purchase|purchasing|seller|selling|sale|offer|auction|bid|bidding|contract|settlement|cooling off|due diligence)\b/.test(q);
-  const buildingCue = /\b(?:building|inspect\w*|condition|defect|defects|crack|cracks|cracking|damp|moisture|mould|condensation|ingress|roof|wall|foundation|wiring|plumbing|cladding|weatherboard|brick|maintenance|upkeep|renovat\w*|extension|alteration|insurance|insurer|records|repairs|pest|asbestos|strata|body corporate|owners corporation|heritage overlay)\b/.test(q);
+  const buildingCue = /\b(?:building|retaining walls?|decks?|balcon\w*|balustrad\w*|termites?|switchboards?|safety switch\w*|hot water|stormwater|drainage|subfloors?|stumps?|restump\w*|reblock\w*|showers?|waterproof\w*|gutters?|downpipes?|asbestos|inspect\w*|condition|defect|defects|crack|cracks|cracking|damp|moisture|mould|condensation|ingress|roof|wall|foundation|wiring|plumbing|cladding|weatherboard|brick|maintenance|upkeep|renovat\w*|extension|alteration|insurance|insurer|records|repairs|pest|asbestos|strata|body corporate|owners corporation|heritage overlay)\b/.test(q);
   const documentCue = /\b(?:section 32|vendor statement|seller disclosure|form 2|contract for sale|sale contract|disclosure statement)\b/.test(q);
   const direct = DIRECT_RESIDENTIAL_PATTERNS.some((pattern) => pattern.test(query));
 
@@ -526,7 +536,7 @@ const FINANCIAL_ADVICE_PATTERN = /\b(?:capital gains(?: tax)?|cgt|negative geari
 function isFinanceOnlyQuery(query: string): boolean {
   const q = normalize(query);
   if (!FINANCIAL_ADVICE_PATTERN.test(q)) return false;
-  const hasGuideTopic = /\b(?:inspect\w*|building and pest|building biologist|condition|defects?|cracks?|cracking|damp|moisture|mould|water ingress|roof\w*|walls?|foundations?|wiring|plumbing|cladding|weatherboard|brick|maintenance|upkeep|renovat\w*|extension|alteration|insurance|insurer\w*|records?|warranties|invoices|repairs?|pest|asbestos|storm\w*|flood\w*|bushfire|strata|body corporate|owners corporation|section 32|vendor statement|seller disclosure|form 2|contract review|contract for sale|cooling off|due diligence|heritage overlay)\b/.test(q);
+  const hasGuideTopic = /\b(?:inspect\w*|retaining walls?|decks?|balcon\w*|balustrad\w*|termites?|switchboards?|safety switch\w*|hot water|stormwater|drainage|subfloors?|stumps?|restump\w*|reblock\w*|showers?|waterproof\w*|gutters?|downpipes?|asbestos|building and pest|building biologist|condition|defects?|cracks?|cracking|damp|moisture|mould|water ingress|roof\w*|walls?|foundations?|wiring|plumbing|cladding|weatherboard|brick|maintenance|upkeep|renovat\w*|extension|alteration|insurance|insurer\w*|records?|warranties|invoices|repairs?|pest|asbestos|storm\w*|flood\w*|bushfire|strata|body corporate|owners corporation|section 32|vendor statement|seller disclosure|form 2|contract review|contract for sale|cooling off|due diligence|heritage overlay)\b/.test(q);
   return !hasGuideTopic;
 }
 
@@ -714,8 +724,8 @@ function hasAffirmativeResidentialContext(query: string): boolean {
   // Transaction verbs/stages are stronger grounding than role nouns such as
   // "vendor", which also occur in procurement and other non-property domains.
   const transaction = /\b(?:buy|buying|buyer|purchase|purchasing|selling|sale|offer|auction|bid|bidding|contract|settlement|cooling off|due diligence|sign|signing)\b/.test(q);
-  const buildingOrDocument = /\b(?:building|inspection|report|condition|defect|crack\w*|damp|moisture|mould|roof|wall|foundation|wiring|plumbing|cladding|weatherboard|brick|maintenance|renovat\w*|extension|insurance|strata|owners corporation|body corporate|section 32|vendor statement|seller disclosure|form 2|heritage overlay|sale contract|contract for sale|disclosure|disclosures)\b/.test(q);
-  const physicalResidentialCue = /\b(?:building|defect|crack|damp|moisture|mould|roof|wall|foundation|wiring|plumbing|cladding|weatherboard|brick|maintenance|renovat\w*|extension|insurance|strata|owners corporation|body corporate)\b/.test(q);
+  const buildingOrDocument = /\b(?:building|retaining walls?|decks?|balcon\w*|balustrad\w*|termites?|switchboards?|safety switch\w*|hot water|stormwater|drainage|subfloors?|stumps?|restump\w*|reblock\w*|showers?|waterproof\w*|gutters?|downpipes?|asbestos|inspection|report|condition|defect|crack\w*|damp|moisture|mould|roof|wall|foundation|wiring|plumbing|cladding|weatherboard|brick|maintenance|renovat\w*|extension|insurance|strata|owners corporation|body corporate|section 32|vendor statement|seller disclosure|form 2|heritage overlay|sale contract|contract for sale|disclosure|disclosures)\b/.test(q);
+  const physicalResidentialCue = /\b(?:building|retaining walls?|decks?|balcon\w*|balustrad\w*|termites?|switchboards?|safety switch\w*|hot water|stormwater|drainage|subfloors?|stumps?|restump\w*|reblock\w*|showers?|waterproof\w*|gutters?|downpipes?|asbestos|defect|crack|damp|moisture|mould|roof|wall|foundation|wiring|plumbing|cladding|weatherboard|brick|maintenance|renovat\w*|extension|insurance|strata|owners corporation|body corporate)\b/.test(q);
   const relationalResidential = [
     /\b(?:strata|owners corporation|body corporate)\b.{0,30}\b(?:records?|minutes|reports?)\b/,
     /\bcracks?\b.{0,20}\bwall\b|\bwall\b.{0,20}\bcracks?\b/,

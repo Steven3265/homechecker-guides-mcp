@@ -16,10 +16,10 @@ import {
 } from '../.core-dist/src/core.js';
 
 test('snapshot contains the full published guide system', () => {
-  assert.equal(snapshot.source.contentCount, 34);
-  assert.equal(snapshot.source.spokeCount, 33);
-  assert.equal(guides.filter((guide) => !guide.pillar).length, 33);
-  assert.equal(new Set(guides.map((guide) => guide.resourceUri)).size, 34);
+  assert.equal(snapshot.source.contentCount, 44);
+  assert.equal(snapshot.source.spokeCount, 43);
+  assert.equal(guides.filter((guide) => !guide.pillar).length, 43);
+  assert.equal(new Set(guides.map((guide) => guide.resourceUri)).size, 44);
 });
 
 test('gets a canonical guide by slug and route', () => {
