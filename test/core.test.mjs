@@ -15,11 +15,17 @@ import {
   WEAK_RELEVANCE_PER_TERM,
 } from '../.core-dist/src/core.js';
 
+// The library grows over time, so these are floors (never shrink below the
+// published system at the time of writing) plus internal consistency checks,
+// rather than exact counts that break every time a guide is added.
+const MIN_PUBLISHED_GUIDES = 44; // hub + 43 guides, October 2026
+
 test('snapshot contains the full published guide system', () => {
-  assert.equal(snapshot.source.contentCount, 44);
-  assert.equal(snapshot.source.spokeCount, 43);
-  assert.equal(guides.filter((guide) => !guide.pillar).length, 43);
-  assert.equal(new Set(guides.map((guide) => guide.resourceUri)).size, 44);
+  assert.ok(snapshot.source.contentCount >= MIN_PUBLISHED_GUIDES);
+  assert.equal(snapshot.source.spokeCount, snapshot.source.contentCount - 1);
+  assert.equal(guides.filter((guide) => !guide.pillar).length, snapshot.source.spokeCount);
+  assert.equal(guides.filter((guide) => guide.pillar).length, 1);
+  assert.equal(new Set(guides.map((guide) => guide.resourceUri)).size, snapshot.source.contentCount);
 });
 
 test('gets a canonical guide by slug and route', () => {
