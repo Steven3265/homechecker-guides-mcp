@@ -1,0 +1,12 @@
+{
+  "name": "homechecker-guides",
+  "version": "1.2.1",
+  "description": "Australian home buyer and owner guides from Homechecker: search, cite and build sourced checklists through a public, read-only MCP server.",
+  "contextFileName": "GEMINI.md",
+  "mcpServers": {
+    "homechecker-guides": {
+      "httpUrl": "https://mcp.homechecker.com.au/mcp",
+      "timeout": 30000
+    }
+  }
+}
