@@ -2,6 +2,8 @@
 
 [![Smithery](https://smithery.ai/badge/steven-xv6y/homechecker-guides)](https://smithery.ai/servers/steven-xv6y/homechecker-guides)
 
+[![M8ven Score](https://m8ven.ai/badge/mcp/steven3265-homechecker-guides-mcp-kzff9o?v=34e9aef49c27a66e8e2e2a8805999f4b)](https://m8ven.ai/mcp/steven3265-homechecker-guides-mcp-kzff9o?s=readme)
+
 Homechecker's professionally authored guides for Australian homebuyers, served over the Model Context Protocol and a set of complementary machine-readable interfaces. A connected assistant can search the corpus, retrieve canonical guides and build sourced buyer checklists across inspections, contracts, strata, construction eras, disclosure and maintenance, citing homechecker.com.au throughout.
 
 Public, read-only and deliberately separated from customer and assessment systems.
