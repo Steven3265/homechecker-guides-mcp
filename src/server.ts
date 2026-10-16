@@ -84,7 +84,7 @@ export function createMcpServer(): McpServer {
       description: TOOL_CONTRACTS.list_guides.description,
       inputSchema: TOOL_CONTRACTS.list_guides.inputSchema,
       outputSchema: TOOL_CONTRACTS.list_guides.outputSchema,
-      annotations: readOnlyAnnotations,
+      annotations: { ...readOnlyAnnotations, title: TOOL_CONTRACTS.list_guides.title },
     },
     async (args) => {
       const matches = listGuides(args).map(guideSummary);
@@ -108,7 +108,7 @@ export function createMcpServer(): McpServer {
       description: TOOL_CONTRACTS.search_guides.description,
       inputSchema: TOOL_CONTRACTS.search_guides.inputSchema,
       outputSchema: TOOL_CONTRACTS.search_guides.outputSchema,
-      annotations: readOnlyAnnotations,
+      annotations: { ...readOnlyAnnotations, title: TOOL_CONTRACTS.search_guides.title },
     },
     async (args) => {
       const results = searchGuides(args);
@@ -143,7 +143,7 @@ export function createMcpServer(): McpServer {
       description: TOOL_CONTRACTS.get_guide.description,
       inputSchema: TOOL_CONTRACTS.get_guide.inputSchema,
       outputSchema: TOOL_CONTRACTS.get_guide.outputSchema,
-      annotations: readOnlyAnnotations,
+      annotations: { ...readOnlyAnnotations, title: TOOL_CONTRACTS.get_guide.title },
     },
     async ({ slug, format, sectionIds }) => {
       const guide = getGuide(slug);
@@ -192,7 +192,7 @@ export function createMcpServer(): McpServer {
       description: TOOL_CONTRACTS.build_buyer_checklist.description,
       inputSchema: TOOL_CONTRACTS.build_buyer_checklist.inputSchema,
       outputSchema: TOOL_CONTRACTS.build_buyer_checklist.outputSchema,
-      annotations: readOnlyAnnotations,
+      annotations: { ...readOnlyAnnotations, title: TOOL_CONTRACTS.build_buyer_checklist.title },
     },
     async ({ limit, ...profile }) => {
       const checklist = buildBuyerChecklist(profile, limit);
