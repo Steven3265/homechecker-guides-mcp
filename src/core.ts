@@ -531,7 +531,7 @@ export function relevanceDensity(query: string, results: GuideSearchResult[]): n
 // Pure financing and investment-tax requests have no answer in this corpus.
 // Keep this independent of lexical scores: new editorial examples can otherwise
 // lift incidental words above the result floor.
-const FINANCIAL_ADVICE_PATTERN = /\b(?:capital gains(?: tax)?|cgt|negative gearing|mortgages?|home loans?|refinanc\w*|borrowing capacity|interest rates?|rental yields?|rental income|investment returns?)\b/i;
+const FINANCIAL_ADVICE_PATTERN = /\b(?:capital gains(?: tax)?|cgt|negative gearing|mortgages?|home loans?|refinanc\w*|borrowing capacity|interest rates?|rental yields?|rental income|investment returns?|feed[- ]?in tariffs?)\b/i;
 
 function isFinanceOnlyQuery(query: string): boolean {
   const q = normalize(query);
@@ -1049,6 +1049,11 @@ function resultExplainsConcern(result: GuideSearchResult, concern: string): bool
   return terms.some((term) => includesTerm(authority, term));
 }
 
+function concernInHeadline(result: GuideSearchResult, concern: string): boolean {
+  const headline = normalize(`${result.title} ${result.question}`);
+  return expandedTerms(concern).some((term) => includesTerm(headline, term));
+}
+
 function preserveExplicitConcerns(
   matched: GuideSearchResult[],
   profile: ChecklistProfile,
@@ -1069,11 +1074,16 @@ function preserveExplicitConcerns(
       limit: 3,
       ...(profile.jurisdiction ? { jurisdiction: profile.jurisdiction } : {}),
       ...(profile.propertyType ? { propertyType: profile.propertyType } : {}),
-    }).find((result) => {
+    }).filter((result) => {
       const guide = getGuide(result.slug);
       return resultExplainsConcern(result, concern) && guide !== undefined &&
         authoredChecklistCandidates(guide, profile.era).length > 0;
-    });
+    })
+      // A guide that names the concern in its own title or question is the
+      // dedicated source; one that only touches it through inferred topics is
+      // background. Prefer the dedicated guide, then keep the search order.
+      .map((result, index) => ({ result, index, dedicated: concernInHeadline(result, concern) }))
+      .sort((a, b) => Number(b.dedicated) - Number(a.dedicated) || a.index - b.index)[0]?.result;
     if (!direct) continue;
     pool.set(direct.slug, direct);
     const covered = coverage.get(direct.slug) ?? new Set<string>();
