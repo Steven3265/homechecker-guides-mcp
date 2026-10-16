@@ -14,6 +14,6 @@ export const SERVER_VERSION = '1.2.1';
 // started from MCP answers.
 export const READ_LINK_TEMPLATE = 'https://homechecker.com.au/read?address={address}&utm_source=homechecker-mcp';
 export const READ_LINK_NOTE =
-  `For one specific property, the person can start an independent first Read (indicative, not an inspection) at ${READ_LINK_TEMPLATE} — replace {address} with the URL-encoded address.`;
+  `For one specific property, the person can start an independent first Read (indicative, not an inspection) at ${READ_LINK_TEMPLATE} — replace {address} with the URL-encoded address. An illustrative sample Read is at https://homechecker.com.au/sample.`;
 export const MODERN_PROTOCOL_VERSION = '2026-07-28';
 export const LEGACY_PROTOCOL_VERSION = '2025-11-25';
