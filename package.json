@@ -24,8 +24,8 @@
     "serve:conformance": "node scripts/serve-conformance.mjs"
   },
   "dependencies": {
-    "@modelcontextprotocol/server": "2.0.0",
-    "zod": "4.4.3"
+    "@modelcontextprotocol/server": "2.1.0",
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@types/node": "22.20.1",
