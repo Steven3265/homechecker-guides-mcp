@@ -4,6 +4,9 @@
   "functions": {
     "api/mcp.ts": {
       "maxDuration": 10
+    },
+    "api/mcp-openai.ts": {
+      "maxDuration": 10
     }
   },
   "rewrites": [
@@ -14,6 +17,10 @@
     {
       "source": "/mcp",
       "destination": "/api/mcp"
+    },
+    {
+      "source": "/mcp/openai",
+      "destination": "/api/mcp-openai"
     },
     {
       "source": "/health",

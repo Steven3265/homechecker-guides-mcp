@@ -4,4 +4,4 @@ dependencies:
       value: "homechecker-guides"
       description: "Search and retrieve Homechecker's professionally authored Australian residential-property guidance and build sourced buyer checklists."
       transport: "streamable_http"
-      url: "https://mcp.homechecker.com.au/mcp"
+      url: "https://mcp.homechecker.com.au/mcp/openai"

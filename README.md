@@ -10,13 +10,14 @@ Public, read-only and deliberately separated from customer and assessment system
 
 The service exposes the current Homechecker guide system without connecting to the Moyne Ross portal, Supabase, customer records, payments, uploaded documents or the Homechecker assessment engine.
 
-**Version:** `1.2.2` · **Protocol:** MCP `2026-07-28` with stateless 2025-era compatibility · **Live endpoint:** `https://mcp.homechecker.com.au/mcp` · **Health:** [mcp.homechecker.com.au/health](https://mcp.homechecker.com.au/health) · **Official Registry:** `io.github.Steven3265/homechecker-guides` · **Connect it:** [homechecker.com.au/ai](https://homechecker.com.au/ai)
+**Version:** `1.2.3` · **Protocol:** MCP `2026-07-28` with stateless 2025-era compatibility · **Live endpoint:** `https://mcp.homechecker.com.au/mcp` · **Health:** [mcp.homechecker.com.au/health](https://mcp.homechecker.com.au/health) · **Official Registry:** `io.github.Steven3265/homechecker-guides` · **Connect it:** [homechecker.com.au/ai](https://homechecker.com.au/ai)
 
 ## Machine discovery surface
 
 Homechecker publishes one deterministic guide corpus through several interoperable discovery and execution surfaces.
 
 - **MCP:** `https://mcp.homechecker.com.au/mcp`
+- **MCP for the OpenAI app directory:** `https://mcp.homechecker.com.au/mcp/openai` (same tools and corpus, without the Read link; see `docs/RELEASE-1.2.3.md`)
 - **MCP Server Card (experimental extension):** `https://mcp.homechecker.com.au/mcp/server-card`
 - **Extended Homechecker service metadata:** `https://mcp.homechecker.com.au/server-card.json`
 - **Read-only REST API:** `https://mcp.homechecker.com.au/v1/*`
@@ -48,7 +49,7 @@ The authoritative server identity remains `io.github.Steven3265/homechecker-guid
 
 ## Protocol foundation
 
-Version 1.2.2 uses the MCP TypeScript SDK v2 server package and the `2026-07-28` protocol revision.
+Version 1.2.3 uses the MCP TypeScript SDK v2 server package and the `2026-07-28` protocol revision.
 
 The official `createMcpHandler` entry provides stateless per-request serving, `server/discover`, modern MCP routing headers, server identity and cache fields while retaining stateless compatibility for 2025-era HTTP clients during rollout.
 
@@ -56,7 +57,7 @@ For modern Streamable HTTP requests, the SDK validates MCP routing headers again
 
 The protocol shell can evolve independently of the durable parts of the product: the reviewed snapshot, deterministic retrieval, tool contracts and professional boundaries.
 
-See [`docs/PROTOCOL-SUPPORT.md`](docs/PROTOCOL-SUPPORT.md), [`docs/RELEASE-1.2.2.md`](docs/RELEASE-1.2.2.md), [`docs/RELEASE-1.2.1.md`](docs/RELEASE-1.2.1.md) and [`CHANGELOG.md`](CHANGELOG.md).
+See [`docs/PROTOCOL-SUPPORT.md`](docs/PROTOCOL-SUPPORT.md), [`docs/RELEASE-1.2.3.md`](docs/RELEASE-1.2.3.md), [`docs/RELEASE-1.2.2.md`](docs/RELEASE-1.2.2.md), [`docs/RELEASE-1.2.1.md`](docs/RELEASE-1.2.1.md) and [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Explore the Homechecker guides
 

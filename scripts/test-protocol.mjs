@@ -34,7 +34,7 @@ async function parseJsonRpc(response) {
   return JSON.parse(text);
 }
 
-async function postModern({ id, method, params = {}, name }) {
+async function postModern({ id, method, params = {}, name, endpoint = 'standard', userAgent }) {
   const headers = new Headers({
     Accept: 'application/json, text/event-stream',
     'Content-Type': 'application/json',
@@ -43,8 +43,9 @@ async function postModern({ id, method, params = {}, name }) {
     Host: 'test.local',
   });
   if (name) headers.set('Mcp-Name', name);
+  if (userAgent) headers.set('User-Agent', userAgent);
 
-  const request = new Request(ENDPOINT, {
+  const request = new Request(endpoint === 'openai' ? `${ENDPOINT}/openai` : ENDPOINT, {
     method: 'POST',
     headers,
     body: JSON.stringify({
@@ -54,7 +55,7 @@ async function postModern({ id, method, params = {}, name }) {
       params: { ...params, _meta: modernMeta() },
     }),
   });
-  const response = await handleMcpRequest(request);
+  const response = await handleMcpRequest(request, { endpoint });
   return { response, payload: await parseJsonRpc(response) };
 }
 
@@ -374,10 +375,56 @@ async function main() {
   assert.equal(legacyPayload.result.serverInfo.websiteUrl, 'https://homechecker.com.au/ai');
   assert.equal(legacyPayload.result.serverInfo.icons?.[0]?.mimeType, 'image/png');
 
+  // 1.2.3: the OpenAI endpoint, and ChatGPT traffic on /mcp, never carry the
+  // person-facing Read or sample link. Every other client keeps it.
+  const READ_LINKS = /homechecker\.com\.au\/(read\?|sample)/;
+  const surfaces = [
+    { label: 'standard', readLinks: true, options: {} },
+    { label: 'openai endpoint', readLinks: false, options: { endpoint: 'openai' } },
+    { label: 'chatgpt on /mcp', readLinks: false, options: { userAgent: 'openai-mcp/1.0 (ChatGPT)' } },
+  ];
+  for (const surface of surfaces) {
+    const calls = [
+      { id: 'rl-init', method: 'initialize', legacy: true },
+      { id: 'rl-search', method: 'tools/call', name: 'search_guides', params: { name: 'search_guides', arguments: { query: 'What should I look for in a Section 32 in Victoria?' } } },
+      // A no-match query: its boundary never carries the link on any surface.
+      { id: 'rl-weak', method: 'tools/call', name: 'search_guides', params: { name: 'search_guides', arguments: { query: 'kitchen bench colour ideas' } } },
+      { id: 'rl-full', method: 'tools/call', name: 'get_guide', params: { name: 'get_guide', arguments: { slug: 'reading-a-section-32', format: 'full' } } },
+      { id: 'rl-summary', method: 'tools/call', name: 'get_guide', params: { name: 'get_guide', arguments: { slug: 'reading-a-section-32', format: 'summary' } } },
+      { id: 'rl-sections', method: 'tools/call', name: 'get_guide', params: { name: 'get_guide', arguments: { slug: 'reading-a-section-32', format: 'sections' } } },
+      { id: 'rl-checklist', method: 'tools/call', name: 'build_buyer_checklist', params: { name: 'build_buyer_checklist', arguments: { jurisdiction: 'VIC', buyingStage: 'contract review' } } },
+    ];
+    for (const call of calls) {
+      let response;
+      let payload;
+      if (call.legacy) {
+        const headers = new Headers({ Accept: 'application/json, text/event-stream', 'Content-Type': 'application/json', Host: 'test.local' });
+        if (surface.options.userAgent) headers.set('User-Agent', surface.options.userAgent);
+        response = await handleMcpRequest(new Request(ENDPOINT, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ jsonrpc: '2.0', id: call.id, method: 'initialize', params: { protocolVersion: '2025-11-25', capabilities: {}, clientInfo: { name: 'homechecker-readlink-test', version: '1.0.0' } } }),
+        }), { endpoint: surface.options.endpoint });
+        payload = await parseJsonRpc(response);
+      } else {
+        ({ response, payload } = await postModern({ ...call, ...surface.options }));
+      }
+      assert.equal(response.status, 200, `${surface.label} ${call.id} failed`);
+      const body = JSON.stringify(payload.result);
+      if (surface.readLinks) {
+        if (call.id !== 'rl-weak') assert.match(body, READ_LINKS, `${surface.label} ${call.id} should carry the Read link`);
+      } else {
+        assert.doesNotMatch(body, READ_LINKS, `${surface.label} ${call.id} must not carry a Read or sample link`);
+        assert.doesNotMatch(body, /\n\n\s*$/, `${surface.label} ${call.id} left a trailing gap where the note was`);
+      }
+    }
+  }
+
   console.log('PASS  protocol: Host/Origin guards, CORS and method controls');
   console.log('PASS  protocol: 2026-07-28 discovery, tools, calls and resources');
   console.log('PASS  protocol: routing-header mismatch rejection');
   console.log('PASS  protocol: 2025-era initialize compatibility');
+  console.log('PASS  protocol: Read link off on /mcp/openai and for ChatGPT, on elsewhere');
 }
 
 main().catch((error) => {

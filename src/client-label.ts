@@ -30,12 +30,22 @@ export function clientLabel(userAgent?: string | null): string {
 
 // Carries the label from the HTTP boundary to tool-level telemetry without
 // passing request objects into the MCP server. Absent under stdio.
-const requestContext = new AsyncLocalStorage<{ client: string }>();
+//
+// readLinks says whether answers may carry the person-facing Read link.
+// It is false on the OpenAI endpoint (/mcp/openai) and for ChatGPT traffic
+// on /mcp, because OpenAI's app directory does not allow apps to promote
+// digital services. Everywhere else, including stdio and the REST layer,
+// it defaults to true.
+const requestContext = new AsyncLocalStorage<{ client: string; readLinks: boolean }>();
 
-export function runWithClient<T>(client: string, fn: () => T): T {
-  return requestContext.run({ client }, fn);
+export function runWithClient<T>(client: string, fn: () => T, readLinks = true): T {
+  return requestContext.run({ client, readLinks }, fn);
 }
 
 export function currentClient(): string | undefined {
   return requestContext.getStore()?.client;
+}
+
+export function readLinksEnabled(): boolean {
+  return requestContext.getStore()?.readLinks ?? true;
 }

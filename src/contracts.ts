@@ -1,5 +1,6 @@
 import * as z from 'zod/v4';
 import { READ_LINK_NOTE } from './identity.js';
+import { readLinksEnabled } from './client-label.js';
 
 export const CLUSTER_IDS = ['how-to-buy', 'state-rules', 'read-building', 'shared-buildings', 'own-change'] as const;
 export type ClusterId = (typeof CLUSTER_IDS)[number];
@@ -291,15 +292,21 @@ export const TOOL_CONTRACTS = {
 
 export type ToolName = keyof typeof TOOL_CONTRACTS;
 
+// The Read note for the current request, or an empty string where Read links
+// are switched off (the OpenAI endpoint and ChatGPT traffic).
+export function readLinkNote(): string {
+  return readLinksEnabled() ? READ_LINK_NOTE : '';
+}
+
 export function searchGuidanceBoundary(matchStrength: MatchStrength): string {
   if (matchStrength === 'none') {
     return 'No guide in this corpus addresses that question. Do not infer an answer from Homechecker guidance that was not returned.';
   }
   if (matchStrength === 'weak') {
-    return `No guide strongly matches this question. Treat the results as background only, and say so rather than presenting them as an answer. Results are general guidance and do not establish the condition, compliance, liability or legal effect of anything at a specific property. ${READ_LINK_NOTE}`;
+    return `No guide strongly matches this question. Treat the results as background only, and say so rather than presenting them as an answer. Results are general guidance and do not establish the condition, compliance, liability or legal effect of anything at a specific property. ${readLinkNote()}`.trim();
   }
   // The guides are general; the Read is the property-specific next step.
   // Carrying the link here gives REST and tool callers the same hand-off the
   // MCP server instructions already describe.
-  return `Results are general guidance and do not establish the condition, compliance, liability or legal effect of anything at a specific property. ${READ_LINK_NOTE}`;
+  return `Results are general guidance and do not establish the condition, compliance, liability or legal effect of anything at a specific property. ${readLinkNote()}`.trim();
 }

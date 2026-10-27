@@ -4,8 +4,11 @@ export const SERVER_TITLE = 'Homechecker Guides';
 export const SERVER_DESCRIPTION = "Homechecker's professionally authored Australian homebuyer guides: search, cite, build checklists.";
 export const SERVER_WEBSITE_URL = 'https://homechecker.com.au/ai';
 export const SERVER_ENDPOINT_URL = 'https://mcp.homechecker.com.au/mcp';
+// Same server and corpus, served without the Read link: the endpoint listed
+// in OpenAI's app directory, whose guidelines bar promoting digital services.
+export const SERVER_OPENAI_ENDPOINT_URL = 'https://mcp.homechecker.com.au/mcp/openai';
 export const SERVER_ICON_URL = 'https://mcp.homechecker.com.au/homechecker-icon-32.png';
-export const SERVER_VERSION = '1.2.2';
+export const SERVER_VERSION = '1.2.3';
 
 // Person-facing link for starting an independent first Read of ONE specific
 // property. Opens homechecker.com.au with the address filled in; the person

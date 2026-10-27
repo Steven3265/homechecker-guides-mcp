@@ -225,15 +225,22 @@ function rpcMethods(request: Request): string[] {
   return method ? [method] : [];
 }
 
-function logRequest(methods: string[], client: string, status: number, durationMs: number): void {
+function logRequest(methods: string[], client: string, endpoint: string, status: number, durationMs: number): void {
   try {
-    console.error(JSON.stringify({ evt: 'mcp_request', methods, client, status, durationMs, at: new Date().toISOString() }));
+    console.error(JSON.stringify({ evt: 'mcp_request', methods, client, endpoint, status, durationMs, at: new Date().toISOString() }));
   } catch {
     // Never let telemetry interfere with protocol handling.
   }
 }
 
-export async function handleMcpRequest(request: Request): Promise<Response> {
+export type McpEndpointOptions = {
+  // 'openai' serves the OpenAI directory listing at /mcp/openai: the same
+  // tools, corpus and answers, without the person-facing Read link.
+  endpoint?: 'standard' | 'openai';
+};
+
+export async function handleMcpRequest(request: Request, options: McpEndpointOptions = {}): Promise<Response> {
+  const endpoint = options.endpoint ?? 'standard';
   // MCP 2026-07-28 requires Origin validation when an Origin header is present.
   // Host validation is applied alongside it to defend the bare fetch endpoint
   // against DNS-rebinding-style requests. Non-browser clients normally omit
@@ -261,13 +268,16 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
   const started = Date.now();
   const methods = rpcMethods(request);
   const client = clientLabel(request.headers.get('User-Agent'));
+  // OpenAI's app directory does not allow promoting digital services, so the
+  // Read link is left out on the OpenAI endpoint and for ChatGPT on /mcp.
+  const readLinks = endpoint !== 'openai' && client !== 'chatgpt';
 
   try {
-    const response = withCommonHeaders(await runWithClient(client, () => mcpHandler.fetch(request)), request);
-    logRequest(methods, client, response.status, Date.now() - started);
+    const response = withCommonHeaders(await runWithClient(client, () => mcpHandler.fetch(request), readLinks), request);
+    logRequest(methods, client, endpoint, response.status, Date.now() - started);
     return response;
   } catch (error) {
-    logRequest(methods, client, 500, Date.now() - started);
+    logRequest(methods, client, endpoint, 500, Date.now() - started);
     console.error('[homechecker-mcp] request failed', error);
     const headers = corsHeaders(request);
     headers.set('Content-Type', 'application/json; charset=utf-8');
