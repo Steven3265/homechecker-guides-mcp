@@ -2,7 +2,7 @@
   "name": "homechecker",
   "owner": {
     "name": "Homechecker by Moyne Ross",
-    "email": "hello@homechecker.com.au"
+    "email": "hello@moyneross.com"
   },
   "metadata": {
     "description": "Homechecker machine-readable Australian residential-property knowledge capabilities.",
@@ -16,7 +16,7 @@
       "source": ".",
       "author": {
         "name": "Homechecker by Moyne Ross",
-        "email": "hello@homechecker.com.au",
+        "email": "hello@moyneross.com",
         "url": "https://homechecker.com.au"
       },
       "homepage": "https://homechecker.com.au/ai",
