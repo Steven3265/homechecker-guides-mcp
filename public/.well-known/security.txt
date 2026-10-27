@@ -1,4 +1,4 @@
-Contact: mailto:hello@homechecker.com.au
+Contact: mailto:hello@moyneross.com
 Canonical: https://mcp.homechecker.com.au/.well-known/security.txt
 Policy: https://homechecker.com.au/privacy
 Preferred-Languages: en
