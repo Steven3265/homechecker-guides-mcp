@@ -28,7 +28,8 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
     cluster: cluster ?? undefined,
     limit,
   });
-  const matchStrength = results.length === 0 ? 'none' : isWeakMatch(query, results) ? 'weak' : 'strong';
+  const context = { propertyType: optionalParam(url, 'propertyType'), era: optionalParam(url, 'era'), jurisdiction: optionalParam(url, 'jurisdiction') };
+  const matchStrength = results.length === 0 ? 'none' : isWeakMatch(query, results, context) ? 'weak' : 'strong';
   logApi('search', { queryLength: query.length, count: results.length, matchStrength, top: results[0]?.slug });
   // Header-dependent attribution must not be reused by a shared cache.
   const source = referralSource(req);

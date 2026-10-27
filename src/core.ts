@@ -48,7 +48,11 @@ const SYNONYM_GROUPS = [
   ['maintenance', 'upkeep', 'preventative work'],
   ['1950s', '1960s', '1970s', 'postwar'],
   ['1920s', '1930s', '1940s', 'interwar'],
-  ['2000s', '2010s', '2020s', 'modern home'],
+  ['2000s', '2010s', '2020s', 'modern home', 'new build', 'newly built', 'recently built', 'new construction'],
+  ['cladding', 'battens', 'batten cladding', 'timber battens'],
+  ['smoke alarm', 'smoke alarms', 'smoke detector', 'smoke detectors'],
+  ['hot water', 'hot water system', 'water heater'],
+  ['switchboard', 'fuse box', 'meter box'],
 ];
 
 const AUTHORITY_SYNONYM_GROUPS = [
@@ -498,7 +502,7 @@ export function residentialDomainEvidence(query: string): number {
   // software and commercial meanings outside residential real estate.
   const propertyNoun = /\bproperty\b/.test(q);
   const transaction = /\b(?:buy|buying|buyer|purchase|purchasing|seller|selling|sale|offer|auction|bid|bidding|contract|settlement|cooling off|due diligence)\b/.test(q);
-  const buildingCue = /\b(?:building|retaining walls?|decks?|balcon\w*|balustrad\w*|termites?|switchboards?|safety switch\w*|hot water|stormwater|drainage|subfloors?|stumps?|restump\w*|reblock\w*|showers?|waterproof\w*|gutters?|downpipes?|asbestos|inspect\w*|condition|defect|defects|crack|cracks|cracking|damp|moisture|mould|condensation|ingress|roof|wall|foundation|wiring|plumbing|cladding|weatherboard|brick|maintenance|upkeep|renovat\w*|extension|alteration|insurance|insurer|records|repairs|pest|asbestos|strata|body corporate|owners corporation|heritage overlay)\b/.test(q);
+  const buildingCue = /\b(?:building|retaining walls?|decks?|balcon\w*|balustrad\w*|termites?|switchboards?|safety switch\w*|hot water|stormwater|drainage|subfloors?|stumps?|restump\w*|reblock\w*|showers?|waterproof\w*|gutters?|downpipes?|asbestos|inspect\w*|condition|defect|defects|warranty|warranties|crack|cracks|cracking|damp|moisture|mould|condensation|ingress|roof|wall|walls|foundation|wiring|plumbing|cladding|battens?|slabs?|smoke alarms?|weatherboard|brick|maintenance|upkeep|renovat\w*|extension|alteration|insurance|insurer|records|repairs|pest|asbestos|strata|body corporate|owners corporation|heritage overlay)\b/.test(q);
   const documentCue = /\b(?:section 32|vendor statement|seller disclosure|form 2|contract for sale|sale contract|disclosure statement)\b/.test(q);
   const direct = DIRECT_RESIDENTIAL_PATTERNS.some((pattern) => pattern.test(query));
 
@@ -717,6 +721,32 @@ function tokenSupportedByResult(query: string, token: string, result: GuideSearc
   return 0;
 }
 
+/**
+ * Structured filters a caller supplied with a search. A residential property
+ * type (house, apartment, townhouse…) or a construction era is the caller
+ * telling us the question is about a home, as surely as the words "my house"
+ * would. Jurisdiction alone is not: a state name says nothing about the topic.
+ */
+export interface SearchContext {
+  propertyType?: string;
+  era?: string;
+  jurisdiction?: string;
+}
+
+const RESIDENTIAL_PROPERTY_TYPE = /\b(?:house|home|apartment|townhouse|unit|villa|dwelling|duplex|terrace|semi detached|residential)\b/;
+
+/** The question names a physical building matter (element, system, defect or upkeep). */
+function hasBuildingCue(query: string): boolean {
+  return /\b(?:building|retaining walls?|decks?|balcon\w*|balustrad\w*|termites?|switchboards?|safety switch\w*|fuse box\w*|meter box\w*|hot water|water heaters?|stormwater|drainage|subfloors?|stumps?|restump\w*|reblock\w*|showers?|bathrooms?|waterproof\w*|gutters?|downpipes?|asbestos|eaves|defects?|warrant(?:y|ies)|crack\w*|damp|moisture|mould|condensation|insulation|ventilation|roofs?|walls?|foundations?|footings?|wiring|plumbing|cladding|battens?|render|slabs?|smoke (?:alarms?|detectors?)|weatherboards?|brick\w*|windows?|floors?|ceilings?|chimneys?|maintenance)\b/.test(normalize(query));
+}
+
+function suppliedResidentialContext(context?: SearchContext): boolean {
+  if (!context) return false;
+  if (context.propertyType && RESIDENTIAL_PROPERTY_TYPE.test(normalize(context.propertyType))) return true;
+  if (context.era && eraRange(context.era) !== undefined) return true;
+  return false;
+}
+
 function hasAffirmativeResidentialContext(query: string): boolean {
   const q = normalize(query);
   const residentialNoun = /\b(?:home|house|apartment|townhouse|dwelling|villa|residential)\b/.test(q);
@@ -724,8 +754,8 @@ function hasAffirmativeResidentialContext(query: string): boolean {
   // Transaction verbs/stages are stronger grounding than role nouns such as
   // "vendor", which also occur in procurement and other non-property domains.
   const transaction = /\b(?:buy|buying|buyer|purchase|purchasing|selling|sale|offer|auction|bid|bidding|contract|settlement|cooling off|due diligence|sign|signing)\b/.test(q);
-  const buildingOrDocument = /\b(?:building|retaining walls?|decks?|balcon\w*|balustrad\w*|termites?|switchboards?|safety switch\w*|hot water|stormwater|drainage|subfloors?|stumps?|restump\w*|reblock\w*|showers?|waterproof\w*|gutters?|downpipes?|asbestos|inspection|report|condition|defect|crack\w*|damp|moisture|mould|roof|wall|foundation|wiring|plumbing|cladding|weatherboard|brick|maintenance|renovat\w*|extension|insurance|strata|owners corporation|body corporate|section 32|vendor statement|seller disclosure|form 2|heritage overlay|sale contract|contract for sale|disclosure|disclosures)\b/.test(q);
-  const physicalResidentialCue = /\b(?:building|retaining walls?|decks?|balcon\w*|balustrad\w*|termites?|switchboards?|safety switch\w*|hot water|stormwater|drainage|subfloors?|stumps?|restump\w*|reblock\w*|showers?|waterproof\w*|gutters?|downpipes?|asbestos|defect|crack|damp|moisture|mould|roof|wall|foundation|wiring|plumbing|cladding|weatherboard|brick|maintenance|renovat\w*|extension|insurance|strata|owners corporation|body corporate)\b/.test(q);
+  const buildingOrDocument = /\b(?:building|retaining walls?|decks?|balcon\w*|balustrad\w*|termites?|switchboards?|safety switch\w*|hot water|stormwater|drainage|subfloors?|stumps?|restump\w*|reblock\w*|showers?|waterproof\w*|gutters?|downpipes?|asbestos|inspection|report|condition|defects?|warrant(?:y|ies)|crack\w*|damp|moisture|mould|roof|walls?|foundation|wiring|plumbing|cladding|battens?|slabs?|smoke alarms?|weatherboard|brick|maintenance|renovat\w*|extension|insurance|strata|owners corporation|body corporate|section 32|vendor statement|seller disclosure|form 2|heritage overlay|sale contract|contract for sale|disclosure|disclosures)\b/.test(q);
+  const physicalResidentialCue = /\b(?:building|retaining walls?|decks?|balcon\w*|balustrad\w*|termites?|switchboards?|safety switch\w*|hot water|stormwater|drainage|subfloors?|stumps?|restump\w*|reblock\w*|showers?|waterproof\w*|gutters?|downpipes?|asbestos|defects?|warrant(?:y|ies)|crack\w*|damp|moisture|mould|roof|walls?|foundation|wiring|plumbing|cladding|battens?|slabs?|smoke alarms?|weatherboard|brick|maintenance|renovat\w*|extension|insurance|strata|owners corporation|body corporate)\b/.test(q);
   const relationalResidential = [
     /\b(?:strata|owners corporation|body corporate)\b.{0,30}\b(?:records?|minutes|reports?)\b/,
     /\bcracks?\b.{0,20}\bwall\b|\bwall\b.{0,20}\bcracks?\b/,
@@ -778,6 +808,36 @@ function primaryPhraseCoverage(query: string, result: GuideSearchResult): number
     if (leftSupported && rightSupported) supported += 0.8;
   }
   return total ? supported / total : 0;
+}
+
+const bodyTokenCache = new Map<string, Set<string>>();
+/** Every word in a guide's sections, for half-weight support of ordinary words. */
+function guideBodyTokens(slug: string): Set<string> {
+  const cached = bodyTokenCache.get(slug);
+  if (cached) return cached;
+  const guide = getGuide(slug);
+  const tokens = new Set(rawTokens((guide?.sections ?? []).map((section) => `${section.heading} ${section.markdown}`).join(' ')));
+  bodyTokenCache.set(slug, tokens);
+  return tokens;
+}
+
+/**
+ * How much of the question the single top guide explains. Authority tokens
+ * (title, question, topics, headings) count in full; a word that appears only
+ * in the guide's body text counts at half weight, enough to carry an ordinary
+ * word ("pooling", "lining") alongside a well-supported subject, never enough
+ * to make an answer on its own.
+ */
+function topGuideCoverage(query: string, result: GuideSearchResult): number {
+  const tokens = authorityMeaningTokens(query);
+  if (tokens.length === 0) return 0;
+  const body = guideBodyTokens(result.slug);
+  let supported = 0;
+  for (const token of tokens) {
+    const authority = tokenSupportedByResult(query, token, result, false);
+    supported += authority > 0 ? authority : body.has(token) ? 0.5 : 0;
+  }
+  return supported / tokens.length;
 }
 
 function authorityCoverage(query: string, results: GuideSearchResult[], topOnly = false): number {
@@ -833,7 +893,7 @@ function lacksDedicatedStateAuthority(query: string, results: GuideSearchResult[
  * True when relevant material exists but the corpus should not present it as a
  * strong answer. Retrieval and authority are intentionally different things.
  */
-export function isWeakMatch(query: string, results: GuideSearchResult[]): boolean {
+export function isWeakMatch(query: string, results: GuideSearchResult[], context?: SearchContext): boolean {
   if (results.length === 0) return false;
 
   const claims = requestedClaims(query);
@@ -844,14 +904,28 @@ export function isWeakMatch(query: string, results: GuideSearchResult[]): boolea
   if (lacksDedicatedStateAuthority(query, results)) return true;
 
   const canWeave = hasAffirmativeResidentialContext(query);
+  // A residential property type or era supplied as a filter grounds a terse
+  // building question ("shower waterproofing", "box gutters") that would
+  // otherwise read as ungrounded. It relaxes only the authored-phrase check
+  // below. It never permits weaving across guides: the top guide on its own
+  // must still explain the whole question, so an off-topic word ("car",
+  // "phone", "Corporations Act") keeps the answer weak.
+  const filterGrounded = !canWeave && suppliedResidentialContext(context) && hasBuildingCue(query);
   // Ungrounded questions must be explained by the winning guide itself. This
   // prevents several loosely related guides from stitching incidental words
   // together into fake authority. Once the query is affirmatively residential,
   // multi-guide coverage is allowed because weaving is a feature of the corpus.
+  if (filterGrounded) {
+    // One guide must explain the whole question, from its full content (not
+    // just its title): "termite damage" is explained by the termites guide's
+    // body. Several guides are never stitched together.
+    if (topGuideCoverage(query, results[0]!) < 0.75) return true;
+    return relevanceDensity(query, results) < MIN_RELEVANCE_PER_TERM;
+  }
   const coverage = authorityCoverage(query, results, !canWeave);
   if (coverage < (canWeave ? 0.70 : 0.78)) return true;
   const exactAuthoredMatch = includesTerm(results[0]!.question, query) || includesTerm(results[0]!.title, query);
-  if (!canWeave && !exactAuthoredMatch && primaryPhraseCoverage(query, results[0]!) < 0.5) return true;
+  if (!canWeave && !filterGrounded && !exactAuthoredMatch && primaryPhraseCoverage(query, results[0]!) < 0.5) return true;
 
   // Keep a small relevance floor as a final retrieval-quality backstop. It no
   // longer decides authority on its own.
@@ -1016,12 +1090,31 @@ function hasAuctionIntent(profile: ChecklistProfile): boolean {
 }
 
 function normalizeChecklistText(text: string): string {
-  return authoredActionText(text) ?? stripChecklistFormatting(text);
+  const clean = authoredActionText(text) ?? stripChecklistFormatting(text);
+  return clean ? clean.charAt(0).toUpperCase() + clean.slice(1) : clean;
+}
+
+// A checklist item must stand on its own: "Read the wall in context" or
+// "What happens next?" depend on the paragraph they were lifted from.
+const MIN_CHECKLIST_WORDS = 6;
+function standsAlone(text: string): boolean {
+  const clean = authoredActionText(text) ?? stripChecklistFormatting(text);
+  return clean.split(/\s+/).filter(Boolean).length >= MIN_CHECKLIST_WORDS;
+}
+
+/** An era guide (e.g. period homes) only contributes checks to a home of its era. */
+function guideEraCompatible(guide: GuideRecord, profileEra?: string): boolean {
+  const wanted = eraRange(profileEra);
+  if (!wanted) return true;
+  const ranges = (guide.eras ?? []).map((era) => eraRange(era)).filter((r): r is [number, number] => Boolean(r));
+  // A guide written for every era (or with no era tags) is general.
+  if (ranges.length === 0 || ranges.length >= 4) return true;
+  return ranges.some((r) => r[0] <= wanted[1] && wanted[0] <= r[1]);
 }
 
 function authoredChecklistCandidates(guide: GuideRecord, profileEra?: string): GuideRecord['checklistCandidates'] {
   const usable = (candidate: GuideRecord['checklistCandidates'][number]) =>
-    Boolean(authoredActionText(candidate.text)) && eraCompatible(candidate.text, profileEra);
+    Boolean(authoredActionText(candidate.text)) && standsAlone(candidate.text) && eraCompatible(candidate.text, profileEra);
   const existing = guide.checklistCandidates.filter(usable);
   if (existing.length > 0) return existing;
 
@@ -1122,7 +1215,7 @@ export function buildBuyerChecklist(profile: ChecklistProfile, limit = 12): Buye
 
   for (const result of matched) {
     const guide = getGuide(result.slug);
-    if (!guide) continue;
+    if (!guide || !guideEraCompatible(guide, profile.era)) continue;
     const candidates = authoredChecklistCandidates(guide, profile.era)
       .map((candidate) => ({ ...candidate, score: candidateScore(candidate.text, terms, candidate.section) }))
       .sort((a, b) => b.score - a.score)
@@ -1205,11 +1298,11 @@ export function guideSummary(guide: GuideRecord): Record<string, unknown> {
   };
 }
 
-export function renderSearchResults(results: GuideSearchResult[], query = ''): string {
+export function renderSearchResults(results: GuideSearchResult[], query = '', context?: SearchContext): string {
   if (!results.length) {
     return 'No Homechecker guide addresses that question. The corpus covers buying process, state disclosure rules, reading building and strata reports, building fabric and condition, and owning or changing a home. It does not cover finance, tax, valuation or agent selection.';
   }
-  const preamble = isWeakMatch(query, results)
+  const preamble = isWeakMatch(query, results, context)
     ? 'No guide strongly matches that question. The closest available are below and may not address it directly.\n\n'
     : '';
   return preamble + results.map((result, index) => {

@@ -763,3 +763,83 @@ test('"period" and "Section 32" do not borrow authority from other meanings', ()
     assert.ok(results.length === 0 || isWeakMatch(query, results), `false strong: ${query}`);
   }
 });
+
+// ── 1.2.2: filters as residential context; natural phrasing; checklist quality ──
+
+test('a residential filter grounds a terse building question', () => {
+  const filters = { propertyType: 'townhouse', era: '2000s-on', jurisdiction: 'VIC' };
+  for (const [query, slug] of [
+    ['shower waterproofing', 'bathroom-waterproofing-and-leaking-showers'],
+    ['timber cladding', 'outside-walls-windows-render-and-cladding'],
+    ['new home warranty and defects', 'modern-homes-2000s-on'],
+  ]) {
+    const results = searchGuides({ query, limit: 3, ...filters });
+    assert.equal(results[0]?.slug, slug, query);
+    assert.equal(isWeakMatch(query, results, filters), false, `${query} should be strong with filters`);
+  }
+});
+
+test('without filters the same terse questions keep their 1.2.1 confidence', () => {
+  for (const query of ['shower waterproofing', 'timber cladding']) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.equal(isWeakMatch(query, results), true, query);
+  }
+});
+
+test('filters are context, never authority: off-topic questions stay weak', () => {
+  const filters = { propertyType: 'house', era: '2000s-on', jurisdiction: 'VIC' };
+  for (const query of [
+    'How often should a car be serviced for maintenance?',
+    'What does section 32 of the Corporations Act say?',
+    'What is an insurance claim excess on a phone?',
+  ]) {
+    const results = searchGuides({ query, limit: 3, ...filters });
+    if (results.length) assert.equal(isWeakMatch(query, results, filters), true, query);
+  }
+});
+
+test('a state filter alone does not ground a terse question', () => {
+  const results = searchGuides({ query: 'shower waterproofing', limit: 3, jurisdiction: 'VIC' });
+  assert.equal(isWeakMatch('shower waterproofing', results, { jurisdiction: 'VIC' }), true);
+});
+
+test('rendered search text agrees with the structured strength', () => {
+  const filters = { propertyType: 'house' };
+  const results = searchGuides({ query: 'shower waterproofing', limit: 3, ...filters });
+  assert.doesNotMatch(renderSearchResults(results, 'shower waterproofing', filters), /^No guide strongly matches/);
+  assert.match(renderSearchResults(results, 'shower waterproofing'), /^No guide strongly matches/);
+});
+
+test('natural phrasing reaches the right guide', () => {
+  for (const [query, slugs] of [
+    ['timber battens on the facade of a house', ['outside-walls-windows-render-and-cladding', 'weatherboard-homes']],
+    ['defects in a recently built home', ['modern-homes-2000s-on']],
+    ['interconnected smoke detectors in a house', ['smoke-alarms-and-fire-safety-at-home']],
+    ['old fuse box in a house', ['switchboards-wiring-and-safety-switches']],
+    ['water heater age in a house', ['plumbing-hot-water-and-leaks']],
+  ]) {
+    const top3 = searchGuides({ query, limit: 3 }).map((r) => r.slug);
+    assert.ok(slugs.some((slug) => top3.includes(slug)), `${query}: ${top3.join(', ')}`);
+  }
+});
+
+test('checklist items stand on their own and start with a capital letter', () => {
+  for (const profile of [
+    { jurisdiction: 'VIC', propertyType: 'house', era: '1920s-1940s', concerns: ['cracks', 'roof'] },
+    { jurisdiction: 'VIC', propertyType: 'apartment', era: '1980s-1990s', buyingStage: 'contract review', concerns: ['brick veneer vs double brick'] },
+    { jurisdiction: 'NSW', propertyType: 'townhouse', era: '2000s-on', concerns: ['defects'] },
+  ]) {
+    const checklist = buildBuyerChecklist(profile, 12);
+    assert.ok(checklist.items.length >= 4, JSON.stringify(profile));
+    for (const item of checklist.items) {
+      assert.match(item.check, /^[A-Z0-9“"‘']/, `starts with a capital: ${item.check}`);
+      assert.ok(item.check.split(/\s+/).length >= 6, `stands alone: ${item.check}`);
+    }
+  }
+});
+
+test('an era guide only contributes checks to a home of its era', () => {
+  const checklist = buildBuyerChecklist({ jurisdiction: 'VIC', propertyType: 'house', era: '2000s-on' }, 16);
+  const eraGuides = ['period-homes-pre-1920s', 'interwar-homes-1920s-40s', 'postwar-homes-1950s-70s', 'homes-1980s-90s'];
+  for (const item of checklist.items) assert.ok(!eraGuides.includes(item.guideSlug), `${item.guideSlug}: ${item.check}`);
+});

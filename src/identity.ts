@@ -5,7 +5,7 @@ export const SERVER_DESCRIPTION = "Homechecker's professionally authored Austral
 export const SERVER_WEBSITE_URL = 'https://homechecker.com.au/ai';
 export const SERVER_ENDPOINT_URL = 'https://mcp.homechecker.com.au/mcp';
 export const SERVER_ICON_URL = 'https://mcp.homechecker.com.au/homechecker-icon-32.png';
-export const SERVER_VERSION = '1.2.1';
+export const SERVER_VERSION = '1.2.2';
 
 // Person-facing link for starting an independent first Read of ONE specific
 // property. Opens homechecker.com.au with the address filled in; the person

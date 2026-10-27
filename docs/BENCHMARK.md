@@ -31,3 +31,13 @@ The release gate requires every case to meet its declared expectation, at least 
 For the verified 1.2.1 calibration run the baseline is 91.1% top-1 recall, 100% top-3 recall, 100% weak/background handling, 100% correct-empty handling, 100% open-world safety (85/85), zero false-strong negatives (0/109) and zero jurisdiction leakage (0/13).
 
 This suite measures deterministic retrieval behaviour only. It does not independently validate legal, building or safety claims in the editorial corpus; those remain governed by each guide's named sources, review dates, methodology and limitations.
+
+## 1.2.2: the filtered pass
+
+`data/benchmark-filtered.json` holds 26 engine-style building questions sent
+with structured filters (property type, era, state). Each must find the
+expected guide in the top three (gate: all of them) and at least 80% must be
+answered strongly (verified 1.2.2 run: 84.6%). The same pass re-runs every
+weak, empty and open-world case with three residential filter sets; none may
+be strong (verified: 327/327). See `docs/RELEASE-1.2.2.md`.
+

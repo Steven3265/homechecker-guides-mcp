@@ -1,0 +1,261 @@
+{
+  "description": "Engine-style building questions sent with structured filters (property type, era, state), as the Homechecker engine and other agents send them. Each must find the expected guide in the top three and be answered strongly.",
+  "cases": [
+    {
+      "query": "shower waterproofing",
+      "filters": {
+        "propertyType": "townhouse",
+        "era": "2000s-on",
+        "jurisdiction": "VIC"
+      },
+      "expected": [
+        "bathroom-waterproofing-and-leaking-showers"
+      ]
+    },
+    {
+      "query": "shower waterproofing in bathrooms",
+      "filters": {
+        "propertyType": "townhouse",
+        "era": "2000s-on"
+      },
+      "expected": [
+        "bathroom-waterproofing-and-leaking-showers"
+      ]
+    },
+    {
+      "query": "timber cladding",
+      "filters": {
+        "propertyType": "house",
+        "era": "2000s-on"
+      },
+      "expected": [
+        "outside-walls-windows-render-and-cladding",
+        "weatherboard-homes"
+      ]
+    },
+    {
+      "query": "timber cladding battens on facade",
+      "filters": {
+        "propertyType": "townhouse",
+        "era": "2000s-on"
+      },
+      "expected": [
+        "outside-walls-windows-render-and-cladding",
+        "weatherboard-homes"
+      ]
+    },
+    {
+      "query": "box gutters",
+      "filters": {
+        "propertyType": "house"
+      },
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "query": "flat roof and box gutters low pitch",
+      "filters": {
+        "propertyType": "townhouse",
+        "era": "2000s-on"
+      },
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "query": "new home warranty and defects",
+      "filters": {
+        "propertyType": "townhouse",
+        "era": "2000s-on",
+        "jurisdiction": "VIC"
+      },
+      "expected": [
+        "modern-homes-2000s-on"
+      ]
+    },
+    {
+      "query": "defects in a recently built home",
+      "filters": {
+        "propertyType": "house",
+        "era": "2000s-on"
+      },
+      "expected": [
+        "modern-homes-2000s-on"
+      ]
+    },
+    {
+      "query": "concrete slab cracking",
+      "filters": {
+        "propertyType": "house",
+        "era": "2000s-on"
+      },
+      "expected": [
+        "cracks-structural-or-cosmetic",
+        "subfloors-stumps-and-restumping"
+      ]
+    },
+    {
+      "query": "smoke alarms",
+      "filters": {
+        "propertyType": "house"
+      },
+      "expected": [
+        "smoke-alarms-and-fire-safety-at-home"
+      ]
+    },
+    {
+      "query": "interconnected smoke detectors",
+      "filters": {
+        "propertyType": "house",
+        "jurisdiction": "VIC"
+      },
+      "expected": [
+        "smoke-alarms-and-fire-safety-at-home"
+      ]
+    },
+    {
+      "query": "hot water system",
+      "filters": {
+        "propertyType": "house"
+      },
+      "expected": [
+        "plumbing-hot-water-and-leaks"
+      ]
+    },
+    {
+      "query": "water heater age",
+      "filters": {
+        "propertyType": "house"
+      },
+      "expected": [
+        "plumbing-hot-water-and-leaks"
+      ]
+    },
+    {
+      "query": "switchboard and safety switches",
+      "filters": {
+        "propertyType": "house",
+        "era": "1950s-1970s"
+      },
+      "expected": [
+        "switchboards-wiring-and-safety-switches"
+      ]
+    },
+    {
+      "query": "old fuse box",
+      "filters": {
+        "propertyType": "house",
+        "era": "1950s-1970s"
+      },
+      "expected": [
+        "switchboards-wiring-and-safety-switches"
+      ]
+    },
+    {
+      "query": "stumps and restumping",
+      "filters": {
+        "propertyType": "house",
+        "era": "1920s-1940s"
+      },
+      "expected": [
+        "subfloors-stumps-and-restumping"
+      ]
+    },
+    {
+      "query": "termite damage",
+      "filters": {
+        "propertyType": "house"
+      },
+      "expected": [
+        "termites-in-australian-homes"
+      ]
+    },
+    {
+      "query": "rising damp in brick walls",
+      "filters": {
+        "propertyType": "house",
+        "era": "1920s-1940s"
+      },
+      "expected": [
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "query": "leaning retaining wall",
+      "filters": {
+        "propertyType": "house"
+      },
+      "expected": [
+        "retaining-walls"
+      ]
+    },
+    {
+      "query": "balcony waterproofing",
+      "filters": {
+        "propertyType": "apartment"
+      },
+      "expected": [
+        "decks-balconies-and-balustrades"
+      ]
+    },
+    {
+      "query": "asbestos eaves lining",
+      "filters": {
+        "propertyType": "house",
+        "era": "1950s-1970s"
+      },
+      "expected": [
+        "asbestos-in-the-home"
+      ]
+    },
+    {
+      "query": "stormwater drainage pooling",
+      "filters": {
+        "propertyType": "house"
+      },
+      "expected": [
+        "site-drainage-and-stormwater"
+      ]
+    },
+    {
+      "query": "insulation and condensation",
+      "filters": {
+        "propertyType": "house"
+      },
+      "expected": [
+        "insulation-ventilation-and-condensation"
+      ]
+    },
+    {
+      "query": "gutters and downpipes",
+      "filters": {
+        "propertyType": "house"
+      },
+      "expected": [
+        "roofs-tiles-metal-and-leaks",
+        "site-drainage-and-stormwater"
+      ]
+    },
+    {
+      "query": "weatherboard decay",
+      "filters": {
+        "propertyType": "house",
+        "era": "1920s-1940s"
+      },
+      "expected": [
+        "weatherboard-homes"
+      ]
+    },
+    {
+      "query": "brick veneer or double brick",
+      "filters": {
+        "propertyType": "house",
+        "era": "1980s-1990s"
+      },
+      "expected": [
+        "brick-veneer-vs-double-brick"
+      ]
+    }
+  ]
+}

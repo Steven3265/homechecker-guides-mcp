@@ -115,7 +115,8 @@ export function createMcpServer(): McpServer {
       // matchStrength lets the caller distinguish "this is the answer" from
       // "this is the closest thing we have". Without it a weak keyword hit
       // is indistinguishable from a strong one, and gets cited the same way.
-      const matchStrength = results.length === 0 ? 'none' : isWeakMatch(args.query, results) ? 'weak' : 'strong';
+      const context = { propertyType: args.propertyType, era: args.era, jurisdiction: args.jurisdiction };
+      const matchStrength = results.length === 0 ? 'none' : isWeakMatch(args.query, results, context) ? 'weak' : 'strong';
       logUse('search_guides', {
         queryLength: args.query.length,
         jurisdiction: args.jurisdiction,
@@ -131,7 +132,7 @@ export function createMcpServer(): McpServer {
           results,
           boundary: searchGuidanceBoundary(matchStrength),
         },
-        renderSearchResults(results, args.query),
+        renderSearchResults(results, args.query, context),
       );
     },
   );
