@@ -608,6 +608,10 @@ const AUTHORITY_STOP_WORDS = new Set([
   'about','after','also','anything','before','big','compare','comparison','deal','different','explain','help','indicate','indicates','know','look','mean','means','need','please','read','requirement','requirements','tell','think','understand','use','using','want','way',
   // Task wording is handled by requestedClaims, not subject-matter coverage.
   'best','check','checking','investigate','prepare','preparing','preparation',
+  // "What evidence should I collect/gather..." is a guidance opener (see
+  // requestedClaims); the subject is what follows, not the evidence-gathering
+  // verbs. Without this, coverage depended on an incidental third result.
+  'evidence','collect','collecting','gather','gathering',
 ]);
 
 function tokenVariants(token: string): string[] {
