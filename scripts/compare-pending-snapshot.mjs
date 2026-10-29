@@ -6,7 +6,12 @@ import { isDeepStrictEqual } from 'node:util';
 
 const ref = process.argv[2];
 if (!ref) throw new Error('A pending snapshot Git ref is required');
-const pending = JSON.parse(execFileSync('git', ['show', `${ref}:data/guides.json`], { encoding: 'utf8' }));
+// guides.json is past Node's 1 MB default maxBuffer, so git show must be
+// allowed a larger buffer or it is killed with ENOBUFS.
+const pending = JSON.parse(execFileSync('git', ['show', `${ref}:data/guides.json`], {
+  encoding: 'utf8',
+  maxBuffer: 64 * 1024 * 1024,
+}));
 const rebuilt = JSON.parse(readFileSync('data/guides.json', 'utf8'));
 function content(snapshot) {
   if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)) {
