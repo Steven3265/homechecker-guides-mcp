@@ -151,16 +151,30 @@ assert.equal(copilotMarketplace.plugins?.[0]?.name, 'homechecker');
 assert.equal(copilotMarketplace.plugins?.[0]?.version, packageJson.version);
 assert.equal(copilotMarketplace.plugins?.[0]?.source, '.');
 
-const checkoutPin = 'actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0';
-const setupNodePin = 'actions/setup-node@820762786026740c76f36085b0efc47a31fe5020';
+// Supply-chain pinning: every action must be pinned to a full 40-character commit SHA
+// with a version comment. The specific SHA is deliberately not hardcoded here, so
+// Dependabot bumps pass without editing this script. Consistency across workflows
+// is enforced instead, so a partial bump (some workflows missed) still fails.
+const pinnedActionSha = new Map();
 for (const [name, workflow] of [
   ['validate-release', validateWorkflowText],
   ['refresh-snapshot', refreshWorkflowText],
   ['publish-registry', publishWorkflowText],
   ['conformance', conformanceWorkflowText],
 ]) {
-  assert.match(workflow, new RegExp(checkoutPin.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `${name} must pin checkout by immutable SHA`);
-  assert.match(workflow, new RegExp(setupNodePin.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `${name} must pin setup-node by immutable SHA`);
+  const usesLines = [...workflow.matchAll(/^\s*(?:-\s+)?uses:\s*(\S+)(.*)$/gm)];
+  for (const [, ref, rest] of usesLines) {
+    if (ref.startsWith('./')) continue;
+    const pin = /^([\w.-]+\/[\w.\/-]+)@([0-9a-f]{40})$/.exec(ref);
+    assert.ok(pin, `${name} must pin ${ref} by immutable 40-character commit SHA`);
+    assert.match(rest, /#\s*v\d+\.\d+\.\d+/, `${name} must annotate ${ref} with its release version comment`);
+    const [, action, sha] = pin;
+    const seen = pinnedActionSha.get(action);
+    assert.ok(!seen || seen.sha === sha, `${action} pinned to ${sha} in ${name} but ${seen?.sha} in ${seen?.name}; workflows must share one pin`);
+    if (!seen) pinnedActionSha.set(action, { sha, name });
+  }
+  assert.match(workflow, /uses:\s*actions\/checkout@[0-9a-f]{40}/, `${name} must use SHA-pinned actions/checkout`);
+  assert.match(workflow, /uses:\s*actions\/setup-node@[0-9a-f]{40}/, `${name} must use SHA-pinned actions/setup-node`);
   assert.doesNotMatch(workflow, /uses:\s+actions\/(?:checkout|setup-node)@v\d+/i, `${name} must not float GitHub Action major tags`);
   assert.match(workflow, /runs-on:\s+ubuntu-24\.04/, `${name} must pin the hosted runner image`);
 }
