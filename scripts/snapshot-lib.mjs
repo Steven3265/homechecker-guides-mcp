@@ -112,7 +112,19 @@ export function buildSnapshot(registry, options = {}) {
     return [...new Set(eras)]
   }
 
-  function inferBuyingStages(clusterId, text) {
+  function inferBuyingStages(clusterId, text, slug = '') {
+    // The 'why' guides explain the reasoning behind the checks. They are read
+    // early, before an offer, so they always sit in research; the one about
+    // homes hiding their problems is written for owners as well as buyers.
+    // Their text mentions sellers and vendors as context, never as a selling
+    // stage, so the general rules below would mis-tag them.
+    if (clusterId === 'why') {
+      if (/homes-do-not-announce/.test(slug)) return ['research', 'ownership']
+      const why = ['research', 'before offer or auction']
+      if (/inspection|inspector/i.test(text)) why.push('physical inspection')
+      if (/contract|cooling[- ]off/i.test(text)) why.push('contract review')
+      return why
+    }
     const stages = new Set()
     if (clusterId === 'how-to-buy' || /before (?:you )?(?:buy|bid|sign)|due diligence|offer|auction/i.test(text)) {
       stages.add('research')
@@ -224,7 +236,7 @@ export function buildSnapshot(registry, options = {}) {
       topics: inferTopics(metadataSearchable),
       propertyTypes: inferPropertyTypes(metadataSearchable, guide.slug, cluster?.id),
       eras: inferEras(guide.slug, `${guide.slug} ${guide.title} ${guide.question}`),
-      buyingStages: inferBuyingStages(cluster?.id, metadataSearchable),
+      buyingStages: inferBuyingStages(cluster?.id, metadataSearchable, guide.slug),
       sections,
       faqs: guide.faqs.map((faq) => ({ question: faq.q, answer: htmlToMarkdown(faq.a) })),
       checklistCandidates: extractChecklistCandidates(guide),

@@ -1327,5 +1327,56 @@
     "id": "outside-085-what-is-a-heritage-overlay",
     "category": "outside",
     "query": "What is a heritage overlay in a GIS dataset?"
+  },
+  {
+    "id": "why-read-direct",
+    "category": "positive",
+    "query": "Why should I research a home before I buy it?",
+    "expected": [
+      "why-read-a-home-before-you-buy"
+    ]
+  },
+  {
+    "id": "why-read-conversational",
+    "category": "positive",
+    "query": "Everyone says do your homework before buying a house, but what difference does it actually make?",
+    "expected": [
+      "why-read-a-home-before-you-buy"
+    ]
+  },
+  {
+    "id": "why-hidden-direct",
+    "category": "positive",
+    "query": "Why don't problems in a house show until they are serious?",
+    "expected": [
+      "why-homes-do-not-announce-their-problems"
+    ]
+  },
+  {
+    "id": "why-desktop-direct",
+    "category": "positive",
+    "query": "Should I research a property online before booking a building and pest inspection?",
+    "expected": [
+      "why-a-desktop-read-comes-first",
+      "desktop-vs-physical-report"
+    ]
+  },
+  {
+    "id": "why-skip-direct",
+    "category": "positive",
+    "query": "Why do so many buyers skip the building inspection?",
+    "expected": [
+      "why-buyers-skip-the-checks"
+    ]
+  },
+  {
+    "id": "why-skip-conversational",
+    "category": "positive",
+    "query": "I have paid for three inspections on houses I lost at auction. Is it worth paying for another one?",
+    "expected": [
+      "why-buyers-skip-the-checks",
+      "building-inspection-before-auction",
+      "building-and-pest-inspection-cost"
+    ]
   }
 ]
