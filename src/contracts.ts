@@ -33,8 +33,14 @@ export const searchGuidesInputSchema = z.object({
 
 export const getGuideInputSchema = z.object({
   slug: z.string().max(160).describe('Guide slug, for example reading-a-section-32. Use guides for the main hub.'),
-  format: z.enum(['summary', 'full', 'sections']).optional().default('full'),
-  sectionIds: z.array(z.string()).max(12).optional().describe('When format is sections, return only these section IDs.'),
+  format: z
+    .enum(['summary', 'full', 'sections'])
+    .optional()
+    .default('summary')
+    .describe(
+      'summary (default): the question, short answer, limitations, canonical URL and an index of the guide\'s sections by id and heading. sections: the markdown of the sections named in sectionIds, or every section when none are named. full: the complete guide, which on a long guide runs to tens of thousands of characters and can exhaust a small context.',
+    ),
+  sectionIds: z.array(z.string()).max(12).optional().describe('When format is sections, return only these section IDs. Take them from the sectionIndex a summary returns.'),
 });
 
 export const buildBuyerChecklistInputSchema = z.object({
@@ -198,8 +204,21 @@ const guideSectionsResultSchema = guideSummarySchema.extend({
   sections: z.array(guideSectionSchema),
 });
 
+// A summary carries an index of the guide's sections so a reader can ask for
+// the one it needs by id, instead of pulling the whole guide to find out what
+// is in it. The index is deliberately absent from the shared summary used by
+// list_guides and search_guides, where it would repeat per result.
+const guideSummaryWithIndexSchema = guideSummarySchema.extend({
+  sectionIndex: z.array(z.object({ id: z.string(), heading: z.string() })),
+});
+
 export const getGuideOutputSchema = z.object({
-  guide: z.union([guideSummarySchema, guideSectionsResultSchema, guideRecordSchema]),
+  guide: z.union([
+    guideSummaryWithIndexSchema,
+    guideSummarySchema,
+    guideSectionsResultSchema,
+    guideRecordSchema,
+  ]),
   warning: z.string().optional(),
   missingSectionIds: z.array(z.string()).optional(),
 });
@@ -254,7 +273,7 @@ export const TOOL_CONTRACTS = {
   },
   get_guide: {
     title: 'Get a Homechecker guide',
-    description: 'Retrieve one canonical Homechecker guide by slug. Use a slug returned by list_guides or search_guides. Returns source links, review metadata, method and limitations with the guide.',
+    description: 'Retrieve one canonical Homechecker guide by slug. Use a slug returned by list_guides or search_guides. By default a summary: the question the guide answers, its short answer, its limitations, the canonical URL, and an index of its sections by id and heading. Read the section you need with format sections and its id, rather than pulling the whole guide; format full returns the complete guide and on a long one runs to tens of thousands of characters. Source links, review metadata and method come with the guide. Carry the limitations through when relying on it: the guides are general Australian residential guidance and never describe the condition of a particular property.',
     inputSchema: getGuideInputSchema,
     outputSchema: getGuideOutputSchema,
     outputFields: ['guide', 'warning', 'missingSectionIds'],
@@ -262,7 +281,13 @@ export const TOOL_CONTRACTS = {
       type: 'object',
       properties: {
         slug: { type: 'string', maxLength: 160 },
-        format: { type: 'string', enum: ['summary', 'full', 'sections'], default: 'full' },
+        format: {
+          type: 'string',
+          enum: ['summary', 'full', 'sections'],
+          default: 'summary',
+          description:
+            'summary (default): question, short answer, limitations, canonical URL and a section index. sections: the markdown of the sections in sectionIds, or all of them. full: the complete guide, tens of thousands of characters on a long guide.',
+        },
         sectionIds: { type: 'array', items: { type: 'string' }, maxItems: 12 },
       },
       required: ['slug'],

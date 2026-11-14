@@ -169,7 +169,19 @@ export function createMcpServer(): McpServer {
 
       if (format === 'summary') {
         const summary = guideSummary(guide);
-        return textAndStructured({ guide: summary }, withReadNote(`${guide.title}\n\n${guide.answer}\n\n${guide.canonicalUrl}`));
+        // The section index is what makes the summary a usable default: it
+        // tells the reader what the guide covers and how to ask for the part
+        // it needs, without the whole guide being sent to find out.
+        const sectionIndex = guide.sections.map((section) => ({ id: section.id, heading: section.heading }));
+        const sectionList = sectionIndex.length
+          ? `\n\nSections (read one with format sections and its id): ${sectionIndex
+              .map((section) => `${section.id} — ${section.heading}`)
+              .join('; ')}`
+          : '';
+        return textAndStructured(
+          { guide: { ...summary, sectionIndex } },
+          withReadNote(`${guide.title}\n\n${guide.answer}${sectionList}\n\n${guide.canonicalUrl}`),
+        );
       }
 
       if (format === 'sections') {

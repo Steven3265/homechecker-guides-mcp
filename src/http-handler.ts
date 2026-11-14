@@ -261,6 +261,9 @@ function rpcMethods(request: Request): string[] {
 // not worth serving into that uncertainty.
 const LENIENT_METHODS = new Set([
   'initialize',
+  // The notification that completes the handshake. Harmless, carries no id,
+  // and a crawler whose initialize succeeded should not be refused here.
+  'notifications/initialized',
   'server/discover',
   'tools/list',
   'resources/list',
