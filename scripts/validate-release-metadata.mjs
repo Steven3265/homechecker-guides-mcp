@@ -201,7 +201,6 @@ const expectedConformanceFailures = [
   'resources-read-text:resources-read-text',
   'resources-read-binary:resources-read-binary',
   'resources-templates-read:resources-templates-read',
-  'prompts-list:prompts-list',
   'prompts-get-simple:prompts-get-simple',
   'prompts-get-with-args:prompts-get-with-args',
   'prompts-get-embedded-resource:prompts-get-embedded-resource',
@@ -218,7 +217,7 @@ for (const check of expectedConformanceFailures) {
 const baselinedServerChecks = conformanceBaselineText
   .split(/\r?\n/)
   .filter((line) => /^\s{2}-\s+/.test(line));
-assert.equal(baselinedServerChecks.length, expectedConformanceFailures.length, 'conformance baseline must contain exactly the reviewed 16 server checks');
+assert.equal(baselinedServerChecks.length, expectedConformanceFailures.length, 'conformance baseline must contain exactly the reviewed 15 server checks');
 assert.ok(
   baselinedServerChecks.every((line) => /^\s{2}-\s+[^#\s]+:[^#\s]+\s*$/.test(line)),
   'conformance baseline must use check-level scenario:check-id entries rather than whole-scenario exclusions',
