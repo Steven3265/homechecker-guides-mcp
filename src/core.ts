@@ -118,8 +118,26 @@ function includesTerm(haystack: string, term: string): boolean {
   return countOccurrences(haystack, term, 1) > 0;
 }
 
+// Every haystack searched is a field of the corpus: a guide's markdown, a
+// section, a heading. Normalising one is a pure function of its text, yet it
+// was being redone for every term of every query, which put the whole corpus
+// through four regular expressions dozens of times per search. The normalised
+// form is kept instead. The result of every search is unchanged; only the
+// repeated work goes. The cache is bounded, so nothing outside the corpus can
+// grow it without limit.
+const NORMALIZED_HAYSTACKS = new Map<string, string>();
+const HAYSTACK_CACHE_MAX_ENTRIES = 8192;
+function normalizeHaystack(haystack: string): string {
+  let normalized = NORMALIZED_HAYSTACKS.get(haystack);
+  if (normalized === undefined) {
+    normalized = normalize(haystack);
+    if (NORMALIZED_HAYSTACKS.size < HAYSTACK_CACHE_MAX_ENTRIES) NORMALIZED_HAYSTACKS.set(haystack, normalized);
+  }
+  return normalized;
+}
+
 function countOccurrences(haystack: string, term: string, stopAt = Infinity): number {
-  const h = normalize(haystack);
+  const h = normalizeHaystack(haystack);
   const t = normalize(term);
   if (!t) return 0;
   let count = 0;
@@ -971,16 +989,20 @@ export function searchGuides(options: SearchOptions): GuideSearchResult[] {
   const ranked = candidates
     .map((guide) => {
       const { score, matchedTerms } = scoreGuide(guide, normalizedOptions, terms, jurisdictions);
+      // Scored first, and a snippet cut only for the three sections kept:
+      // cutting one for every section of every guide, to discard nearly all
+      // of them, was a fifth of the time a search took.
       const matchedSections = guide.sections
-        .map((section) => ({
+        .map((section) => ({ section, score: scoreSection(section, terms, query) }))
+        .filter((entry) => entry.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3)
+        .map(({ section, score }) => ({
           id: section.id,
           heading: section.heading,
           snippet: snippet(section.markdown, matchedTerms.length ? matchedTerms : terms),
-          score: scoreSection(section, terms, query),
-        }))
-        .filter((section) => section.score > 0)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 3);
+          score,
+        }));
 
       return {
         slug: guide.slug,
