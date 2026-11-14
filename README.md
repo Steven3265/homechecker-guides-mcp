@@ -38,7 +38,12 @@ These are adapters around one knowledge system, not separate versions of Homeche
 
 ## Ecosystem listings
 
-Homechecker Guides is independently indexed across the emerging MCP ecosystem. These third-party listings may update on their own cadence.
+Homechecker Guides is listed in the two main assistant directories, where people can add it without an address:
+
+- [Claude Connectors Directory](https://claude.ai/directory/homechecker-guides), as **Homechecker Guides**
+- [ChatGPT](https://chatgpt.com/plugins/plugin_asdk_app_6ae7cc8306908191b9837649197e9be4), as **Homechecker**, served from `/mcp/openai` with the four skills
+
+It is also independently indexed across the emerging MCP ecosystem. These third-party listings may update on their own cadence.
 
 - [Smithery](https://smithery.ai/servers/steven-xv6y/homechecker-guides)
 - [Glama](https://glama.ai/mcp/servers/Steven3265/homechecker-guides-mcp)

@@ -28,6 +28,12 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
       llms: 'https://homechecker.com.au/llms.txt',
       aiDocumentation: 'https://homechecker.com.au/ai',
       repository: 'https://github.com/Steven3265/homechecker-guides-mcp',
+      // Where the connector is listed for people to add: Claude's Connectors
+      // Directory (as Homechecker Guides) and ChatGPT (as Homechecker).
+      directories: {
+        claude: 'https://claude.ai/directory/homechecker-guides',
+        chatgpt: 'https://chatgpt.com/plugins/plugin_asdk_app_6ae7cc8306908191b9837649197e9be4',
+      },
     },
     guides: snapshot.source.contentCount,
     latestGuideUpdate: snapshot.source.latestUpdated,
