@@ -1,4 +1,5 @@
-import { McpServer } from '@modelcontextprotocol/server';
+import { McpServer, ResourceNotFoundError, ResourceTemplate, completable } from '@modelcontextprotocol/server';
+import * as z from 'zod/v4';
 import {
   SERVER_DESCRIPTION,
   SERVER_ICON_URL,
@@ -69,6 +70,7 @@ export function createMcpServer(): McpServer {
       cacheHints: {
         'server/discover': { ttlMs: 3_600_000, cacheScope: 'public' },
         'tools/list': { ttlMs: 86_400_000, cacheScope: 'public' },
+        'prompts/list': { ttlMs: 86_400_000, cacheScope: 'public' },
         'resources/list': { ttlMs: 3_600_000, cacheScope: 'public' },
         'resources/templates/list': { ttlMs: 3_600_000, cacheScope: 'public' },
         'resources/read': { ttlMs: 3_600_000, cacheScope: 'public' },
@@ -247,27 +249,111 @@ export function createMcpServer(): McpServer {
     }),
   );
 
-  for (const guide of guides) {
-    server.registerResource(
-      `homechecker-guide-${guide.pillar ? 'hub' : guide.slug}`,
-      guide.resourceUri,
-      {
-        title: guide.title,
-        description: guide.summary,
-        mimeType: 'text/markdown',
-        cacheHint: { ttlMs: 3_600_000, cacheScope: 'public' },
-      },
-      async (uri) => ({
-        contents: [
-          {
-            uri: uri.href,
-            mimeType: 'text/markdown',
-            text: guide.contentMarkdown,
-          },
-        ],
+  // ─── Prompts ──────────────────────────────────────────────────────────
+  // Ready-made ways in, for hosts that surface prompts to the person. Each one
+  // routes through the tools rather than inviting the model to answer from its
+  // own knowledge, and each carries the boundary the guides carry: general
+  // Australian residential guidance, never an assessment of one property.
+  const guideChoices = (value: string) => {
+    const v = value.trim().toLowerCase();
+    return guides
+      .filter((guide) => guide.slug !== '')
+      .filter((guide) => !v || guide.slug.includes(v) || guide.title.toLowerCase().includes(v))
+      .slice(0, 20)
+      .map((guide) => guide.slug);
+  };
+  const userMessage = (text: string) => ({
+    messages: [{ role: 'user' as const, content: { type: 'text' as const, text } }],
+  });
+  const PROMPT_ICONS = [{ src: SERVER_ICON_URL, mimeType: 'image/png', sizes: ['32x32'] }];
+
+  server.registerPrompt('answer_from_guides', {
+    title: 'Answer from the Homechecker guides',
+    description: 'Answer a question about an Australian home from the Homechecker guides, cited, with the limits of the guidance carried through.',
+    icons: PROMPT_ICONS,
+    argsSchema: z.object({
+      question: z.string().min(2).max(500).describe('The question, for example whether a crack in a brick wall is structural.'),
+      jurisdiction: z.string().max(60).optional().describe('State or territory, if it matters, for example VIC or Western Australia.'),
+    }),
+  }, async ({ question, jurisdiction }) => userMessage(`Answer this from the Homechecker guides: ${question}${jurisdiction ? `\n\nThe property is in ${jurisdiction}; prefer guidance for that jurisdiction and say where a rule is state-specific.` : ''}\n\nSearch with search_guides first, using two or three targeted searches if the question has several parts. Read what you rely on with get_guide, taking the sections you need by id rather than the whole guide. Cite each point to its canonical URL, carry each guide's limitations through, and if the match strength is weak, say that the guides do not directly answer the question. The guides are general guidance and never describe the condition of a particular property.`));
+
+  server.registerPrompt('checks_before_buying', {
+    title: 'What to check before buying',
+    description: 'A practical, cited list of what to check on a home before buying, built from the Homechecker guides for the era, type and stage.',
+    icons: PROMPT_ICONS,
+    argsSchema: z.object({
+      propertyType: z.string().max(60).optional().describe('For example house, apartment, townhouse.'),
+      era: z.string().max(60).optional().describe('Roughly when it was built, for example interwar, 1980s, or a year.'),
+      jurisdiction: z.string().max(60).optional().describe('State or territory, for example NSW.'),
+      concerns: z.string().max(400).optional().describe('Anything already noticed or worried about, for example damp in the hallway.'),
+    }),
+  }, async ({ propertyType, era, jurisdiction, concerns }) => userMessage(`Build a list of what to check before buying${propertyType ? ` a ${propertyType}` : ' a home'}${era ? ` built ${era}` : ''}${jurisdiction ? ` in ${jurisdiction}` : ''}.${concerns ? `\n\nAlready noticed: ${concerns}` : ''}\n\nStart with build_buyer_checklist, passing the type, era, stage and jurisdiction given. Read the guides behind the items that matter with get_guide, taking sections by id. Group the result into what to look at, what to ask for and what warrants a professional. Cite each item to its guide's canonical URL, and say plainly that this is general guidance for that kind of home, not an assessment of the property in question.`));
+
+  server.registerPrompt('read_a_guide', {
+    title: 'Read one Homechecker guide',
+    description: 'Work through one guide: what it answers, what to look for, and what it does not cover.',
+    icons: PROMPT_ICONS,
+    argsSchema: z.object({
+      guide: completable(
+        z.string().min(1).max(160).describe('The guide: slug or title, for example reading-a-section-32.'),
+        (value) => guideChoices(value),
+      ),
+      focus: z.string().max(300).optional().describe('What the person actually wants out of it, if narrower than the whole guide.'),
+    }),
+  }, async ({ guide, focus }) => userMessage(`Work through the Homechecker guide "${guide}"${focus ? `, focusing on: ${focus}` : ''}.\n\nRetrieve it with get_guide; the summary lists its sections by id. Read the sections you need with format sections, rather than pulling the whole guide. Set out the question it answers, its short answer, what to look for or ask for, and what it explicitly does not cover. Cite to the canonical URL and carry the limitations through.`));
+
+  server.registerPrompt('explain_a_document', {
+    title: 'Explain a property document',
+    description: 'What a Section 32, contract of sale or owners corporation report is for, what it does and does not tell a buyer.',
+    icons: PROMPT_ICONS,
+    argsSchema: z.object({
+      document: z.string().min(2).max(160).describe('The document, for example Section 32, contract for sale, owners corporation report.'),
+      jurisdiction: z.string().max(60).optional().describe('State or territory, which changes which document applies.'),
+    }),
+  }, async ({ document, jurisdiction }) => userMessage(`Explain what a ${document} is${jurisdiction ? ` in ${jurisdiction}` : ''} and how to read one.\n\nFind the guide with search_guides and read it with get_guide, taking sections by id. Cover what the document is for, what a buyer should look for in it, and — this matters most — what it does not tell them, so they know what still needs physical inspection or specialist advice. Cite to the canonical URL. Do not interpret any particular document as legal advice; the guides explain the kind of document, not a specific one.`));
+
+  // One template for the whole corpus, rather than a registration per guide.
+  // The server is rebuilt on every stateless request, so registering a
+  // resource per guide meant constructing 54 of them — each carrying a closure
+  // over the guide's full markdown — before any request could be answered. The
+  // URIs are unchanged (homechecker://guides/<slug>), resources/list still
+  // enumerates every guide through the list callback, and slug completion is
+  // now offered where it was not before.
+  server.registerResource(
+    'homechecker-guide',
+    new ResourceTemplate('homechecker://guides/{slug}', {
+      list: async () => ({
+        resources: guides.map((guide) => ({
+          uri: guide.resourceUri,
+          name: guide.slug || 'index',
+          title: guide.title,
+          description: guide.summary,
+          mimeType: 'text/markdown',
+        })),
       }),
-    );
-  }
+      complete: { slug: (value: string) => guideChoices(value) },
+    }),
+    {
+      title: 'A Homechecker guide',
+      description: 'One guide in full, as markdown.',
+      mimeType: 'text/markdown',
+      cacheHint: { ttlMs: 3_600_000, cacheScope: 'public' },
+    },
+    async (uri, variables) => {
+      const slug = String(Array.isArray(variables.slug) ? variables.slug[0] : variables.slug ?? '');
+      // Match on the canonical URI first: the hub guide carries an empty slug
+      // and is served at homechecker://guides/index, so a slug-only lookup
+      // would miss it.
+      const guide = guides.find((candidate) => candidate.resourceUri === uri.href)
+        ?? guides.find((candidate) => candidate.slug !== '' && candidate.slug === slug);
+      if (!guide) {
+        throw new ResourceNotFoundError(uri.href, `No Homechecker guide is served at "${uri.href}".`);
+      }
+      return {
+        contents: [{ uri: uri.href, mimeType: 'text/markdown', text: guide.contentMarkdown }],
+      };
+    },
+  );
 
   return server;
 }

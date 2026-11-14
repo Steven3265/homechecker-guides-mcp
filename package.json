@@ -21,7 +21,9 @@
     "sync:skills": "node scripts/sync-skills.mjs",
     "validate:metadata": "node scripts/validate-release-metadata.mjs",
     "test:http": "node scripts/test-http-adapters.mjs",
-    "serve:conformance": "node scripts/serve-conformance.mjs"
+    "serve:conformance": "node scripts/serve-conformance.mjs",
+    "test:edge": "node scripts/test-edge.mjs",
+    "live-check": "node scripts/live-check.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.4.0",
