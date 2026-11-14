@@ -1,7 +1,7 @@
-# Homechecker intentionally exposes a narrow read-only surface: four tools and
-# guide resources. The official conformance server runner also exercises its
-# own reference fixture names/content and capabilities this server does not
-# advertise (prompts and completion).
+# Homechecker intentionally exposes a narrow read-only surface: four tools,
+# four prompts and guide resources. The official conformance server runner also
+# exercises its own reference fixture names/content, which this server does
+# not implement.
 #
 # IMPORTANT: these are CHECK-level exclusions, not whole-scenario exclusions.
 # The runner's synthetic wire-schema checks inside the same scenarios therefore
@@ -29,10 +29,10 @@ server:
   - resources-read-binary:resources-read-binary
   - resources-templates-read:resources-templates-read
 
-  # Homechecker deliberately does not advertise prompts or completion. Only
-  # each scenario's capability/fixture check is excluded; wire-schema checks
-  # remain enforceable.
-  - prompts-list:prompts-list
+  # Homechecker now advertises its own four prompts, so prompts/list passes and
+  # is no longer baselined. The runner still asks for its own fixture prompt
+  # names and completion targets, which Homechecker does not have. Only each
+  # scenario's fixture check is excluded; wire-schema checks remain enforceable.
   - prompts-get-simple:prompts-get-simple
   - prompts-get-with-args:prompts-get-with-args
   - prompts-get-embedded-resource:prompts-get-embedded-resource
