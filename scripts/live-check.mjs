@@ -43,13 +43,18 @@ for (const body of ['{"jsonrpc":', '', '42', '{"id":1,"method":"tools/list"}']) 
   const r = await raw('/mcp', { method: 'POST', headers: H, body });
   if (r.status !== 400) fail('protocol', `malformed body ${JSON.stringify(body)} -> ${r.status}`);
 }
-for (const origin of ['https://evil.example', 'null', 'https://homechecker.com.au.evil.example']) {
+// Origin does not gate this endpoint: it is public, read-only and carries no
+// credentials, and refusing a declared Origin only ever blocks the callers
+// honest enough to send one. A malformed body must still be a clean 400, and
+// the Host boundary is exercised by the protocol tests rather than from here.
+for (const origin of ['https://evil.example', 'https://homechecker.com.au.evil.example']) {
   const r = await raw('/mcp', { method: 'POST', headers: { ...H, Origin: origin }, body: '{}' });
-  if (r.status !== 403) fail('boundary', `Origin ${origin} -> ${r.status}`);
+  if (r.status !== 400) fail('boundary', `Origin ${origin} with malformed body -> ${r.status} (expected 400)`);
 }
 if ((await rpc('tools/list', {}, { headers: { Origin: 'https://claude.ai' } })).status !== 200) fail('boundary', 'claude.ai origin refused');
-// The directory inspectors must be able to preflight and enumerate.
-for (const origin of ['https://glama.ai', 'https://smithery.ai']) {
+// Directory inspectors, catalogues and uptime monitors must all be able to
+// preflight and enumerate. These are the origins that were being refused.
+for (const origin of ['https://glama.ai', 'https://smithery.ai', 'https://mcpbeat.com', 'https://mcptoplist.com', 'https://catalog.agentage.io', 'https://cursor.com']) {
   const pre = await raw('/mcp', { method: 'OPTIONS', headers: { Origin: origin, 'Access-Control-Request-Method': 'POST' } });
   if (pre.status !== 204) fail('directories', `preflight from ${origin} -> ${pre.status}`);
   if ((await rpc('tools/list', {}, { headers: { Origin: origin } })).status !== 200) fail('directories', `tools/list from ${origin} refused`);

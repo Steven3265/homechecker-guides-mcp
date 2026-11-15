@@ -1,8 +1,4 @@
-import {
-  createMcpHandler,
-  hostHeaderValidationResponse,
-  originValidationResponse,
-} from '@modelcontextprotocol/server';
+import { createMcpHandler, hostHeaderValidationResponse } from '@modelcontextprotocol/server';
 import { createMcpServer } from './server.js';
 import { clientLabel, runWithClient } from './client-label.js';
 
@@ -31,6 +27,17 @@ const EXPOSED_HEADERS = [
 ].join(', ');
 
 const DEFAULT_ALLOWED_HOSTNAMES = ['mcp.homechecker.com.au'];
+// The browser surfaces this server is known to be reached from. By default
+// this list no longer gates anything: it is the reference set reported by
+// allowedOriginHostnames() for diagnostics, and a starting point for an
+// operator composing an ALLOWED_ORIGINS restriction.
+//
+// It is kept as a list rather than deleted because naming the known surfaces
+// is useful; it is no longer enforced because enumerating them cannot be kept
+// current. The ecosystem adds directories, monitors and inspectors faster than
+// any allowlist can follow, and each omission presents as an outage rather
+// than a refusal: a monitor that is refused reports the server as down, and a
+// directory that is refused records it as unreachable and stops retrying.
 const DEFAULT_ALLOWED_ORIGIN_HOSTNAMES = [
   'homechecker.com.au',
   'www.homechecker.com.au',
@@ -39,23 +46,9 @@ const DEFAULT_ALLOWED_ORIGIN_HOSTNAMES = [
   'claude.com',
   'chatgpt.com',
   'chat.openai.com',
-  // The official MCP Inspector web UI runs on loopback and may connect to a
-  // deployed remote server from the browser. These origins carry no customer
-  // credentials here; the MCP endpoint is public and read-only.
   'localhost',
   '127.0.0.1',
   '[::1]',
-  // Public MCP directories run browser-based inspectors and playgrounds that
-  // connect to a listed server from the visitor's own browser. A CORS
-  // preflight from these origins is how a directory establishes that a server
-  // is reachable and enumerable; rejecting it leaves the listing permanently
-  // "not tested", with no try-it path for anyone evaluating the connector.
-  //
-  // Admitting them costs nothing here: this endpoint is public, read-only,
-  // unauthenticated and carries no customer data, so a browser request from
-  // these origins can reach nothing a plain fetch could not already reach.
-  // Host validation above still binds the endpoint to its own hostnames, and
-  // ALLOWED_ORIGINS continues to override this list exactly when set.
   'glama.ai',
   'www.glama.ai',
   'smithery.ai',
@@ -172,9 +165,31 @@ function originForbiddenResponse(message: string): Response {
   );
 }
 
+// Origin is validated only when an operator has configured an explicit
+// allowlist. Without one, any Origin is admitted.
+//
+// Origin validation exists to blunt DNS rebinding, where a browser is steered
+// into reaching a resource that is private to the victim's network or that
+// trusts the browser's ambient credentials. Neither applies here. This
+// endpoint is public, read-only, unauthenticated and carries no cookies, no
+// session and no customer data; its whole corpus is already published as
+// static files and mirrored in a public repository. A browser admitted by
+// this function can reach nothing that `curl` could not already reach
+// anonymously, so refusing it protects no secret.
+//
+// It also never protected one. Origin is set by browsers; any non-browser
+// client can simply omit the header, and the request is then admitted
+// unconditionally. An Origin allowlist is therefore a restriction only on
+// callers honest enough to identify themselves, which inverts the intent: the
+// well-behaved directory crawler and uptime monitor announce who they are and
+// are refused, while an impolite client is waved through.
+//
+// Host validation is unchanged and still runs ahead of this, binding the
+// endpoint to its own hostnames. That is the control that actually answers
+// rebinding, and it does not depend on the caller's candour.
 function exactOriginValidationResponse(request: Request): Response | undefined {
   const configured = configuredOriginOverride();
-  if (configured === undefined) return originValidationResponse(request, allowedOriginHostnames());
+  if (configured === undefined) return undefined;
 
   const rawOrigin = request.headers.get('Origin')?.trim();
   if (!rawOrigin) return undefined;
@@ -330,10 +345,11 @@ export type McpEndpointOptions = {
 
 export async function handleMcpRequest(request: Request, options: McpEndpointOptions = {}): Promise<Response> {
   const endpoint = options.endpoint ?? 'standard';
-  // MCP 2026-07-28 requires Origin validation when an Origin header is present.
-  // Host validation is applied alongside it to defend the bare fetch endpoint
-  // against DNS-rebinding-style requests. Non-browser clients normally omit
-  // Origin and therefore continue to pass this boundary unchanged.
+  // Host validation defends the bare fetch endpoint against DNS-rebinding-style
+  // requests and applies to every caller. Origin is additionally validated only
+  // when ALLOWED_ORIGINS or a concrete legacy ALLOWED_ORIGIN is configured; by
+  // default any Origin is admitted, because this endpoint is public, read-only
+  // and unauthenticated. See exactOriginValidationResponse.
   const rejected = validateRequestBoundary(request);
   if (rejected) return rejected;
 

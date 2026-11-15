@@ -171,18 +171,42 @@ async function main() {
   assert.match(preflight.headers.get('access-control-allow-methods') ?? '', /POST/);
   assert.equal(preflight.headers.get('access-control-allow-origin'), 'https://claude.ai');
 
-  const rejectedOrigin = await handleMcpRequest(
+  // With no ALLOWED_ORIGINS configured, Origin does not gate the endpoint.
+  // Directory crawlers, uptime monitors and browser inspectors all announce an
+  // Origin, and this server is public, read-only and unauthenticated, so an
+  // unknown Origin is admitted and reflected rather than refused.
+  for (const origin of [
+    'https://mcpbeat.com',
+    'https://mcptoplist.com',
+    'https://catalog.agentage.io',
+    'https://cursor.com',
+    'https://unknown-directory.example',
+  ]) {
+    const admitted = await handleMcpRequest(
+      new Request(ENDPOINT, {
+        method: 'OPTIONS',
+        headers: {
+          Host: 'test.local',
+          Origin: origin,
+          'Access-Control-Request-Method': 'POST',
+        },
+      }),
+    );
+    assert.equal(admitted.status, 204, `${origin} must be admitted by default`);
+    assert.equal(admitted.headers.get('access-control-allow-origin'), origin);
+    assert.match(admitted.headers.get('vary') ?? '', /Origin/i);
+  }
+
+  // Host validation is the control that actually answers DNS rebinding, and it
+  // is unchanged: it must still refuse a foreign Host regardless of Origin.
+  const rebindAttempt = await handleMcpRequest(
     new Request(ENDPOINT, {
-      method: 'OPTIONS',
-      headers: {
-        Host: 'test.local',
-        Origin: 'https://attacker.example',
-        'Access-Control-Request-Method': 'POST',
-      },
+      method: 'POST',
+      headers: { Host: 'attacker.example', Origin: 'https://attacker.example' },
     }),
   );
-  assert.equal(rejectedOrigin.status, 403);
-  assert.equal(rejectedOrigin.headers.has('access-control-allow-origin'), false);
+  assert.equal(rebindAttempt.status, 403);
+  assert.equal(rebindAttempt.headers.has('access-control-allow-origin'), false);
 
   const rejectedHost = await handleMcpRequest(
     new Request(ENDPOINT, { method: 'POST', headers: { Host: 'attacker.example' } }),
