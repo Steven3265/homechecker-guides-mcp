@@ -321,6 +321,88 @@ async function main() {
   const overLimit = await listPage({ limit: 51 });
   assert.ok(overLimit.error || overLimit.result?.isError, 'list_guides must refuse a limit above 50');
 
+  // A client that declares a protocol revision this server does not know (a
+  // draft, a future date) must still be able to complete discovery. A tool
+  // call from the same client stays refused.
+  const legacyPost = (version, body, method) => handleMcpRequest(
+    new Request(ENDPOINT, {
+      method: 'POST',
+      headers: {
+        Host: 'test.local',
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream',
+        'MCP-Protocol-Version': version,
+        'Mcp-Method': method,
+      },
+      body: JSON.stringify(body),
+    }),
+  );
+  for (const version of ['2025-12-01', '2027-01-01', 'draft']) {
+    const notified = await legacyPost(version, { jsonrpc: '2.0', method: 'notifications/initialized' }, 'notifications/initialized');
+    assert.equal(notified.status, 202, `notifications/initialized must be served for unknown revision ${version}`);
+    const listedTools = await legacyPost(version, { jsonrpc: '2.0', id: 1, method: 'tools/list' }, 'tools/list');
+    assert.equal(listedTools.status, 200, `tools/list must be served for unknown revision ${version}`);
+    assert.equal((await parseJsonRpc(listedTools)).result.tools.length, 4);
+  }
+  const strictCall = await legacyPost(
+    '2025-12-01',
+    { jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'list_guides', arguments: {} } },
+    'tools/call',
+  );
+  assert.equal(strictCall.status, 400, 'tools/call must stay refused for an unknown revision');
+
+  // The lists come from a bundled snapshot and cannot change within a
+  // deployment, so list-change notifications are not advertised, and a client
+  // that opens subscriptions/listen anyway is acknowledged and released at
+  // once rather than held open until the platform's time limit.
+  const capabilities = (await postModern({ id: 'caps', method: 'server/discover' })).payload.result.capabilities;
+  for (const area of ['tools', 'resources', 'prompts']) {
+    assert.equal(capabilities[area]?.listChanged, false, `${area}.listChanged must not be advertised`);
+  }
+  const listenResponse = await handleMcpRequest(
+    new Request(ENDPOINT, {
+      method: 'POST',
+      headers: {
+        Host: 'test.local',
+        'Content-Type': 'application/json',
+        Accept: 'application/json, text/event-stream',
+        'MCP-Protocol-Version': MODERN_VERSION,
+        'Mcp-Method': 'subscriptions/listen',
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 'listen',
+        method: 'subscriptions/listen',
+        params: { notifications: { toolsListChanged: true, promptsListChanged: true, resourcesListChanged: true }, _meta: modernMeta() },
+      }),
+    }),
+  );
+  assert.equal(listenResponse.status, 200);
+  const listenBody = await Promise.race([
+    listenResponse.text(),
+    new Promise((resolve) => setTimeout(() => resolve(null), 2000)),
+  ]);
+  assert.notEqual(listenBody, null, 'a subscriptions/listen stream must close promptly, not stay open');
+
+  // Log level follows the outcome: a served request is routine (stdout), a
+  // refused request is a warning, and neither is written as an error.
+  const captured = { log: [], warn: [], error: [] };
+  const originals = { log: console.log, warn: console.warn, error: console.error };
+  try {
+    for (const level of ['log', 'warn', 'error']) console[level] = (value) => captured[level].push(String(value));
+    await listPage({});
+    await legacyPost('2025-12-01', { jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'list_guides', arguments: {} } }, 'tools/call');
+  } finally {
+    Object.assign(console, originals);
+  }
+  assert.ok(captured.log.some((line) => line.includes('"evt":"mcp_request"') && line.includes('"status":200')), 'a served request must log to stdout');
+  assert.ok(captured.log.some((line) => line.includes('"evt":"tool_call"')), 'a tool call must log to stdout');
+  const refusedLine = captured.warn.find((line) => line.includes('"status":400'));
+  assert.ok(refusedLine, 'a refused request must log as a warning');
+  assert.match(refusedLine, /"declared":"2025-12-01"/, 'a refusal must record the declared revision');
+  assert.match(refusedLine, /"reason":"/, 'a refusal must record its reason');
+  assert.equal(captured.error.length, 0, 'routine traffic must not be logged as errors');
+
   const search = await postModern({
     id: 'search',
     method: 'tools/call',

@@ -36,7 +36,11 @@ The bundled snapshot is rebuilt from `https://homechecker.com.au/guides/export.j
 
 ## Usage telemetry
 
-Each tool call writes one JSON line to stderr (`evt: "tool_call"`) containing the tool name, query length or requested guide slug, coarse profile fields (state, property type, era, buying stage), result counts and a timestamp. Raw search text is not logged. The platform's function logs capture these lines under the platform's standard log retention.
+Each tool call writes one JSON line (`evt: "tool_call"`) containing the tool name, query length or requested guide slug, coarse profile fields (state, property type, era, buying stage), result counts and a timestamp. Raw search text is not logged. The platform's function logs capture these lines under the platform's standard log retention.
+
+Each HTTP request to the MCP endpoint also writes one line (`evt: "mcp_request"`) with the method named in the routing header, a coarse client family, the status and the duration. When a request is refused, the line adds the JSON-RPC error code, a clipped error message and the protocol revision the client declared, so that the cause of a refusal can be identified; no request body or other header is recorded.
+
+The log level follows the outcome. Over HTTP, served requests and tool calls are written to stdout, refused requests (4xx) as warnings and server faults (5xx) as errors, so that a hosted log viewer shows an error only when something is wrong. Under the local stdio transport all telemetry stays on stderr, because stdout is the protocol channel.
 
 There is no authentication, and the application does not intentionally record IP addresses, session identifiers, identifying headers or client identity. The purpose is aggregate operational intelligence: which tools are used, whether retrieval succeeds, and which guides are returned. Logging is wrapped so that a telemetry failure can never affect a response.
 

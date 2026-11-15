@@ -269,7 +269,8 @@ function rpcMethods(request: Request): string[] {
 // the disagreement costs nothing and the request is retried on the legacy
 // stateless path rather than refused. Public directories and index crawlers
 // routinely mis-declare this way, and a refused tools/list is the difference
-// between a listed connector and an unlisted one.
+// between a listed connector and an unlisted one. The same applies to a client
+// that names a revision this server does not know at all.
 //
 // tools/call is deliberately absent. There, a client that has misread its own
 // revision may also misread the result, and guidance about a person's home is
@@ -308,6 +309,19 @@ function isEnvelopeMismatch(payload: unknown): boolean {
   return typeof message === 'string' && /envelope|headers and body disagree/i.test(message);
 }
 
+// True when the SDK refused the request because the client named a protocol
+// revision this server does not know at all (a draft, a future date, a typo),
+// as opposed to a known revision whose body disagrees with it.
+function isUnsupportedRevision(payload: unknown): boolean {
+  if (!payload || typeof payload !== 'object') return false;
+  const error = (payload as { error?: unknown }).error;
+  if (!error || typeof error !== 'object') return false;
+
+  const { code, message } = error as { code?: unknown; message?: unknown };
+  if (code !== -32000 && code !== -32022) return false;
+  return typeof message === 'string' && /unsupported protocol version/i.test(message);
+}
+
 // The request's JSON-RPC method names, but only when every message in it is
 // one of the lenient methods. A batch mixing a tool call into a discovery
 // batch is not retried.
@@ -329,9 +343,38 @@ function lenientMethodNames(body: string): string[] | undefined {
   return names as string[];
 }
 
-function logRequest(methods: string[], client: string, endpoint: string, status: number, durationMs: number): void {
+type Refusal = { code?: number; reason?: string; declared?: string };
+
+// Why a request was refused, for the log line. The JSON-RPC error code and a
+// clipped message are enough to tell one cause from another, and the revision
+// the client declared is the usual culprit. Nothing else from the request is
+// recorded: no body, no other header, no identifier.
+async function refusalDetail(response: Response, request: Request): Promise<Refusal | undefined> {
+  if (response.status < 400) return undefined;
+  const clean = (value: string, max: number) => value.replace(/[^\x20-\x7E]/g, ' ').slice(0, max);
+  const detail: Refusal = {};
+  const declared = request.headers.get('MCP-Protocol-Version')?.trim();
+  if (declared) detail.declared = clean(declared, 40);
   try {
-    console.error(JSON.stringify({ evt: 'mcp_request', methods, client, endpoint, status, durationMs, at: new Date().toISOString() }));
+    const payload = (await response.clone().json()) as { error?: { code?: unknown; message?: unknown } };
+    if (typeof payload?.error?.code === 'number') detail.code = payload.error.code;
+    if (typeof payload?.error?.message === 'string') detail.reason = clean(payload.error.message, 160);
+  } catch {
+    // A refusal without a JSON body still gets logged with its status.
+  }
+  return detail;
+}
+
+// One line per request. The level follows the outcome, because hosted log
+// viewers colour by level: a served request is routine (stdout), a request the
+// server refused is a warning, and only a fault of the server's own is an
+// error. This handler never runs under stdio, so stdout is free to use.
+function logRequest(methods: string[], client: string, endpoint: string, status: number, durationMs: number, refusal?: Refusal): void {
+  try {
+    const line = JSON.stringify({ evt: 'mcp_request', methods, client, endpoint, status, durationMs, ...(refusal ? { refusal } : {}), at: new Date().toISOString() });
+    if (status >= 500) console.error(line);
+    else if (status >= 400) console.warn(line);
+    else console.log(line);
   } catch {
     // Never let telemetry interfere with protocol handling.
   }
@@ -413,13 +456,15 @@ export async function handleMcpRequest(request: Request, options: McpEndpointOpt
 
         if (result.status === 406 && acceptIncomplete) {
           corrected.set('Accept', STREAMABLE_HTTP_ACCEPT);
-        } else if (
-          result.status === 400 &&
-          corrected.has('MCP-Protocol-Version') &&
-          isEnvelopeMismatch(await result.clone().json().catch(() => undefined))
-        ) {
-          // Drop the disputed revision header and let the SDK's stateless
-          // compatibility path serve the discovery call.
+        } else if (result.status === 400 && corrected.has('MCP-Protocol-Version')) {
+          // Drop a revision header that is disputed (it disagrees with the
+          // body) or unknown (a draft or future revision this server has never
+          // heard of) and let the SDK's stateless compatibility path serve the
+          // discovery call. A monitor that declares a revision newer than this
+          // server knows was otherwise refused on every check, then served
+          // when it retried without the header.
+          const payload = await result.clone().json().catch(() => undefined);
+          if (!isEnvelopeMismatch(payload) && !isUnsupportedRevision(payload)) break;
           corrected.delete('MCP-Protocol-Version');
         } else {
           break;
@@ -429,8 +474,9 @@ export async function handleMcpRequest(request: Request, options: McpEndpointOpt
       }
     }
 
+    const refusal = await refusalDetail(result, request);
     const response = withCommonHeaders(result, request);
-    logRequest(methods, client, endpoint, response.status, Date.now() - started);
+    logRequest(methods, client, endpoint, response.status, Date.now() - started, refusal);
     return response;
   } catch (error) {
     logRequest(methods, client, endpoint, 500, Date.now() - started);

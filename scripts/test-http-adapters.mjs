@@ -169,14 +169,16 @@ for (const [handler, url, status] of [
   assert.equal(head.body, '');
 }
 const logs = [];
-const originalError = console.error;
+// Routine REST telemetry is written to stdout (stderr reads as an error in
+// hosted log viewers), so that is the channel to capture.
+const originalLog = console.log;
 try {
-  console.error = (value) => logs.push(value);
+  console.log = (value) => logs.push(value);
   call(checklistHandler, request('GET', '/v1/checklist?jurisdiction=PRIVATE_MARKER&propertyType=PRIVATE_MARKER&era=PRIVATE_MARKER'));
   call(guidesHandler, request('GET', '/v1/guides?jurisdiction=PRIVATE_MARKER'));
   call(guideHandler, request('GET', '/v1/guide?slug=PRIVATE_MARKER'));
 } finally {
-  console.error = originalError;
+  console.log = originalLog;
 }
 assert.equal(logs.length, 3);
 assert.doesNotMatch(logs.join('\n'), /PRIVATE_MARKER/);

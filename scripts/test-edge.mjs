@@ -7,6 +7,11 @@ const t0 = performance.now();
 const { handleMcpRequest } = await import('../dist/src/http-handler.js');
 const coldMs = performance.now() - t0;
 const quiet = console.error; console.error = () => {};
+// Routine telemetry is written to stdout and refusals as warnings; keep both
+// out of this run's output without hiding the results printed below.
+const dropTelemetry = (write) => (...args) => { if (!(typeof args[0] === 'string' && args[0].startsWith('{"evt"'))) write(...args); };
+console.log = dropTelemetry(console.log);
+console.warn = dropTelemetry(console.warn);
 
 // Findings are collected rather than thrown, so one breach does not hide the
 // rest. Anything recorded here fails the run at the end.
