@@ -271,6 +271,56 @@ async function main() {
   assert.ok(listed.payload.result.structuredContent.count > 0);
   assert.ok(Array.isArray(listed.payload.result.structuredContent.guides));
 
+  // list_guides is paged. Walking nextCursor must visit every matching guide
+  // exactly once, each page must stay within its limit, and each row must be a
+  // catalogue entry (a slug and canonical URL, no guide prose).
+  const listPage = async (args) => {
+    const page = await postModern({
+      id: 'list-page',
+      method: 'tools/call',
+      name: 'list_guides',
+      params: { name: 'list_guides', arguments: args },
+    });
+    assert.equal(page.response.status, 200);
+    return page.payload;
+  };
+  const walked = [];
+  let pageCount = 0;
+  let expectedTotal;
+  for (let cursor; ;) {
+    const { result } = await listPage({ limit: 20, ...(cursor ? { cursor } : {}) });
+    const page = result.structuredContent;
+    pageCount += 1;
+    expectedTotal ??= page.total;
+    assert.equal(page.total, expectedTotal, 'total must be stable across pages');
+    assert.equal(page.count, page.guides.length);
+    assert.ok(page.guides.length <= 20, 'a page must not exceed its limit');
+    assert.ok('nextCursor' in page, 'nextCursor must always be present');
+    for (const row of page.guides) {
+      assert.match(row.canonicalUrl, /^https:\/\/homechecker\.com\.au\/guides\//);
+      for (const prose of ['answer', 'summary', 'limitations']) assert.equal(prose in row, false, `list_guides rows must not carry ${prose}`);
+    }
+    assert.match(result.content[0].text, /https:\/\/homechecker\.com\.au\/guides\//);
+    walked.push(...page.guides.map((row) => row.slug));
+    if (page.nextCursor === null) break;
+    cursor = page.nextCursor;
+    assert.ok(pageCount < 50, 'paging must terminate');
+  }
+  assert.ok(pageCount > 1, 'the catalogue must span more than one page at limit 20');
+  assert.equal(walked.length, expectedTotal, 'paging must return every matching guide');
+  assert.equal(new Set(walked).size, walked.length, 'paging must not repeat a guide');
+
+  const defaultPage = (await listPage({})).result.structuredContent;
+  assert.ok(defaultPage.guides.length <= 25, 'the default page is 25 guides');
+  assert.ok(JSON.stringify(defaultPage).length < 20_000, 'the default answer must stay small as the corpus grows');
+
+  for (const cursor of ['-999', 'zz', 'NaN', '1.5', '999999']) {
+    const refused = await listPage({ cursor });
+    assert.ok(refused.error || refused.result?.isError, `list_guides must refuse cursor ${cursor}`);
+  }
+  const overLimit = await listPage({ limit: 51 });
+  assert.ok(overLimit.error || overLimit.result?.isError, 'list_guides must refuse a limit above 50');
+
   const search = await postModern({
     id: 'search',
     method: 'tools/call',

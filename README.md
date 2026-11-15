@@ -92,9 +92,9 @@ See [`docs/PROTOCOL-SUPPORT.md`](docs/PROTOCOL-SUPPORT.md), [`docs/RELEASE-1.2.3
 
 ### `list_guides`
 
-Lists published guide metadata.
+Lists published guide metadata, a page at a time.
 
-Filters include jurisdiction, cluster, property type, construction era and buying stage.
+Filters include jurisdiction, cluster, property type, construction era and buying stage. Each entry carries the slug, title, the question the guide answers, its canonical URL, cluster, jurisdiction and last-updated date; it does not carry guide text. A page holds 25 guides by default (`limit`, up to 50). `total` is the number of matching guides, and `nextCursor` is the value to pass as `cursor` for the next page, or `null` on the last page.
 
 ### `search_guides`
 
@@ -307,7 +307,7 @@ This repository is configured as a standalone Vercel project.
 
 The root route publishes service metadata, `/health` confirms the bundled guide count, `/mcp/server-card` publishes the experimental MCP Server Card, `/server-card.json` retains the richer Homechecker service metadata document, `/openapi.json` describes the REST surface, and `/v1/*` provides read-only HTTP adapters.
 
-The MCP endpoint validates both `Host` and any supplied `Origin` header before protocol handling. Server-to-server MCP clients normally omit `Origin` and continue to work without configuration. Browser origins for Homechecker, current Claude surfaces, ChatGPT and loopback MCP Inspector use are allowed by default. Vercel deployment, branch and project-production aliases are admitted from `VERCEL_URL`, `VERCEL_BRANCH_URL` and `VERCEL_PROJECT_PRODUCTION_URL`; extra hosts can be supplied through `ALLOWED_HOSTS`. `ALLOWED_ORIGINS` is an authoritative exact-origin override (scheme, hostname and effective port), while a concrete legacy `ALLOWED_ORIGIN` preserves its prior exact single-origin restriction. Wildcard Origin validation is deliberately not supported; a historical `ALLOWED_ORIGIN=*` falls back to the safe built-in allowlist.
+The MCP endpoint validates `Host` on every request before protocol handling; that is the control that answers DNS-rebinding-style requests. `Origin` is not restricted by default: the endpoint is public, read-only and unauthenticated, so browser inspectors, MCP directories and uptime monitors that send an `Origin` are admitted, as are server-to-server clients that send none. Vercel deployment, branch and project-production aliases are admitted from `VERCEL_URL`, `VERCEL_BRANCH_URL` and `VERCEL_PROJECT_PRODUCTION_URL`; extra hosts can be supplied through `ALLOWED_HOSTS`. To restrict browser origins, set `ALLOWED_ORIGINS`: it is an authoritative exact-origin allowlist (scheme, hostname and effective port), and any other supplied `Origin` is then rejected with `403`. A concrete legacy `ALLOWED_ORIGIN` keeps its exact single-origin restriction; a historical `ALLOWED_ORIGIN=*` means no restriction.
 
 ## Official MCP Registry
 

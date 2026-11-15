@@ -12,6 +12,13 @@ const era = z.string().optional().describe('For example pre-1920s, 1950s-1970s, 
 const buyingStage = z.string().optional().describe('For example research, contract review, physical inspection, ownership, or selling.');
 const cluster = z.enum(CLUSTER_IDS).optional();
 
+// A list_guides cursor is the zero-based position of the next page's first
+// guide, as a plain decimal string. It is handed back as nextCursor and is only
+// meaningful with the same filters it was issued for.
+export const LIST_GUIDES_CURSOR_PATTERN = /^(0|[1-9][0-9]{0,5})$/;
+export const LIST_GUIDES_DEFAULT_LIMIT = 25;
+export const LIST_GUIDES_MAX_LIMIT = 50;
+
 export const listGuidesInputSchema = z.object({
   jurisdiction,
   cluster,
@@ -19,6 +26,19 @@ export const listGuidesInputSchema = z.object({
   era,
   buyingStage,
   includePillar: z.boolean().optional().default(false),
+  limit: z
+    .number()
+    .int()
+    .min(1)
+    .max(LIST_GUIDES_MAX_LIMIT)
+    .optional()
+    .default(LIST_GUIDES_DEFAULT_LIMIT)
+    .describe('Guides per page. Default 25, maximum 50.'),
+  cursor: z
+    .string()
+    .regex(LIST_GUIDES_CURSOR_PATTERN)
+    .optional()
+    .describe('The nextCursor value from the previous page. Omit for the first page, and keep the same filters.'),
 });
 
 export const searchGuidesInputSchema = z.object({
@@ -186,10 +206,43 @@ const buyerChecklistSchema = z.object({
   })),
 });
 
+// list_guides is a catalogue: it exists so a caller can see what is published
+// and choose a slug. It is not a way to read the guides, and it never was
+// advertised as one ("Returns metadata only").
+//
+// It previously returned the full shared summary for every guide in a single
+// answer, so one unfiltered call carried every guide's answer, summary and
+// limitations: around 99,000 characters to answer "what have you got?". Two
+// things changed. Each row is now a catalogue entry rather than a summary, and
+// the catalogue is returned a page at a time, so the size of an answer no
+// longer grows with the corpus.
+//
+// The prose (summary, answer, limitations) belongs to get_guide and
+// search_guides, which return it for the one guide that was asked for.
+// cluster is carried as its id alone: the full cluster object repeats the same
+// label, chip and blurb on every row that shares a cluster. The facets a
+// caller filters BY (topics, propertyTypes, eras, buyingStages) are inputs to
+// this tool and are not echoed back on every row.
+const guideCatalogueEntrySchema = z.object({
+  slug: z.string(),
+  title: z.string(),
+  question: z.string(),
+  canonicalUrl: z.string(),
+  cluster: z.string().nullable(),
+  jurisdiction: z.array(z.string()),
+  updatedAt: z.string(),
+  readingTimeMin: z.number().int(),
+});
+
+// count is the number of guides in this page; total is how many match the
+// filters across every page. nextCursor is always present: a string while more
+// pages remain, null on the last page.
 export const listGuidesOutputSchema = z.object({
   count: z.number().int().min(0),
+  total: z.number().int().min(0),
+  nextCursor: z.string().nullable(),
   generatedAt: z.string(),
-  guides: z.array(guideSummarySchema),
+  guides: z.array(guideCatalogueEntrySchema),
 });
 
 export const searchGuidesOutputSchema = z.object({
@@ -233,10 +286,10 @@ const clusterProperty = { type: 'string', enum: [...CLUSTER_IDS] } as const;
 export const TOOL_CONTRACTS = {
   list_guides: {
     title: 'List Homechecker guides',
-    description: 'List the published Homechecker guide catalogue, optionally filtered by jurisdiction, guide cluster, property type, construction era, or buying stage. Returns metadata only.',
+    description: 'List the published Homechecker guide catalogue a page at a time, optionally filtered by jurisdiction, guide cluster, property type, construction era, or buying stage. Returns catalogue metadata only: each entry carries the slug, title, the question the guide answers, its canonical URL, cluster, jurisdiction and when it was last updated. A page holds 25 guides by default (limit, up to 50); total is the number that match, and while more remain nextCursor carries the value to pass as cursor, with the same filters, for the next page. To read a guide, pass its slug to get_guide; to find the guide that answers a question, use search_guides.',
     inputSchema: listGuidesInputSchema,
     outputSchema: listGuidesOutputSchema,
-    outputFields: ['count', 'generatedAt', 'guides'],
+    outputFields: ['count', 'total', 'nextCursor', 'generatedAt', 'guides'],
     jsonInputSchema: {
       type: 'object',
       properties: {
@@ -246,6 +299,8 @@ export const TOOL_CONTRACTS = {
         era: stringProperty,
         buyingStage: stringProperty,
         includePillar: { type: 'boolean', default: false },
+        limit: { type: 'integer', minimum: 1, maximum: LIST_GUIDES_MAX_LIMIT, default: LIST_GUIDES_DEFAULT_LIMIT },
+        cursor: { type: 'string', pattern: LIST_GUIDES_CURSOR_PATTERN.source },
       },
       additionalProperties: false,
     },

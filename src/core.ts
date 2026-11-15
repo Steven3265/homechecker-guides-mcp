@@ -1301,6 +1301,24 @@ export function buildBuyerChecklist(profile: ChecklistProfile, limit = 12): Buye
   };
 }
 
+// The catalogue projection used by the list_guides tool: identity, the
+// question the guide answers, where it is published and the few facets needed
+// to choose one. No prose. guideSummary below stays as it is: get_guide and the
+// REST adapters return a single guide, where its summary and answer are the
+// point.
+export function guideCatalogueEntry(guide: GuideRecord): Record<string, unknown> {
+  return {
+    slug: guide.slug,
+    title: guide.title,
+    question: guide.question,
+    canonicalUrl: guide.canonicalUrl,
+    cluster: guide.cluster?.id ?? null,
+    jurisdiction: guide.jurisdiction,
+    updatedAt: guide.updatedAt,
+    readingTimeMin: guide.readingTimeMin,
+  };
+}
+
 export function guideSummary(guide: GuideRecord): Record<string, unknown> {
   return {
     slug: guide.slug,

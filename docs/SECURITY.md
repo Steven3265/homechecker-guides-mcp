@@ -18,15 +18,15 @@ It has:
 
 ## HTTP request boundary
 
-The Streamable HTTP entry applies the MCP TypeScript SDK's framework-agnostic `Host` and `Origin` validation helpers before any protocol request is handled.
+The Streamable HTTP entry applies the MCP TypeScript SDK's framework-agnostic `Host` validation helper before any protocol request is handled. `Origin` is validated only when an operator configures an allowlist.
 
 - Production Host is `mcp.homechecker.com.au`; Vercel's generated deployment (`VERCEL_URL`), branch alias (`VERCEL_BRANCH_URL`) and project production alias (`VERCEL_PROJECT_PRODUCTION_URL`) are accepted automatically when exposed by Vercel, plus optional comma-separated `ALLOWED_HOSTS`.
-- Browser Origin hostnames for Homechecker, current Claude surfaces, ChatGPT and loopback MCP Inspector use are included by default.
-- `ALLOWED_ORIGINS` is an authoritative comma-separated exact-origin override: when set, defaults are not silently added, and scheme plus effective port are preserved. Legacy singular `ALLOWED_ORIGIN` retains its prior exact restrictive meaning when set to a concrete origin. Its historical `*` value now selects the safe built-in allowlist rather than disabling the 2026-07-28 Origin guard.
-- Built-in browser defaults use the SDK hostname guard so loopback Inspector ports remain usable; configured Origins are validated exactly, so `https://trusted.example:8443` does not permit HTTP or another port.
+- By default any `Origin` is admitted. The endpoint is public, read-only and unauthenticated and carries no cookies, session or customer data, so a browser request can reach nothing an anonymous request could not. An Origin allowlist also restricts only callers that declare an Origin: directories and uptime monitors do and were refused, while a client that omits the header always passed.
+- Host validation is the control that answers DNS-rebinding-style requests. It applies to every request and does not depend on the Origin header.
+- `ALLOWED_ORIGINS` is an authoritative comma-separated exact-origin override: when set, defaults are not silently added, and scheme plus effective port are preserved. Legacy singular `ALLOWED_ORIGIN` retains its prior exact restrictive meaning when set to a concrete origin. Its historical `*` value means no Origin restriction, the same as leaving it unset.
+- Configured Origins are validated exactly, so `https://trusted.example:8443` does not permit HTTP or another port.
 - Requests without an Origin header pass, preserving ordinary non-browser MCP clients.
-- A present malformed, opaque or unapproved Origin is rejected with `403` before MCP handling.
-- Wildcard Origin validation is deliberately not supported.
+- When an allowlist is configured, a present malformed, opaque or unlisted Origin is rejected with `403` before MCP handling, and its value is not reflected in CORS headers.
 
 CORS response headers are transport metadata only; they are not used as a substitute for the request-boundary validation above.
 

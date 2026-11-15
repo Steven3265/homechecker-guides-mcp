@@ -29,7 +29,7 @@ Version 1.2 is a protocol-hardening and retrieval-quality release. It keeps the 
 
 ## Deployment note
 
-No secret is required. Vercel's generated deployment, branch and project-production hostnames are accepted from `VERCEL_URL`, `VERCEL_BRANCH_URL` and `VERCEL_PROJECT_PRODUCTION_URL`; additional deployment hostnames can be allowed with `ALLOWED_HOSTS`. Browser clients can be restricted with the authoritative comma-separated `ALLOWED_ORIGINS` override; configured values are exact Origins, including scheme and effective port. If only legacy `ALLOWED_ORIGIN` is set, its old exact single-origin restriction is preserved; the historical `*` value falls back to the safe built-in allowlist rather than disabling Origin validation.
+No secret is required. Vercel's generated deployment, branch and project-production hostnames are accepted from `VERCEL_URL`, `VERCEL_BRANCH_URL` and `VERCEL_PROJECT_PRODUCTION_URL`; additional deployment hostnames can be allowed with `ALLOWED_HOSTS`. Browser clients can be restricted with the authoritative comma-separated `ALLOWED_ORIGINS` override; configured values are exact Origins, including scheme and effective port. If only legacy `ALLOWED_ORIGIN` is set, its old exact single-origin restriction is preserved; the historical `*` value means no Origin restriction. With neither variable set, any Origin is admitted and only Host is validated.
 
 After deployment, update Homechecker's external AI Catalog / developer copy to point the MCP Server Card reference to `https://mcp.homechecker.com.au/mcp/server-card`. The old `https://mcp.homechecker.com.au/server-card.json` route remains available as extended service metadata, so this can be rolled out without breaking existing consumers.
 

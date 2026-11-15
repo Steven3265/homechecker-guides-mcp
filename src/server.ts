@@ -11,6 +11,7 @@ import { TOOL_CONTRACTS, readLinkNote, searchGuidanceBoundary } from './contract
 import {
   buildBuyerChecklist,
   getGuide,
+  guideCatalogueEntry,
   guideSummary,
   guides,
   listGuides,
@@ -98,16 +99,45 @@ export function createMcpServer(): McpServer {
       annotations: { ...readOnlyAnnotations, title: TOOL_CONTRACTS.list_guides.title },
     },
     async (args) => {
-      const matches = listGuides(args).map(guideSummary);
+      // Filters are destructured away from paging so the catalogue query sees
+      // exactly what it always has.
+      const { limit, cursor, ...filters } = args;
+      const all = listGuides(filters);
+      const start = cursor === undefined ? 0 : Number(cursor);
+      // A cursor is only ever a position this server handed out. One that
+      // points at or past the end of the matching guides was not issued for
+      // these filters, so it is refused rather than answered with an empty
+      // page that looks like the end of the catalogue.
+      if (cursor !== undefined && start >= all.length) {
+        logUse('list_guides', { jurisdiction: args.jurisdiction, cluster: args.cluster, count: 0, cursorRejected: true });
+        return {
+          content: [{
+            type: 'text' as const,
+            text: `The cursor "${cursor}" is not valid for these filters, which match ${all.length} guide${all.length === 1 ? '' : 's'}. Call list_guides without a cursor to start from the first page.`,
+          }],
+          isError: true,
+        };
+      }
+
+      const page = all.slice(start, start + limit);
+      const end = start + page.length;
+      const nextCursor = end < all.length ? String(end) : null;
       const payload = {
-        count: matches.length,
+        count: page.length,
+        total: all.length,
+        nextCursor,
         generatedAt: snapshot.generatedAt,
-        guides: matches,
+        guides: page.map(guideCatalogueEntry),
       };
-      const text = matches.length
-        ? matches.map((guide, index) => `${index + 1}. ${guide.title}\n${String(guide.canonicalUrl)}`).join('\n\n')
-        : 'No published Homechecker guides matched those filters.';
-      logUse('list_guides', { jurisdiction: args.jurisdiction, cluster: args.cluster, count: matches.length });
+      const listing = page.map((guide, index) => `${start + index + 1}. ${guide.title}\n${guide.canonicalUrl}`).join('\n\n');
+      const text = !all.length
+        ? 'No published Homechecker guides matched those filters.'
+        : nextCursor
+          ? `${listing}\n\nShowing ${start + 1} to ${end} of ${all.length} guides. For the next page, call list_guides again with cursor "${nextCursor}" and the same filters.`
+          : all.length > page.length
+            ? `${listing}\n\nShowing ${start + 1} to ${end} of ${all.length} guides. This is the last page.`
+            : listing;
+      logUse('list_guides', { jurisdiction: args.jurisdiction, cluster: args.cluster, count: page.length, total: all.length });
       return textAndStructured(payload, text);
     },
   );

@@ -7,7 +7,9 @@ All four tools advertise both `inputSchema` and `outputSchema` through MCP disco
 
 **Purpose:** catalogue discovery.
 
-**Returns:** guide metadata and canonical URLs. It does not return full article text.
+**Returns:** one page of catalogue entries: slug, title, the question the guide answers, canonical URL, cluster id, jurisdiction, last-updated date and reading time. It does not return guide summaries, answers or article text; use `get_guide` or `search_guides` for those.
+
+**Paging:** 25 entries per page by default (`limit`, 1 to 50). `count` is the number in this page and `total` the number matching the filters. `nextCursor` is always present: pass it as `cursor`, with the same filters, for the next page; it is `null` on the last page. A cursor that is malformed or beyond the matching guides is refused.
 
 **Filters:** jurisdiction, cluster, property type, era, buying stage and optional inclusion of the guide hub.
 

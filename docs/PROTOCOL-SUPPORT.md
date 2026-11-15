@@ -6,7 +6,7 @@
 - Stateless compatibility for 2025-era Streamable HTTP clients through the official TypeScript SDK v2 compatibility path.
 - MCP `2026-07-28` and legacy-compatible stdio through `serveStdio`.
 - `server/discover`, standard routing headers, server identity stamping and protocol cache hints supplied by the official SDK.
-- Host and Origin validation in front of the bare fetch handler using the SDK's framework-agnostic validation helpers.
+- Host validation in front of the bare fetch handler using the SDK's framework-agnostic validation helper, with optional exact Origin validation when an operator configures `ALLOWED_ORIGINS`.
 - Explicit `outputSchema` contracts for structured results from all four tools.
 - Tools and resources only. Every tool is read-only, deterministic and idempotent.
 - Experimental MCP Server Card discovery at `/mcp/server-card`, isolated from the core protocol so the extension can evolve without changing tool behaviour.
@@ -24,7 +24,7 @@
 
 The remote `/mcp` endpoint serves the current stateless protocol and retains the official SDK's stateless 2025 compatibility mode during ecosystem rollout. The tool names, arguments, structured results, canonical URLs and professional boundaries are the stable public contract.
 
-Requests without an `Origin` header pass the Origin boundary, which preserves normal server-to-server MCP clients. A supplied Origin must pass the configured boundary: built-in browser defaults are hostname-based, while operator-configured Origins are exact scheme/host/port values. Invalid or unapproved Origins are rejected with `403`. Host validation is applied independently to protect the public fetch endpoint against DNS-rebinding-style requests.
+Host validation is applied to every request to protect the public fetch endpoint against DNS-rebinding-style requests. Origin is not restricted by default, because the endpoint is public, read-only and unauthenticated; requests with or without an `Origin` header are served. When an operator configures `ALLOWED_ORIGINS`, a supplied Origin must match one of the exact scheme/host/port values, and any other is rejected with `403`.
 
 Protocol-level behaviour belongs in the official SDK adapter. Search, checklist and corpus logic remain isolated from transport changes.
 
