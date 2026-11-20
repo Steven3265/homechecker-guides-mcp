@@ -63,6 +63,53 @@ const AUTHORITY_SYNONYM_GROUPS = [
   ['report limitation', 'report limitations', 'blind spot', 'blind spots', 'reliance', 'rely'],
 ];
 
+// What a person notices, and what the guides call it. People describe a home
+// by what they see, feel and smell ("the deck is wobbly", "the windows fog
+// up"); the guides name the condition ("loose", "condensation"). Each word
+// here is searched as the guides' words as well, and counts as the guides'
+// word when an answer is judged. One direction only, and whole words only:
+// "rot" must not fire inside "protect".
+const NOTICED: Record<string, string> = {
+  bouncy: 'springy bounce', bounce: 'bouncy springy', bounces: 'bouncy springy bounce', bouncing: 'bouncy springy bounce',
+  springy: 'bouncy bounce', spongy: 'springy soft bouncy', squishy: 'springy soft bouncy',
+  wobbly: 'loose bouncy', wobble: 'loose bouncy', wobbles: 'loose bouncy', wobbling: 'loose bouncy', shaky: 'loose bouncy', rickety: 'loose decay',
+  flicker: 'dim wiring', flickers: 'flicker dim wiring', flickering: 'flicker dim wiring', flickered: 'flicker dim wiring',
+  dimming: 'dim flicker wiring', dims: 'dim flicker wiring',
+  fog: 'condensation', fogs: 'condensation', fogging: 'condensation', fogged: 'condensation', foggy: 'condensation',
+  mist: 'condensation', misting: 'condensation', misted: 'condensation', steamy: 'condensation', steamed: 'condensation',
+  puddle: 'ponding pooling', puddles: 'ponding pooling', puddling: 'ponding pooling', pooling: 'ponding', pooled: 'ponding pooling',
+  soggy: 'ponding wet drainage', waterlogged: 'ponding wet drainage', boggy: 'ponding wet drainage', swampy: 'ponding wet drainage',
+  bubbling: 'blistering peeling', bubbles: 'bubbling blistering peeling', bubbled: 'bubbling blistering peeling',
+  blister: 'blistering bubbling peeling', blisters: 'blistering bubbling peeling', blistered: 'blistering bubbling peeling',
+  flaking: 'peeling blistering', flaky: 'peeling blistering flaking', flakes: 'peeling blistering flaking',
+  crumbling: 'fretting salts', crumble: 'crumbling fretting salts', crumbles: 'crumbling fretting salts', crumbly: 'crumbling fretting salts',
+  crumbled: 'crumbling fretting salts', eroding: 'crumbling fretting salts', eroded: 'crumbling fretting salts', powdery: 'crumbling salts',
+  bow: 'bowing sagging bulging', bowed: 'bowing sagging bulging', bows: 'bowing sagging bulging', bowing: 'sagging bulging',
+  bulge: 'bulging bowing', bulges: 'bulging bowing', bulged: 'bulging bowing', belly: 'bulging bowing sagging',
+  sag: 'sagging dip', sags: 'sagging sag dip', sagged: 'sagging sag dip', droop: 'sagging sag', droops: 'sagging sag', drooping: 'sagging sag',
+  dips: 'dip sagging', dipping: 'dip sagging',
+  slipping: 'slipped displaced', slid: 'slipped displaced', dislodged: 'slipped displaced', shifted: 'displaced slipped',
+  rot: 'decay decayed', rots: 'rot decay decayed', rotten: 'rot decay decayed', rotting: 'rot decay decayed', rotted: 'rot decay decayed',
+  leans: 'leaning lean', tilt: 'leaning lean', tilts: 'leaning lean', tilting: 'leaning lean', tilted: 'leaning lean',
+  odour: 'smell', odor: 'smell', odours: 'smell', odors: 'smell', stink: 'smell', stinks: 'smell', smelly: 'smell', whiff: 'smell',
+  mouldy: 'mould', moldy: 'mould', mold: 'mould', mildew: 'mould',
+  creak: 'creaking squeaky', creaks: 'creaking squeaky', creaky: 'creaking squeaky', squeak: 'squeaky creaking', squeaks: 'squeaky creaking', squeaking: 'squeaky creaking',
+  jam: 'sticking', jams: 'sticking', jammed: 'sticking', sticks: 'sticking', stuck: 'sticking',
+  draughty: 'draughts', drafty: 'draughts', draught: 'draughts', draft: 'draughts', drafts: 'draughts',
+  rcd: 'safety switch', rcds: 'safety switch', colorbond: 'metal roof', zincalume: 'metal roof',
+  // The same for the parts of a house: the name people use, and the guides' name.
+  railing: 'balustrade', railings: 'balustrade balustrades', handrail: 'balustrade handrails', verandah: 'deck balcony', veranda: 'deck balcony',
+  porch: 'deck balcony', floorboard: 'floorboards floors', faucet: 'tap', faucets: 'taps tap', fusebox: 'switchboard fuse',
+  powerpoint: 'outlets wiring', powerpoints: 'outlets wiring', spouting: 'gutters', guttering: 'gutters', attic: 'roof space', loft: 'roof space',
+  roofspace: 'roof space', crawlspace: 'subfloor', aircon: 'cooling',
+};
+
+/** The guides' words for a word people use, or nothing. */
+function saidAs(token: string): string[] {
+  const guideWords = NOTICED[token];
+  return guideWords ? guideWords.split(' ') : [];
+}
+
 const STATE_ALIASES: Record<string, string[]> = {
   ACT: ['australian capital territory', 'canberra'],
   NSW: ['nsw', 'new south wales', 'sydney'],
@@ -96,6 +143,7 @@ function meaningfulTokens(value: string): string[] {
 function expandedTerms(query: string): string[] {
   const normalized = normalize(query);
   const terms = new Set(meaningfulTokens(query));
+  for (const token of rawTokens(query)) for (const guideWord of saidAs(token)) terms.add(guideWord);
   for (const group of SYNONYM_GROUPS) {
     if (group.some((phrase) => normalized.includes(normalize(phrase)))) {
       for (const phrase of group) {
@@ -607,7 +655,13 @@ function requestedClaims(query: string): RequestedClaims {
     const guidance = /^(?:how (?:do|does|can|could|should)|what (?:records?|documents?|evidence|checks?|steps?|questions?|does)|what is (?:the )?best way|explain)\b/.test(q);
     const outcome = /\b(?:prove|proof|definitely|unsafe|safe|failed|failure|toxic|sick|illness|liable|liability|legally valid|binding|enforceable|void|illegal|reasonable|fair|compliant|compliance|approve|approval|permit|covered|cover|coverage|collapse|structurally sound|structurally unsafe)\b/.test(q);
     const decision = /^(?:is|are|does|do|can|could|will|would|has|have)\b/.test(q);
-    if (outcome && (decision || (!guidance && /\b(?:compliance|liability|coverage|approval|validity)\b/.test(q)))) claims.determine = true;
+    // Whether something is safe, toxic or needs a permit has a general answer
+    // the guides give ("are old gas heaters safe?"), and a particular one they
+    // cannot ("is this heater safe?"). Legal effect, compliance, approval,
+    // insurance cover and proof are particular however they are asked.
+    const hazardOnly = !/\b(?:prove|proof|definitely|failed|sick|illness|liable|liability|legally valid|binding|enforceable|void|illegal|reasonable|fair|compliant|compliance|approve|approval|covered|cover|coverage|collapse)\b/.test(q);
+    const particular = /\b(?:this|that|these|those|my|our|his|her|their)\b/.test(q);
+    if (outcome && (decision || (!guidance && /\b(?:compliance|liability|coverage|approval|validity)\b/.test(q))) && !(hazardOnly && !particular)) claims.determine = true;
 
     const provider = /\b(?:inspector|engineer|surveyor|provider|agent|policy|bank)\b/.test(q);
     if ((!guidance && provider && /\b(?:best|recommend|recommendation|find me|who should i|which)\b/.test(q)) ||
@@ -615,8 +669,11 @@ function requestedClaims(query: string): RequestedClaims {
 
     const amount = /\b(?:how much|what price|what value|cost|costs|price|prices|fee|fees|rate|rates)\b/.test(q);
     // "Worth it" asks about usefulness, unlike "what is this house worth?".
-    const valuation = /\bworth\b(?! it\b)/.test(q);
-    if ((amount && !guidance) || valuation) claims.quantities.push(q);
+    // "Worth arranging", "worth sorting out" and "worth paying for" ask the same thing.
+    const valuation = /\bworth\b(?! (?:it|\w+ing)\b)/.test(q);
+    // "What does a new roof cost?" opens like guidance and asks for a price.
+    const priced = /^what (?:do|does|did|will|would)\b.*\b(?:cost|costs)\b/.test(q);
+    if ((amount && !guidance) || priced || valuation) claims.quantities.push(q);
   }
   return claims;
 }
@@ -724,9 +781,14 @@ function tokenSupportedByResult(query: string, token: string, result: GuideSearc
   const cached = cachedAuthority(result);
   if (variants.some((variant) => cached.primaryTokens.has(variant))) return 1;
   if (queryHasSynonymSupport(query, cached.primary, token)) return 1;
+  // A word people use for what they notice counts as the guides' word for it.
+  const guideWords = saidAs(token);
+  if (guideWords.some((word) => cached.primaryTokens.has(word))) return 1;
   if (primaryOnly) return 0;
+  if (guideWords.some((word) => cached.structuredTokens.has(word))) return 0.8;
 
-  if (['home', 'house', 'dwelling', 'property'].includes(token) && result.propertyTypes.length > 0) return 0.8;
+  // "houses" and "homes" are the same words as "house" and "home".
+  if (variants.some((variant) => ['home', 'house', 'dwelling', 'property'].includes(variant)) && result.propertyTypes.length > 0) return 0.8;
   const era = detectEra(query);
   if (/^(?:18|19|20)\d{2}$/.test(token) && era && metadataMatches(result.eras, era)) return 0.8;
   if (/^(?:1920s|1930s|1940s|1950s|1960s|1970s|1980s|1990s|2000s|2010s|2020s)$/.test(token) && era && metadataMatches(result.eras, era)) return 0.8;
@@ -876,6 +938,237 @@ function authorityCoverage(query: string, results: GuideSearchResult[], topOnly 
   return supported / tokens.length;
 }
 
+// ─── Subject coverage ────────────────────────────────────────────────────
+//
+// authorityCoverage reads a question against a guide's title, question and
+// summary, and counts every word alike. That is a sound test of a question
+// written the way the guides are, and a poor one of a question asked the way
+// people talk: "how serious", "usually found" and "is it normal" are not the
+// subject, and a guide that spends a section on brickwork without naming it
+// in its summary still answers a question about brickwork.
+//
+// subjectCoverage is the second reading, used only when the first one fails
+// and the question is clearly about a home. It differs in three ways:
+//
+//  - Framing words (how serious, how common, is it worth) are set aside: they
+//    say what the person wants to know about the subject, not what it is.
+//  - A word most guides use says little about the subject and counts less.
+//  - The guide's own body counts. A word the guide uses repeatedly is one it
+//    discusses; a word it uses once is taken as incidental and earns little.
+//
+// A word no supporting guide uses still counts in full against the answer,
+// which is what keeps "mould on cheese" and "a brick phone" weak.
+const FRAMING_WORDS = new Set([
+  // how much it matters
+  'serious', 'seriously', 'bad', 'worse', 'worst', 'better', 'good', 'dangerous', 'danger', 'normal', 'normally',
+  'common', 'commonly', 'usual', 'usually', 'typical', 'typically', 'worry', 'worried', 'worrying', 'concern',
+  'concerned', 'problem', 'problems', 'issue', 'issues', 'big', 'major', 'minor', 'deal', 'breaker', 'idea',
+  'harder', 'easier', 'hard', 'easy', 'matter', 'matters', 'important', 'likely', 'risk', 'risky',
+  // degree and time
+  'really', 'actually', 'often', 'sometimes', 'always', 'never', 'still', 'just', 'even', 'much', 'many', 'more',
+  'most', 'less', 'some', 'any', 'every', 'each', 'other', 'another', 'long', 'last', 'lasts', 'now', 'soon',
+  'later', 'first', 'next', 'near', 'around', 'there', 'here', 'while', 'until', 'after', 'during', 'between',
+  // generic verbs
+  'get', 'gets', 'getting', 'got', 'make', 'makes', 'making', 'made', 'go', 'goes', 'going', 'gone', 'come', 'comes',
+  'find', 'found', 'finding', 'see', 'seen', 'say', 'says', 'saying', 'said', 'give', 'gave', 'given', 'take',
+  'keep', 'put', 'try', 'trying', 'happen', 'happens', 'happening', 'feel', 'feels', 'seem', 'seems', 'appear',
+  'appears', 'appearing', 'show', 'shows', 'left', 'alone', 'done', 'doing', 'meant', 'sent', 'expect', 'able',
+  // filler
+  'people', 'everyone', 'someone', 'thing', 'things', 'something', 'lot', 'lots', 'kind', 'sort', 'difference',
+  'versus', 'worth', 'needs', 'needed', 'sure', 'out', 'not', 'too', 'very', 'been', 'being', 'has', 'have', 'had',
+  'stop', 'consider', 'considering', 'related', 'told', 'require', 'requires', 'type', 'types', 'full', 'ready',
+  'quickly', 'slowly', 'already', 'ahead', 'practical', 'looking', 'wrong', 'right', 'start', 'whether', 'why',
+  'hire', 'hiring', 'hired',
+]);
+
+const COMMON_SHARE = 0.5;
+const COMMON_WEIGHT = 0.3;
+const BODY_REPEAT = 3;
+const BODY_REPEAT_SUPPORT = 0.8;
+const BODY_ONCE_SUPPORT = 0.3;
+const SUBJECT_COVERAGE_SINGLE = 0.78;
+const SUBJECT_COVERAGE_WOVEN = 0.7;
+const RARE_GUIDES = 5;
+const STRANGER_SUPPORT = 0.6;
+const CONTEXT_BODY_MENTIONS = 2;
+
+function guideFullText(guide: GuideRecord): string {
+  return [
+    guide.title, guide.question, guide.summary, guide.answer, guide.topics.join(' '),
+    ...guide.sections.map((section) => `${section.heading} ${section.markdown}`),
+    ...guide.checklistCandidates.map((candidate) => candidate.text),
+  ].join(' ');
+}
+
+let documentFrequency: Map<string, number> | undefined;
+function corpusDocumentFrequency(): Map<string, number> {
+  if (documentFrequency) return documentFrequency;
+  const frequency = new Map<string, number>();
+  for (const guide of guides) {
+    for (const token of new Set(rawTokens(guideFullText(guide)))) frequency.set(token, (frequency.get(token) ?? 0) + 1);
+  }
+  documentFrequency = frequency;
+  return frequency;
+}
+
+/** Singular and plural, with and without a verb ending: one word for counting purposes. */
+function wordForms(token: string): string[] {
+  return [...new Set([...tokenVariants(token), `${token}s`])];
+}
+
+function guidesUsing(token: string): number {
+  const frequency = corpusDocumentFrequency();
+  return Math.max(...[...wordForms(token), ...saidAs(token)].map((form) => frequency.get(form) ?? 0));
+}
+
+/** Edit distance counting a swap of neighbouring letters as one step, abandoned once it passes `max`. */
+function editDistance(a: string, b: string, max: number): number {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  let previous: number[] = [];
+  let current = Array.from({ length: b.length + 1 }, (_, index) => index);
+  for (let i = 1; i <= a.length; i += 1) {
+    const before = previous;
+    previous = current;
+    current = [i];
+    let best = i;
+    for (let j = 1; j <= b.length; j += 1) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      let value = Math.min(previous[j]! + 1, current[j - 1]! + 1, previous[j - 1]! + cost);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) value = Math.min(value, before[j - 2]! + 1);
+      current.push(value);
+      if (value < best) best = value;
+    }
+    if (best > max) return max + 1;
+  }
+  return current[b.length]!;
+}
+
+const misspellingCache = new Map<string, boolean>();
+/**
+ * A word no guide uses, but one slip away from a word they do use ("statment",
+ * "minuets", "moister"): a misspelling, not another subject. Short words are
+ * left out, because one letter turns too many of them into each other.
+ */
+function looksMisspelled(token: string): boolean {
+  const cached = misspellingCache.get(token);
+  if (cached !== undefined) return cached;
+  const max = token.length >= 7 ? 2 : token.length >= 5 ? 1 : 0;
+  let found = false;
+  if (max > 0) {
+    for (const word of corpusDocumentFrequency().keys()) {
+      if (word[0] !== token[0] || word.length < 5) continue;
+      if (editDistance(token, word, max) <= max) { found = true; break; }
+    }
+  }
+  misspellingCache.set(token, found);
+  return found;
+}
+
+/** A word no guide uses in any form, misspellings aside. */
+function unknownToCorpus(token: string): boolean {
+  return !/^\d/.test(token) && guidesUsing(token) === 0 && !looksMisspelled(token);
+}
+
+/** A word used by at least half the guides is ordinary house vocabulary and counts less. */
+function subjectWeight(token: string): number {
+  return guidesUsing(token) / Math.max(1, guides.length) >= COMMON_SHARE ? COMMON_WEIGHT : 1;
+}
+
+const bodyCountCache = new Map<string, Map<string, number>>();
+function guideBodyCounts(slug: string): Map<string, number> {
+  const cached = bodyCountCache.get(slug);
+  if (cached) return cached;
+  const counts = new Map<string, number>();
+  const guide = getGuide(slug);
+  for (const token of rawTokens((guide?.sections ?? []).map((section) => `${section.heading} ${section.markdown}`).join(' '))) {
+    counts.set(token, (counts.get(token) ?? 0) + 1);
+  }
+  bodyCountCache.set(slug, counts);
+  return counts;
+}
+
+function bodyMentions(token: string, result: GuideSearchResult): number {
+  const counts = guideBodyCounts(result.slug);
+  return [...new Set([...wordForms(token), ...saidAs(token)])].reduce((sum, form) => sum + (counts.get(form) ?? 0), 0);
+}
+
+function subjectSupport(query: string, token: string, result: GuideSearchResult, readBody: boolean): number {
+  const authority = tokenSupportedByResult(query, token, result, false);
+  if (!readBody || authority >= BODY_REPEAT_SUPPORT) return authority;
+  const mentions = bodyMentions(token, result);
+  if (mentions >= BODY_REPEAT) return Math.max(authority, BODY_REPEAT_SUPPORT);
+  if (mentions >= 1) return Math.max(authority, BODY_ONCE_SUPPORT);
+  return authority;
+}
+
+// The words a question uses to ask for a verdict, a price or a recommendation.
+// They are what requestedClaims acts on, not part of the subject.
+const CLAIM_WORDS = new Set([
+  'cost', 'costs', 'price', 'prices', 'priced', 'fee', 'fees', 'rate', 'rates', 'pay', 'paying', 'paid', 'value', 'valued',
+  'safe', 'unsafe', 'toxic', 'sick', 'illness', 'compliant', 'compliance', 'approve', 'approval', 'permit', 'covered',
+  'cover', 'coverage', 'liable', 'liability', 'legally', 'valid', 'binding', 'enforceable', 'void', 'illegal',
+  'reasonable', 'fair', 'collapse', 'definitely', 'prove', 'proof', 'failed', 'failure', 'recommend', 'recommendation',
+  'buy', 'rent', 'bid', 'offer', 'use', 'choose', 'insurer', 'insurance', 'council', 'code', 'stand', 'drill',
+]);
+
+function subjectTokens(query: string, withoutClaims = false): string[] {
+  return [...new Set(contentTokensInOrder(query).filter((token) => !FRAMING_WORDS.has(token) && !(withoutClaims && CLAIM_WORDS.has(token))))];
+}
+
+export type SubjectCoverageDetail = { token: string; weight: number; support: number };
+
+/** Per-word detail behind subjectCoverage, for tests and calibration. */
+export function subjectCoverageDetail(query: string, results: GuideSearchResult[], topOnly = false, readBody = true, withoutClaims = false): SubjectCoverageDetail[] {
+  const considered = topOnly ? results.slice(0, 1) : results.slice(0, 3);
+  return subjectTokens(query, withoutClaims).map((token) => ({
+    token,
+    weight: subjectWeight(token),
+    support: considered.reduce((best, result) => Math.max(best, subjectSupport(query, token, result, readBody)), 0),
+  }));
+}
+
+/**
+ * A stranger is a subject word the supporting guides do not discuss. One is
+ * enough to change the subject ("cooling off period after exercise"), however
+ * well the rest of the question is covered.
+ *
+ * For a question about the building, only a word few guides use at all is a
+ * stranger: an ordinary word the winning guide happens not to use ("winter",
+ * "upgrade") lowers coverage and no more. For a contract, auction or
+ * disclosure question every subject word must be supported, because that
+ * vocabulary is shared with too many other fields ("door to door sales").
+ */
+function hasStrangerWord(query: string, results: GuideSearchResult[], topOnly: boolean, physical: boolean): boolean {
+  return subjectCoverageDetail(query, results, topOnly, physical)
+    .some((entry) => entry.support < STRANGER_SUPPORT && (physical ? guidesUsing(entry.token) <= RARE_GUIDES : entry.weight > COMMON_WEIGHT));
+}
+
+export function subjectCoverage(query: string, results: GuideSearchResult[], topOnly = false, readBody = true): number {
+  const detail = subjectCoverageDetail(query, results, topOnly, readBody);
+  const total = detail.reduce((sum, entry) => sum + entry.weight, 0);
+  if (total === 0) return 0;
+  return detail.reduce((sum, entry) => sum + entry.weight * entry.support, 0) / total;
+}
+
+const bodyTextCache = new Map<string, string>();
+/** The question's subject, as a run of words, appears in the guide's own text. */
+function subjectPhraseInBody(query: string, result: GuideSearchResult): boolean {
+  const tokens = subjectTokens(query);
+  if (tokens.length < 2) return false;
+  let body = bodyTextCache.get(result.slug);
+  if (body === undefined) {
+    body = normalize((getGuide(result.slug)?.sections ?? []).map((section) => `${section.heading} ${section.markdown}`).join(' '));
+    bodyTextCache.set(result.slug, body);
+  }
+  return includesTerm(body, tokens.join(' '));
+}
+
+/** Every subject word is in the guide's title, question, summary, headings or checklist: nothing rests on the body alone. */
+function subjectNamedByGuide(query: string, result: GuideSearchResult): boolean {
+  const tokens = subjectTokens(query);
+  return tokens.length > 0 && tokens.every((token) => tokenSupportedByResult(query, token, result, false) >= 0.8);
+}
+
 // A contextual qualifier can change the subject of an otherwise familiar
 // question. Require support for its meaning-bearing words independently of the
 // overall average; extra residential vocabulary must not dilute an unknown
@@ -884,8 +1177,11 @@ function hasUnsupportedContext(query: string, results: GuideSearchResult[]): boo
   for (const clause of requestClauses(query)) {
     const qualifiers = clause.matchAll(/\b(?:in|within|inside|under|for|as)\s+(.+?)(?=\b(?:in|within|inside|under|for|as|before|after|and|or|but)\b|$)/g);
     for (const match of qualifiers) {
-      const tokens = contentTokensInOrder(match[1]!);
-      if (tokens.some((token) => !results.slice(0, 3).some((result) => tokenSupportedByResult(query, token, result) > 0))) return true;
+      // Framing words ("in a house until they are serious") are not a setting.
+      // A setting the returned guides write about in their own text is one
+      // they cover, even when no title or heading names it.
+      const tokens = contentTokensInOrder(match[1]!).filter((token) => !FRAMING_WORDS.has(token));
+      if (tokens.some((token) => !results.slice(0, 3).some((result) => tokenSupportedByResult(query, token, result) > 0 || bodyMentions(token, result) >= CONTEXT_BODY_MENTIONS))) return true;
     }
   }
   return false;
@@ -913,18 +1209,27 @@ function lacksDedicatedStateAuthority(query: string, results: GuideSearchResult[
 }
 
 /**
- * True when relevant material exists but the corpus should not present it as a
- * strong answer. Retrieval and authority are intentionally different things.
+ * Why a non-empty result should not be presented as a strong answer, or
+ * undefined when it is one. Retrieval and authority are intentionally
+ * different things, and so are the ways an answer can fall short:
+ *
+ *  - 'finance', 'determination', 'recommendation', 'price': the question asks
+ *    for something the corpus never gives, whatever the guide's subject.
+ *  - 'context', 'state': a qualifier or state the results do not cover.
+ *  - 'coverage', 'phrase', 'relevance': the guides do not explain the question.
  */
-export function isWeakMatch(query: string, results: GuideSearchResult[], context?: SearchContext): boolean {
-  if (results.length === 0) return false;
+export type WeakReason = 'finance' | 'determination' | 'recommendation' | 'price' | 'context' | 'state' | 'coverage' | 'phrase' | 'relevance';
+
+export function weakReason(query: string, results: GuideSearchResult[], context?: SearchContext): WeakReason | undefined {
+  if (results.length === 0) return undefined;
 
   const claims = requestedClaims(query);
-  if (FINANCIAL_ADVICE_PATTERN.test(normalize(query))) return true;
-  if (claims.determine || claims.recommend) return true;
-  if (claims.quantities.some((clause) => !supportsQuantification(clause, results))) return true;
-  if (hasUnsupportedContext(query, results)) return true;
-  if (lacksDedicatedStateAuthority(query, results)) return true;
+  if (FINANCIAL_ADVICE_PATTERN.test(normalize(query))) return 'finance';
+  if (claims.determine) return 'determination';
+  if (claims.recommend) return 'recommendation';
+  if (claims.quantities.some((clause) => !supportsQuantification(clause, results))) return 'price';
+  if (hasUnsupportedContext(query, results)) return 'context';
+  if (lacksDedicatedStateAuthority(query, results)) return 'state';
 
   const canWeave = hasAffirmativeResidentialContext(query);
   // A residential property type or era supplied as a filter grounds a terse
@@ -942,17 +1247,96 @@ export function isWeakMatch(query: string, results: GuideSearchResult[], context
     // One guide must explain the whole question, from its full content (not
     // just its title): "termite damage" is explained by the termites guide's
     // body. Several guides are never stitched together.
-    if (topGuideCoverage(query, results[0]!) < 0.75) return true;
-    return relevanceDensity(query, results) < MIN_RELEVANCE_PER_TERM;
+    if (topGuideCoverage(query, results[0]!) < 0.75) return 'coverage';
+    return relevanceDensity(query, results) < MIN_RELEVANCE_PER_TERM ? 'relevance' : undefined;
   }
-  const coverage = authorityCoverage(query, results, !canWeave);
-  if (coverage < (canWeave ? 0.70 : 0.78)) return true;
-  const exactAuthoredMatch = includesTerm(results[0]!.question, query) || includesTerm(results[0]!.title, query);
-  if (!canWeave && !filterGrounded && !exactAuthoredMatch && primaryPhraseCoverage(query, results[0]!) < 0.5) return true;
+  // A small relevance floor is the final retrieval-quality backstop. It does
+  // not decide authority on its own.
+  if (relevanceDensity(query, results) < MIN_RELEVANCE_PER_TERM) return 'relevance';
 
-  // Keep a small relevance floor as a final retrieval-quality backstop. It no
-  // longer decides authority on its own.
-  return relevanceDensity(query, results) < MIN_RELEVANCE_PER_TERM;
+  // A word no guide uses anywhere is the plainest sign of another subject
+  // ("a wall crack on a boat"). It outweighs everything else in the question,
+  // on either reading. A misspelling of a word the guides do use is let by.
+  if (subjectTokens(query).some(unknownToCorpus)) return 'coverage';
+
+  // First reading: the question against what the guides say they are about.
+  const coverage = authorityCoverage(query, results, !canWeave);
+  const exactAuthoredMatch = includesTerm(results[0]!.question, query) || includesTerm(results[0]!.title, query);
+  const phraseShort = !canWeave && !exactAuthoredMatch && primaryPhraseCoverage(query, results[0]!) < 0.5;
+  const first: WeakReason | undefined = coverage < (canWeave ? 0.70 : 0.78) ? 'coverage' : phraseShort ? 'phrase' : undefined;
+  if (first === undefined) return undefined;
+
+  // Second reading, for a question that is plainly about a home but asked in
+  // everyday words: its subject against everything the guides contain. A
+  // question with no residential or building word of its own never gets here.
+  // A question is about the building itself when it names a building matter,
+  // or when the guide that answers it is one of the building-fabric guides.
+  const physical = hasBuildingCue(query) || results[0]!.cluster?.id === 'read-building';
+  if (!canWeave && !physical && residentialDomainEvidence(query) < 1) return first;
+  // The body is read only for a question about the building itself. Contract,
+  // auction and disclosure wording turns up in too many other senses
+  // ("business days", "exercise the right") to be taken from running text.
+  if (subjectCoverage(query, results, !canWeave, physical) < (canWeave ? SUBJECT_COVERAGE_WOVEN : SUBJECT_COVERAGE_SINGLE)) return 'coverage';
+  if (hasStrangerWord(query, results, !canWeave, physical)) return 'coverage';
+  // Without a residential word, two guide words side by side can still mean
+  // something else ("glass ceiling"). For a subject that short the guide must
+  // name both words itself, or use them together as the question does.
+  if (phraseShort && subjectTokens(query).length <= 2 && !subjectNamedByGuide(query, results[0]!) && !(physical && subjectPhraseInBody(query, results[0]!))) return 'phrase';
+  return undefined;
+}
+
+/**
+ * A result can be weak because the guides are not about the question, or
+ * because of what the question asks of them: a verdict on a particular home,
+ * a price, a recommendation. The second kind deserves saying differently.
+ * "How much does restumping cost?" has a guide on restumping; telling the
+ * caller that no guide matches would be untrue, and would hide it.
+ *
+ * Returns the limit when that is the only thing between the question and the
+ * guides: the subject, with the asking words set aside, is one the returned
+ * guides cover. The result is still weak either way.
+ */
+export type GuidanceLimit = 'determination' | 'price' | 'recommendation';
+
+export function guidanceLimit(query: string, results: GuideSearchResult[], context?: SearchContext): GuidanceLimit | undefined {
+  const reason = weakReason(query, results, context);
+  if (reason !== 'determination' && reason !== 'price' && reason !== 'recommendation') return undefined;
+  const physical = hasBuildingCue(query) || results[0]!.cluster?.id === 'read-building';
+  if (!physical && !hasAffirmativeResidentialContext(query) && residentialDomainEvidence(query) < 1) return undefined;
+  // Judged on what the guides say they are about, never their running text,
+  // and only when the question names a real subject: a building matter, or a
+  // word the guides own. A place, a year or "house" on its own is not one,
+  // and a price question must be about the building ("house prices" is not).
+  // A price word pulls the cost guides to the top whatever the subject, so a
+  // price question is read against the first three; a verdict or a
+  // recommendation against the winning guide alone.
+  const detail = subjectCoverageDetail(query, results, reason !== 'price', false, true);
+  const total = detail.reduce((sum, entry) => sum + entry.weight, 0);
+  const named = detail.some((entry) => entry.weight === 1 && entry.support >= BODY_REPEAT_SUPPORT && !PLACE_WORDS.has(entry.token) && !/^\d+$/.test(entry.token));
+  if (!hasBuildingCue(query) && (reason === 'price' || !named)) return undefined;
+  if (detail.reduce((sum, entry) => sum + entry.weight * entry.support, 0) / total < SUBJECT_COVERAGE_WOVEN) return undefined;
+  if (detail.some((entry) => entry.support < STRANGER_SUPPORT && (physical ? guidesUsing(entry.token) <= RARE_GUIDES : entry.weight > COMMON_WEIGHT))) return undefined;
+  return reason;
+}
+
+const PLACE_WORDS = new Set([
+  'australia', 'australian',
+  ...Object.keys(STATE_ALIASES).map((code) => code.toLowerCase()),
+  ...Object.values(STATE_ALIASES).flatMap((aliases) => aliases.flatMap((alias) => rawTokens(alias))),
+]);
+
+const LIMIT_PREAMBLE: Record<GuidanceLimit, string> = {
+  determination: 'The guides below give general guidance on this subject. They cannot say whether a particular home, document or claim is safe, compliant, valid or covered: that takes someone who has seen it.',
+  price: 'The guides below cover this subject. They do not price work or value a property: use them for what drives the scope and what to ask.',
+  recommendation: 'The guides below cover what to check before deciding. They do not recommend a provider or say whether to buy.',
+};
+
+/**
+ * True when relevant material exists but the corpus should not present it as a
+ * strong answer.
+ */
+export function isWeakMatch(query: string, results: GuideSearchResult[], context?: SearchContext): boolean {
+  return weakReason(query, results, context) !== undefined;
 }
 
 function hasStructuredRetrievalSignal(query: string, results: GuideSearchResult[]): boolean {
@@ -1347,9 +1731,12 @@ export function renderSearchResults(results: GuideSearchResult[], query = '', co
   if (!results.length) {
     return 'No Homechecker guide addresses that question. The corpus covers buying process, state disclosure rules, reading building and strata reports, building fabric and condition, and owning or changing a home. It does not cover finance, tax, valuation or agent selection.';
   }
-  const preamble = isWeakMatch(query, results, context)
-    ? 'No guide strongly matches that question. The closest available are below and may not address it directly.\n\n'
-    : '';
+  const limit = guidanceLimit(query, results, context);
+  const preamble = limit
+    ? `${LIMIT_PREAMBLE[limit]}\n\n`
+    : isWeakMatch(query, results, context)
+      ? 'No guide strongly matches that question. The closest available are below and may not address it directly.\n\n'
+      : '';
   return preamble + results.map((result, index) => {
     const sections = result.matchedSections.length
       ? `\nRelevant sections: ${result.matchedSections.map((section) => section.heading).join('; ')}`

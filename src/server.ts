@@ -18,7 +18,8 @@ import {
   renderChecklist,
   renderSearchResults,
   searchGuides,
-  isWeakMatch,
+  guidanceLimit,
+  weakReason,
   snapshot,
 } from './core.js';
 import { currentClient, readLinksEnabled } from './client-label.js';
@@ -175,12 +176,18 @@ export function createMcpServer(): McpServer {
       // "this is the closest thing we have". Without it a weak keyword hit
       // is indistinguishable from a strong one, and gets cited the same way.
       const context = { propertyType: args.propertyType, era: args.era, jurisdiction: args.jurisdiction };
-      const matchStrength = results.length === 0 ? 'none' : isWeakMatch(args.query, results, context) ? 'weak' : 'strong';
+      const reason = weakReason(args.query, results, context);
+      const matchStrength = results.length === 0 ? 'none' : reason ? 'weak' : 'strong';
+      // A weak result on a subject the guides do cover (a price, a verdict on
+      // one home) is worded as that, not as "no guide matches".
+      const limit = reason ? guidanceLimit(args.query, results, context) : undefined;
       logUse('search_guides', {
         queryLength: args.query.length,
         jurisdiction: args.jurisdiction,
         count: results.length,
         matchStrength,
+        // Why a result was weak, as a category. Never the question itself.
+        ...(reason ? { reason } : {}),
         top: results[0]?.slug,
       });
       return textAndStructured(
@@ -189,7 +196,7 @@ export function createMcpServer(): McpServer {
           count: results.length,
           matchStrength,
           results,
-          boundary: searchGuidanceBoundary(matchStrength),
+          boundary: searchGuidanceBoundary(matchStrength, limit),
         },
         renderSearchResults(results, args.query, context),
       );

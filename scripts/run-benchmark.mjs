@@ -17,6 +17,7 @@ if (!Array.isArray(cases) || cases.length < 199) {
 }
 
 let positiveCases = 0;
+let positiveStrong = 0;
 let top1Hits = 0;
 let top3Hits = 0;
 let weakCases = 0;
@@ -43,6 +44,9 @@ for (const entry of cases) {
     const top1 = entry.expected.includes(slugs[0]);
     if (top3) top3Hits += 1;
     if (top1) top1Hits += 1;
+    // Finding the guide is half of it: a caller told the match is weak treats
+    // the guide as background and leaves it unread.
+    if (top3 && !weak) positiveStrong += 1;
     ok = top3;
     expectation = `expected top-3: ${entry.expected.join(' or ')}`;
   } else if (entry.category === 'weak') {
@@ -125,11 +129,44 @@ for (const entry of filtered) {
   console.log(`${top3 && strong ? 'PASS' : top3 ? 'WEAK' : 'FAIL'}  [engine] ${entry.query} ${JSON.stringify(entry.filters)} -> ${slugs.join(', ') || '(none)'}`);
 }
 
+// ── Everyday pass ───────────────────────────────────────────────────────
+// Questions asked the way people and assistants ask them. (1) Most must be
+// answered strongly, with an expected guide in the top three. (2) Questions
+// asking for a verdict, a price or a recommendation must never be strong.
+// (3) Questions on another subject must never be strong.
+const everyday = JSON.parse(await readFile(new URL('../data/benchmark-everyday.json', import.meta.url), 'utf8'));
+let everydayCases = 0;
+let everydayAnswered = 0;
+let everydayFalseStrong = 0;
+const everydayGroups = new Map();
+for (const entry of everyday.positives) {
+  everydayCases += 1;
+  const results = searchGuides({ query: entry.query, limit: 3 });
+  const found = results.some((r) => entry.expected.includes(r.slug));
+  const answered = found && !isWeakMatch(entry.query, results);
+  if (answered) everydayAnswered += 1;
+  const group = everydayGroups.get(entry.group) ?? { cases: 0, answered: 0 };
+  group.cases += 1;
+  if (answered) group.answered += 1;
+  everydayGroups.set(entry.group, group);
+}
+for (const entry of [...everyday.boundary, ...everyday.outside.map((query) => ({ query }))]) {
+  const results = searchGuides({ query: entry.query, limit: 3 });
+  if (results.length > 0 && !isWeakMatch(entry.query, results)) {
+    everydayFalseStrong += 1;
+    failedCases += 1;
+    console.log(`FAIL  [everyday-negative] ${entry.query}`);
+    console.log(`      returned strong: ${results.map((r) => r.slug).join(', ')}`);
+  }
+}
+const everydayNegatives = everyday.boundary.length + everyday.outside.length;
+
 const pct = (n, d) => d ? `${((n / d) * 100).toFixed(1)}%` : 'n/a';
 console.log('\nRetrieval benchmark summary');
 console.log(`  cases:                 ${cases.length}`);
 console.log(`  positive top-1 recall: ${top1Hits}/${positiveCases} (${pct(top1Hits, positiveCases)})`);
 console.log(`  positive top-3 recall: ${top3Hits}/${positiveCases} (${pct(top3Hits, positiveCases)})`);
+console.log(`  positive strong:       ${positiveStrong}/${positiveCases} (${pct(positiveStrong, positiveCases)})`);
 console.log(`  weak/background:       ${weakCorrect}/${weakCases} (${pct(weakCorrect, weakCases)})`);
 console.log(`  correct-empty:         ${emptyCorrect}/${emptyCases} (${pct(emptyCorrect, emptyCases)})`);
 console.log(`  open-world safe:       ${outsideSafe}/${outsideCases} (${pct(outsideSafe, outsideCases)})`);
@@ -138,6 +175,9 @@ console.log(`  jurisdiction leakage:  ${jurisdictionLeaks}/${jurisdictionCases}`
 console.log(`  filtered negatives:    ${filteredNegatives - filteredFalseStrong}/${filteredNegatives} never strong`);
 console.log(`  engine-style top-3:    ${engineTop3}/${engineCases} (${pct(engineTop3, engineCases)})`);
 console.log(`  engine-style strong:   ${engineStrong}/${engineCases} (${pct(engineStrong, engineCases)})`);
+console.log(`  everyday answered:     ${everydayAnswered}/${everydayCases} (${pct(everydayAnswered, everydayCases)})`);
+for (const [name, group] of everydayGroups) console.log(`    ${`${name}:`.padEnd(21)}${group.answered}/${group.cases} (${pct(group.answered, group.cases)})`);
+console.log(`  everyday negatives:    ${everydayNegatives - everydayFalseStrong}/${everydayNegatives} never strong`);
 
 const top1Recall = positiveCases ? top1Hits / positiveCases : 0;
 const passed =
@@ -151,7 +191,10 @@ const passed =
   jurisdictionLeaks === 0 &&
   filteredFalseStrong === 0 &&
   engineTop3 === engineCases &&
-  engineStrong / engineCases >= 0.80;
+  engineStrong / engineCases >= 0.80 &&
+  positiveStrong / positiveCases >= 0.75 &&
+  everydayAnswered / everydayCases >= 0.70 &&
+  everydayFalseStrong === 0;
 
 if (!passed) {
   console.error(`\nBenchmark gate failed (${failedCases} case failures).`);

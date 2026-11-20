@@ -5,6 +5,8 @@ import { readLinksEnabled } from './client-label.js';
 export const CLUSTER_IDS = ['why', 'how-to-buy', 'state-rules', 'read-building', 'shared-buildings', 'own-change'] as const;
 export type ClusterId = (typeof CLUSTER_IDS)[number];
 export type MatchStrength = 'none' | 'weak' | 'strong';
+// Mirrors GuidanceLimit in core.ts; kept here so the contract has no dependency on the corpus.
+export type GuidanceLimit = 'determination' | 'price' | 'recommendation';
 
 const jurisdiction = z.string().optional().describe('Australia or a state/territory code or name, such as VIC, vic or Victoria.');
 const propertyType = z.string().optional().describe('For example house, apartment, or townhouse or unit.');
@@ -378,9 +380,21 @@ export function readLinkNote(): string {
   return readLinksEnabled() ? READ_LINK_NOTE : '';
 }
 
-export function searchGuidanceBoundary(matchStrength: MatchStrength): string {
+// What a weak result may be used for when the guides do cover the subject and
+// the only shortfall is what was asked of them. Without this the caller is
+// told no guide matches, and leaves a guide on the subject unread.
+const GUIDANCE_LIMIT_BOUNDARY: Record<GuidanceLimit, string> = {
+  determination: 'The guides returned cover this subject in general and can be read and cited for that: what to look for, what it can mean, and who to ask. They cannot decide whether a particular home, document or claim is safe, compliant, valid or covered. Say so, and that it takes someone who has seen it.',
+  price: 'The guides returned cover this subject and can be read and cited for it: what drives the scope of the work and what to ask. They do not price work or value a property. Say so rather than giving a figure from them.',
+  recommendation: 'The guides returned cover what to check before deciding and can be read and cited for that. They do not recommend a provider or say whether to buy. Say so.',
+};
+
+export function searchGuidanceBoundary(matchStrength: MatchStrength, limit?: GuidanceLimit): string {
   if (matchStrength === 'none') {
     return 'No guide in this corpus addresses that question. Do not infer an answer from Homechecker guidance that was not returned.';
+  }
+  if (matchStrength === 'weak' && limit) {
+    return `${GUIDANCE_LIMIT_BOUNDARY[limit]} Results are general guidance and do not establish the condition, compliance, liability or legal effect of anything at a specific property. ${readLinkNote()}`.trim();
   }
   if (matchStrength === 'weak') {
     return `No guide strongly matches this question. Treat the results as background only, and say so rather than presenting them as an answer. Results are general guidance and do not establish the condition, compliance, liability or legal effect of anything at a specific property. ${readLinkNote()}`.trim();

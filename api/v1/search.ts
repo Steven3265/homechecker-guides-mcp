@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { isWeakMatch, searchGuides } from '../../src/core.js';
+import { guidanceLimit, searchGuides, weakReason } from '../../src/core.js';
 import { CLUSTER_IDS, searchGuidanceBoundary } from '../../src/contracts.js';
 import { addReferralUrls, enumParam, intParam, logApi, optionalParam, referralSource, requestUrl, requireGet, sendJson } from '../../src/http-json.js';
 
@@ -29,8 +29,10 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
     limit,
   });
   const context = { propertyType: optionalParam(url, 'propertyType'), era: optionalParam(url, 'era'), jurisdiction: optionalParam(url, 'jurisdiction') };
-  const matchStrength = results.length === 0 ? 'none' : isWeakMatch(query, results, context) ? 'weak' : 'strong';
-  logApi('search', { queryLength: query.length, count: results.length, matchStrength, top: results[0]?.slug });
+  const reason = weakReason(query, results, context);
+  const matchStrength = results.length === 0 ? 'none' : reason ? 'weak' : 'strong';
+  const guidance = reason ? guidanceLimit(query, results, context) : undefined;
+  logApi('search', { queryLength: query.length, count: results.length, matchStrength, ...(reason ? { reason } : {}), top: results[0]?.slug });
   // Header-dependent attribution must not be reused by a shared cache.
   const source = referralSource(req);
   sendJson(res, 200, addReferralUrls({
@@ -38,6 +40,6 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
     count: results.length,
     matchStrength,
     results,
-    boundary: searchGuidanceBoundary(matchStrength),
+    boundary: searchGuidanceBoundary(matchStrength, guidance),
   }, source), 'no-store');
 }

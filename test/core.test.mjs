@@ -3,6 +3,7 @@ import test from 'node:test';
 import {
   buildBuyerChecklist,
   getGuide,
+  guidanceLimit,
   guides,
   isWeakMatch,
   listGuides,
@@ -12,6 +13,7 @@ import {
   renderSearchResults,
   searchGuides,
   snapshot,
+  weakReason,
   WEAK_RELEVANCE_PER_TERM,
 } from '../.core-dist/src/core.js';
 
@@ -779,10 +781,20 @@ test('a residential filter grounds a terse building question', () => {
   }
 });
 
-test('without filters the same terse questions keep their 1.2.1 confidence', () => {
+// Until the everyday-phrasing pass these two were weak without a filter. A
+// caller of this server is asking about homes; a terse building subject the
+// winning guide names outright is an answer with or without one.
+test('a terse building subject the winning guide names is strong without filters', () => {
   for (const query of ['shower waterproofing', 'timber cladding']) {
     const results = searchGuides({ query, limit: 3 });
-    assert.equal(isWeakMatch(query, results), true, query);
+    assert.equal(isWeakMatch(query, results), false, query);
+  }
+});
+
+test('two guide words that mean something else together stay weak', () => {
+  for (const query of ['glass ceiling', 'house music', 'brick phone', 'deck of cards', 'debt ceiling', 'window function']) {
+    const results = searchGuides({ query, limit: 3 });
+    if (results.length) assert.equal(isWeakMatch(query, results), true, query);
   }
 });
 
@@ -798,16 +810,106 @@ test('filters are context, never authority: off-topic questions stay weak', () =
   }
 });
 
-test('a state filter alone does not ground a terse question', () => {
-  const results = searchGuides({ query: 'shower waterproofing', limit: 3, jurisdiction: 'VIC' });
-  assert.equal(isWeakMatch('shower waterproofing', results, { jurisdiction: 'VIC' }), true);
+test('a state filter alone does not ground an off-topic terse question', () => {
+  for (const query of ['glass ceiling', 'brick phone']) {
+    const results = searchGuides({ query, limit: 3, jurisdiction: 'VIC' });
+    if (results.length) assert.equal(isWeakMatch(query, results, { jurisdiction: 'VIC' }), true, query);
+  }
 });
 
 test('rendered search text agrees with the structured strength', () => {
   const filters = { propertyType: 'house' };
   const results = searchGuides({ query: 'shower waterproofing', limit: 3, ...filters });
   assert.doesNotMatch(renderSearchResults(results, 'shower waterproofing', filters), /^No guide strongly matches/);
-  assert.match(renderSearchResults(results, 'shower waterproofing'), /^No guide strongly matches/);
+  assert.doesNotMatch(renderSearchResults(results, 'shower waterproofing'), /^No guide strongly matches/);
+  const offTopic = searchGuides({ query: 'glass ceiling', limit: 3 });
+  assert.match(renderSearchResults(offTopic, 'glass ceiling'), /^No guide strongly matches/);
+});
+
+// ── Everyday phrasing: the second reading ────────────────────────────────
+
+test('everyday questions about a home are answered strongly by the right guide', () => {
+  for (const [query, slug] of [
+    ['rising damp', 'damp-and-moisture-in-your-home'],
+    ['cracks in brickwork', 'cracks-structural-or-cosmetic'],
+    ['How serious are cracks in brickwork?', 'cracks-structural-or-cosmetic'],
+    ['What causes cracks in brick walls?', 'cracks-structural-or-cosmetic'],
+    ['How long does a tile roof last?', 'roofs-tiles-metal-and-leaks'],
+    ['Why is there mould in my bathroom?', 'damp-and-moisture-in-your-home'],
+    ['Where is asbestos usually found in old houses?', 'asbestos-in-the-home'],
+    ['What are the signs of termite damage?', 'termites-in-australian-homes'],
+    ['How long does a hot water system last?', 'plumbing-hot-water-and-leaks'],
+    ['Is brick veneer worse than double brick?', 'brick-veneer-vs-double-brick'],
+    ['What are common problems with 1980s houses?', 'homes-1980s-90s'],
+    ['There is a smell of gas near the heater', 'heating-cooling-and-gas-safety'],
+  ]) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.equal(results[0]?.slug, slug, query);
+    assert.equal(weakReason(query, results), undefined, `unexpectedly weak: ${query}`);
+  }
+});
+
+test('one stranger changes the subject however well the rest is covered', () => {
+  for (const query of [
+    'How long is the cooling off period after exercise?',
+    'How do I read a contract for sale of a business?',
+    'Cooling off period for door to door sales',
+    'What is the roof rack load limit for a Subaru?',
+    'How do I fix cracks in my phone screen?',
+    'Rising Damp TV series cast',
+    'How do I waterproof a boat deck?',
+    'What is a safety switch on a chainsaw?',
+    'How do I stop condensation in a tent?',
+    'What causes rust on a bike chain?',
+  ]) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.ok(results.length === 0 || isWeakMatch(query, results), `stranger accepted: ${query}`);
+  }
+});
+
+test('a general hazard question is guidance; the same question about one home is a determination', () => {
+  for (const query of ['Are old gas heaters safe?', 'Is it safe to live in a house with asbestos?', 'Do I need a permit to build a retaining wall?']) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.notEqual(weakReason(query, results), 'determination', query);
+  }
+  for (const query of ['Is my deck safe to stand on?', 'Is the wiring in this house safe?', 'Is this asbestos sheet safe to drill?', 'Is this retaining wall compliant?']) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.equal(weakReason(query, results), 'determination', query);
+  }
+});
+
+test('asking whether something is worth doing is not asking what it is worth', () => {
+  const worthDoing = 'Auction is Saturday. Is it worth arranging the building inspection before I bid?';
+  assert.notEqual(weakReason(worthDoing, searchGuides({ query: worthDoing, limit: 3 })), 'price');
+  for (const query of ['What is my house worth?', 'What does a new roof cost?', 'How much does restumping cost?']) {
+    assert.equal(weakReason(query, searchGuides({ query, limit: 3 })), 'price', query);
+  }
+});
+
+test('a weak result on a covered subject says what the guides can and cannot do', () => {
+  for (const [query, limit, pattern] of [
+    ['How much does restumping cost?', 'price', /^The guides below cover this subject\. They do not price work/],
+    ['Is my deck safe to stand on?', 'determination', /^The guides below give general guidance on this subject/],
+    ['Which building inspector should I use in Melbourne?', 'recommendation', /^The guides below cover what to check before deciding/],
+  ]) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.equal(isWeakMatch(query, results), true, query);
+    assert.equal(guidanceLimit(query, results), limit, query);
+    assert.match(renderSearchResults(results, query), pattern, query);
+  }
+  // Off the subject, or with no subject at all, the plain wording stands.
+  for (const query of [
+    'Should I buy or rent a home in Australia in 2026?',
+    'Will house prices in Melbourne rise next year?',
+    'What is my house worth?',
+    'Is my laptop battery safe?',
+    'Does car insurance cover hail damage?',
+  ]) {
+    const results = searchGuides({ query, limit: 3 });
+    if (results.length === 0) continue;
+    assert.equal(guidanceLimit(query, results), undefined, query);
+    assert.match(renderSearchResults(results, query), /^No guide strongly matches/, query);
+  }
 });
 
 test('natural phrasing reaches the right guide', () => {
@@ -842,4 +944,33 @@ test('an era guide only contributes checks to a home of its era', () => {
   const checklist = buildBuyerChecklist({ jurisdiction: 'VIC', propertyType: 'house', era: '2000s-on' }, 16);
   const eraGuides = ['period-homes-pre-1920s', 'interwar-homes-1920s-40s', 'postwar-homes-1950s-70s', 'homes-1980s-90s'];
   for (const item of checklist.items) assert.ok(!eraGuides.includes(item.guideSlug), `${item.guideSlug}: ${item.check}`);
+});
+
+// ── What people notice, in their own words ────────────────────────────────
+
+test('the words people use for what they notice reach the guide that names it', () => {
+  for (const [query, slugs] of [
+    ['The windows fog up every morning in winter', ['insulation-ventilation-and-condensation', 'damp-and-moisture-in-your-home']],
+    ['The lights flicker when the heater is on', ['switchboards-wiring-and-safety-switches']],
+    ['My balcony railing is wobbly', ['decks-balconies-and-balustrades']],
+    ['The ceiling is drooping', ['inside-the-house-ceilings-walls-floors-and-doors']],
+    ['The retaining wall is tilting', ['retaining-walls']],
+    ['Roof tiles dislodged after a storm', ['roofs-tiles-metal-and-leaks']],
+    ['Does my switchboard need an RCD?', ['switchboards-wiring-and-safety-switches']],
+    ['The bricks are crumbling near the ground', ['damp-and-moisture-in-your-home', 'outside-walls-windows-render-and-cladding', 'brick-veneer-vs-double-brick']],
+  ]) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.ok(slugs.includes(results[0]?.slug), `${query}: ${results.map((r) => r.slug).join(', ')}`);
+  }
+});
+
+test('the same words about something else stay weak', () => {
+  for (const query of [
+    'wobbly tooth in a child', 'sagging skin treatment', 'lean protein meals', 'peeling skin after sunburn', 'flickering TV screen',
+    'foggy windscreen in the car', 'rotten tomatoes score', 'bouncy castle hire', 'spongy brake pedal', 'leaning tower of Pisa',
+    'What is a foundation model in AI?',
+  ]) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.ok(results.length === 0 || isWeakMatch(query, results), `accepted: ${query}`);
+  }
 });

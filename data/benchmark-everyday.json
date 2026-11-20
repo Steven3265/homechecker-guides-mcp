@@ -1,0 +1,1999 @@
+{
+  "description": "Everyday phrasing: questions asked the way people and assistants ask them, not the way the guides are titled. positives must mostly be answered strongly with an expected guide in the top three; boundary questions ask for a verdict, price or recommendation and must never be strong; outside questions belong to another subject and must never be strong. The second-look group was written after the gate was tuned and was not used to tune it. The noticed group (what people see, feel and smell, in their own words) was written after the noticed-words lexicon and was not used to build it.",
+  "positives": [
+    {
+      "group": "terse",
+      "query": "rising damp",
+      "expected": [
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "cracks in brickwork",
+      "expected": [
+        "cracks-structural-or-cosmetic"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "restumping",
+      "expected": [
+        "subfloors-stumps-and-restumping"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "shower waterproofing",
+      "expected": [
+        "bathroom-waterproofing-and-leaking-showers"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "timber cladding",
+      "expected": [
+        "outside-walls-windows-render-and-cladding"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "roof restoration",
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "termite damage",
+      "expected": [
+        "termites-in-australian-homes"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "asbestos cement sheeting",
+      "expected": [
+        "asbestos-in-the-home"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "old switchboard with ceramic fuses",
+      "expected": [
+        "switchboards-wiring-and-safety-switches"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "retaining wall leaning",
+      "expected": [
+        "retaining-walls"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "balcony balustrade",
+      "expected": [
+        "decks-balconies-and-balustrades"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "smoke alarm requirements",
+      "expected": [
+        "smoke-alarms-and-fire-safety-at-home"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "gas heater safety",
+      "expected": [
+        "heating-cooling-and-gas-safety"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "condensation on windows",
+      "expected": [
+        "insulation-ventilation-and-condensation",
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "stormwater drainage",
+      "expected": [
+        "site-drainage-and-stormwater"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "weatherboard rot",
+      "expected": [
+        "weatherboard-homes"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "brick veneer vs double brick",
+      "expected": [
+        "brick-veneer-vs-double-brick"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "heritage overlay Victoria",
+      "expected": [
+        "living-in-a-heritage-overlay"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "section 32 vendor statement",
+      "expected": [
+        "reading-a-section-32"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "owners corporation records",
+      "expected": [
+        "reading-your-owners-corporation-report"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "cooling off period NSW",
+      "expected": [
+        "cooling-off-period-by-state"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "sagging ceiling",
+      "expected": [
+        "inside-the-house-ceilings-walls-floors-and-doors"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "box gutters",
+      "expected": [
+        "roofs-tiles-metal-and-leaks",
+        "the-maintenance-that-prevents-the-big-bills"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "leaking shower",
+      "expected": [
+        "bathroom-waterproofing-and-leaking-showers"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "subfloor ventilation",
+      "expected": [
+        "subfloors-stumps-and-restumping",
+        "damp-and-moisture-in-your-home",
+        "insulation-ventilation-and-condensation"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "hot water system age",
+      "expected": [
+        "plumbing-hot-water-and-leaks"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "wall cracks",
+      "expected": [
+        "cracks-structural-or-cosmetic"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "roof leaks",
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "termites",
+      "expected": [
+        "termites-in-australian-homes"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "asbestos eaves",
+      "expected": [
+        "asbestos-in-the-home"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "house stumps",
+      "expected": [
+        "subfloors-stumps-and-restumping"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "safety switch",
+      "expected": [
+        "switchboards-wiring-and-safety-switches"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "mould",
+      "expected": [
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "strata levies",
+      "expected": [
+        "strata-risks-for-owners",
+        "reading-your-owners-corporation-report",
+        "buying-an-apartment-strata"
+      ]
+    },
+    {
+      "group": "terse",
+      "query": "building and pest report",
+      "expected": [
+        "how-to-read-a-building-and-pest-report",
+        "building-and-pest-inspection-cost",
+        "how-to-choose-a-building-and-pest-inspector"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What should I check before buying a 1970s house in Victoria?",
+      "expected": [
+        "postwar-homes-1950s-70s"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What should I look for in a Section 32?",
+      "expected": [
+        "reading-a-section-32"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How serious are cracks in brickwork?",
+      "expected": [
+        "cracks-structural-or-cosmetic"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What causes cracks in brick walls?",
+      "expected": [
+        "cracks-structural-or-cosmetic"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Are hairline cracks in walls normal?",
+      "expected": [
+        "cracks-structural-or-cosmetic"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What are common problems with older Australian apartments?",
+      "expected": [
+        "strata-risks-for-owners",
+        "buying-an-apartment-strata"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What problems do 1960s apartments have?",
+      "expected": [
+        "buying-an-apartment-strata",
+        "strata-risks-for-owners",
+        "postwar-homes-1950s-70s"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How do I know if a house needs restumping?",
+      "expected": [
+        "subfloors-stumps-and-restumping"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Why are my floors bouncy and sloping?",
+      "expected": [
+        "subfloors-stumps-and-restumping",
+        "inside-the-house-ceilings-walls-floors-and-doors"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How long does a tile roof last?",
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "When does a metal roof need replacing?",
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Why is there mould in my bathroom?",
+      "expected": [
+        "damp-and-moisture-in-your-home",
+        "bathroom-waterproofing-and-leaking-showers",
+        "insulation-ventilation-and-condensation"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What causes a musty smell in a house?",
+      "expected": [
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How do I tell if a shower is leaking behind the tiles?",
+      "expected": [
+        "bathroom-waterproofing-and-leaking-showers"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How can I tell if a house has asbestos?",
+      "expected": [
+        "asbestos-in-the-home"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Is asbestos dangerous if left alone?",
+      "expected": [
+        "asbestos-in-the-home"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Where is asbestos usually found in old houses?",
+      "expected": [
+        "asbestos-in-the-home"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How do I know if a house has termites?",
+      "expected": [
+        "termites-in-australian-homes"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What are the signs of termite damage?",
+      "expected": [
+        "termites-in-australian-homes"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Does an old house need rewiring?",
+      "expected": [
+        "switchboards-wiring-and-safety-switches"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What is a safety switch and do I need one?",
+      "expected": [
+        "switchboards-wiring-and-safety-switches"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How long does a hot water system last?",
+      "expected": [
+        "plumbing-hot-water-and-leaks"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Why is the water pressure low in an old house?",
+      "expected": [
+        "plumbing-hot-water-and-leaks"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What should I check under a house?",
+      "expected": [
+        "subfloors-stumps-and-restumping"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Is a leaning retaining wall a problem?",
+      "expected": [
+        "retaining-walls"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Do I need a permit to build a retaining wall?",
+      "expected": [
+        "retaining-walls"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How do I check if a balcony is safe?",
+      "expected": [
+        "decks-balconies-and-balustrades"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Do I need to upgrade my smoke alarms?",
+      "expected": [
+        "smoke-alarms-and-fire-safety-at-home"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Are old gas heaters dangerous?",
+      "expected": [
+        "heating-cooling-and-gas-safety"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How do I stop condensation on my windows?",
+      "expected": [
+        "insulation-ventilation-and-condensation"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Should I insulate under the floor of an old house?",
+      "expected": [
+        "insulation-ventilation-and-condensation"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Why does water pool next to my house after rain?",
+      "expected": [
+        "site-drainage-and-stormwater"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What should I look for in a weatherboard house?",
+      "expected": [
+        "weatherboard-homes"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Is brick veneer worse than double brick?",
+      "expected": [
+        "brick-veneer-vs-double-brick"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How can I tell if my house is double brick?",
+      "expected": [
+        "brick-veneer-vs-double-brick"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What does a heritage overlay stop me from doing?",
+      "expected": [
+        "living-in-a-heritage-overlay"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Can I renovate a house in a heritage overlay?",
+      "expected": [
+        "living-in-a-heritage-overlay",
+        "planning-a-renovation"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What should I check before renovating?",
+      "expected": [
+        "planning-a-renovation"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How do I find out when my house was built?",
+      "expected": [
+        "when-was-my-house-built"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What should I know about buying an Edwardian house?",
+      "expected": [
+        "period-homes-pre-1920s"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What goes wrong with California bungalows?",
+      "expected": [
+        "interwar-homes-1920s-40s"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What are common problems with 1980s houses?",
+      "expected": [
+        "homes-1980s-90s"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What are common defects in new build homes?",
+      "expected": [
+        "modern-homes-2000s-on"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What should I look for in a house built in the 1950s?",
+      "expected": [
+        "postwar-homes-1950s-70s"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Is a building inspection worth it before an auction?",
+      "expected": [
+        "building-inspection-before-auction"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How do I choose a building inspector?",
+      "expected": [
+        "how-to-choose-a-building-and-pest-inspector"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How do I read a building inspection report?",
+      "expected": [
+        "how-to-read-a-building-and-pest-report"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What does major defect mean in a building report?",
+      "expected": [
+        "how-to-read-a-building-and-pest-report"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What is the difference between a desktop report and a building inspection?",
+      "expected": [
+        "desktop-vs-physical-report",
+        "why-a-desktop-read-comes-first"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What is the cooling off period in Victoria?",
+      "expected": [
+        "cooling-off-period-by-state"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Is there a cooling off period at auction?",
+      "expected": [
+        "cooling-off-period-by-state",
+        "auction-day-due-diligence",
+        "building-inspection-before-auction"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What should I do before bidding at auction?",
+      "expected": [
+        "auction-day-due-diligence"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What should I check before buying an apartment?",
+      "expected": [
+        "buying-an-apartment-strata"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What should I look for in strata minutes?",
+      "expected": [
+        "reading-your-owners-corporation-report"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What is a special levy?",
+      "expected": [
+        "strata-risks-for-owners",
+        "reading-your-owners-corporation-report",
+        "buying-an-apartment-strata"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Does the condition of my house affect my home insurance?",
+      "expected": [
+        "home-condition-and-insurance"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What records should I keep about my house?",
+      "expected": [
+        "keeping-a-record-of-your-home"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What home maintenance should I do every year?",
+      "expected": [
+        "the-maintenance-that-prevents-the-big-bills"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How do I prepare my house for bushfire season?",
+      "expected": [
+        "preparing-your-home-for-extreme-weather"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How do I prepare my home for a flood?",
+      "expected": [
+        "preparing-your-home-for-extreme-weather"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What should I fix before selling my house?",
+      "expected": [
+        "selling-your-home"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What does the contract for sale include in NSW?",
+      "expected": [
+        "reading-a-contract-for-sale-nsw"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What is in a Queensland seller disclosure statement?",
+      "expected": [
+        "seller-disclosure-qld"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Why do buyers skip building inspections?",
+      "expected": [
+        "why-buyers-skip-the-checks"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Why should I look into a house before buying it?",
+      "expected": [
+        "why-read-a-home-before-you-buy"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What should I look out for when buying an old house?",
+      "expected": [
+        "red-flags-by-era",
+        "period-homes-pre-1920s",
+        "what-your-home-needs-by-decade"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What maintenance does a 30 year old house need?",
+      "expected": [
+        "what-your-home-needs-by-decade",
+        "homes-1980s-90s",
+        "the-maintenance-that-prevents-the-big-bills"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How do I check gutters and downpipes?",
+      "expected": [
+        "roofs-tiles-metal-and-leaks",
+        "the-maintenance-that-prevents-the-big-bills",
+        "site-drainage-and-stormwater"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How do I check the windows and render on a house?",
+      "expected": [
+        "outside-walls-windows-render-and-cladding"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Why are there cracks above my doors and windows?",
+      "expected": [
+        "cracks-structural-or-cosmetic"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How do I check for damp when viewing a house?",
+      "expected": [
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What is a property condition report?",
+      "expected": [
+        "what-is-a-property-condition-report"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How do I read a strata report before buying?",
+      "expected": [
+        "reading-your-owners-corporation-report",
+        "buying-an-apartment-strata"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Does a house on stumps need more maintenance?",
+      "expected": [
+        "subfloors-stumps-and-restumping"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What is the difference between a building inspection and a pest inspection?",
+      "expected": [
+        "building-and-pest-inspection-cost",
+        "how-to-read-a-building-and-pest-report",
+        "how-to-choose-a-building-and-pest-inspector",
+        "what-is-a-property-condition-report"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How do termites get into a house?",
+      "expected": [
+        "termites-in-australian-homes"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What does a period home need?",
+      "expected": [
+        "period-homes-pre-1920s"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "How do I know if my roof needs replacing?",
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "What should be checked in an older home before buying?",
+      "expected": [
+        "red-flags-by-era",
+        "what-your-home-needs-by-decade",
+        "period-homes-pre-1920s",
+        "postwar-homes-1950s-70s"
+      ]
+    },
+    {
+      "group": "natural",
+      "query": "Why do houses hide their problems?",
+      "expected": [
+        "why-homes-do-not-announce-their-problems"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "There is a crack running up the wall from the corner of a window",
+      "expected": [
+        "cracks-structural-or-cosmetic"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "The floor feels spongy near the bathroom",
+      "expected": [
+        "bathroom-waterproofing-and-leaking-showers",
+        "subfloors-stumps-and-restumping",
+        "inside-the-house-ceilings-walls-floors-and-doors"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "Paint is bubbling on an internal wall",
+      "expected": [
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "Roof tiles are slipping and some are cracked",
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "The lights flicker when the heater is on",
+      "expected": [
+        "switchboards-wiring-and-safety-switches"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "The hot water runs out quickly",
+      "expected": [
+        "plumbing-hot-water-and-leaks"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "The deck feels wobbly underfoot",
+      "expected": [
+        "decks-balconies-and-balustrades"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "There is a smell of gas near the heater",
+      "expected": [
+        "heating-cooling-and-gas-safety"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "The windows fog up every morning in winter",
+      "expected": [
+        "insulation-ventilation-and-condensation",
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "Doors are sticking and cracks are appearing in the walls",
+      "expected": [
+        "cracks-structural-or-cosmetic",
+        "inside-the-house-ceilings-walls-floors-and-doors",
+        "subfloors-stumps-and-restumping"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "There is a water stain on the ceiling",
+      "expected": [
+        "roofs-tiles-metal-and-leaks",
+        "inside-the-house-ceilings-walls-floors-and-doors",
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "The roof line is sagging",
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "There is rust on the metal roof",
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "Water sits under the house after rain",
+      "expected": [
+        "site-drainage-and-stormwater",
+        "subfloors-stumps-and-restumping",
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "The retaining wall is bulging",
+      "expected": [
+        "retaining-walls"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "Mud tubes on the stumps under the house",
+      "expected": [
+        "termites-in-australian-homes"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "The weatherboards are soft at the bottom",
+      "expected": [
+        "weatherboard-homes"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "Tiles in the shower are loose and the grout is black",
+      "expected": [
+        "bathroom-waterproofing-and-leaking-showers"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "The ceiling has a bow in it",
+      "expected": [
+        "inside-the-house-ceilings-walls-floors-and-doors"
+      ]
+    },
+    {
+      "group": "symptom",
+      "query": "The bricks are crumbling near the ground",
+      "expected": [
+        "damp-and-moisture-in-your-home",
+        "outside-walls-windows-render-and-cladding",
+        "brick-veneer-vs-double-brick"
+      ]
+    },
+    {
+      "group": "judgement",
+      "query": "Is rising damp serious?",
+      "expected": [
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "judgement",
+      "query": "Are cracked roof tiles a big problem?",
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "group": "judgement",
+      "query": "Is it bad if a house has been restumped?",
+      "expected": [
+        "subfloors-stumps-and-restumping"
+      ]
+    },
+    {
+      "group": "judgement",
+      "query": "Should I worry about asbestos in a 1960s house?",
+      "expected": [
+        "asbestos-in-the-home"
+      ]
+    },
+    {
+      "group": "judgement",
+      "query": "Is old wiring dangerous?",
+      "expected": [
+        "switchboards-wiring-and-safety-switches"
+      ]
+    },
+    {
+      "group": "judgement",
+      "query": "Is a house with a flat roof a bad idea?",
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "group": "judgement",
+      "query": "Brick veneer or double brick, which is better?",
+      "expected": [
+        "brick-veneer-vs-double-brick"
+      ]
+    },
+    {
+      "group": "judgement",
+      "query": "Is asbestos dangerous in a house?",
+      "expected": [
+        "asbestos-in-the-home"
+      ]
+    },
+    {
+      "group": "judgement",
+      "query": "Are termites a deal breaker?",
+      "expected": [
+        "termites-in-australian-homes"
+      ]
+    },
+    {
+      "group": "judgement",
+      "query": "Is a weatherboard house harder to maintain?",
+      "expected": [
+        "weatherboard-homes"
+      ]
+    },
+    {
+      "group": "judgement",
+      "query": "Is rising damp expensive to fix?",
+      "expected": [
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "judgement",
+      "query": "Is it safe to live in a house with asbestos?",
+      "expected": [
+        "asbestos-in-the-home"
+      ]
+    },
+    {
+      "group": "judgement",
+      "query": "Are old gas heaters safe?",
+      "expected": [
+        "heating-cooling-and-gas-safety"
+      ]
+    },
+    {
+      "group": "judgement",
+      "query": "Is a cracked retaining wall dangerous?",
+      "expected": [
+        "retaining-walls"
+      ]
+    },
+    {
+      "group": "judgement",
+      "query": "Is mould in a house a health risk?",
+      "expected": [
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How do I know if a wall crack is structural?",
+      "expected": [
+        "cracks-structural-or-cosmetic"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "Stair-step cracks in brick walls",
+      "expected": [
+        "cracks-structural-or-cosmetic"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "Is a crack wider than 5mm a concern?",
+      "expected": [
+        "cracks-structural-or-cosmetic"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What does damp look like on a wall?",
+      "expected": [
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How do I get rid of mould on the ceiling?",
+      "expected": [
+        "damp-and-moisture-in-your-home",
+        "insulation-ventilation-and-condensation"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "Why is my subfloor wet?",
+      "expected": [
+        "subfloors-stumps-and-restumping",
+        "site-drainage-and-stormwater",
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What are stumps made of in old houses?",
+      "expected": [
+        "subfloors-stumps-and-restumping"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How do I check a tiled roof from the ground?",
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What is roof flashing and why does it leak?",
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How often should gutters be cleaned?",
+      "expected": [
+        "roofs-tiles-metal-and-leaks",
+        "the-maintenance-that-prevents-the-big-bills"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What is the lifespan of a Colorbond roof?",
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "Which walls in a 1970s house might contain asbestos?",
+      "expected": [
+        "asbestos-in-the-home",
+        "postwar-homes-1950s-70s"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "Does a fibro house contain asbestos?",
+      "expected": [
+        "asbestos-in-the-home"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What does termite damage look like in timber?",
+      "expected": [
+        "termites-in-australian-homes"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How often should I get a termite inspection?",
+      "expected": [
+        "termites-in-australian-homes"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What does an old fuse box look like?",
+      "expected": [
+        "switchboards-wiring-and-safety-switches"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "Does a house need an RCD?",
+      "expected": [
+        "switchboards-wiring-and-safety-switches"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What are the signs of a leaking pipe in a wall?",
+      "expected": [
+        "plumbing-hot-water-and-leaks",
+        "damp-and-moisture-in-your-home",
+        "bathroom-waterproofing-and-leaking-showers"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How do I check the age of a hot water system?",
+      "expected": [
+        "plumbing-hot-water-and-leaks"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How high can a retaining wall be without a permit?",
+      "expected": [
+        "retaining-walls"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What causes a retaining wall to lean?",
+      "expected": [
+        "retaining-walls"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How do I check the timber under a deck?",
+      "expected": [
+        "decks-balconies-and-balustrades"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What should a balustrade be like on an old balcony?",
+      "expected": [
+        "decks-balconies-and-balustrades"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "Where should smoke alarms be installed in a house?",
+      "expected": [
+        "smoke-alarms-and-fire-safety-at-home"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "Are photoelectric smoke alarms required?",
+      "expected": [
+        "smoke-alarms-and-fire-safety-at-home"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How often should a gas heater be serviced?",
+      "expected": [
+        "heating-cooling-and-gas-safety"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "Is ducted heating in an old house worth checking?",
+      "expected": [
+        "heating-cooling-and-gas-safety"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How do I reduce condensation in a bedroom?",
+      "expected": [
+        "insulation-ventilation-and-condensation",
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "Does ceiling insulation cause moisture problems?",
+      "expected": [
+        "insulation-ventilation-and-condensation"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "Where should downpipes discharge?",
+      "expected": [
+        "site-drainage-and-stormwater",
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How do I tell if the ground slopes toward the house?",
+      "expected": [
+        "site-drainage-and-stormwater"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How often do weatherboards need painting?",
+      "expected": [
+        "weatherboard-homes"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How do I check weatherboards for decay?",
+      "expected": [
+        "weatherboard-homes"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What is brick veneer construction?",
+      "expected": [
+        "brick-veneer-vs-double-brick"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "Does double brick have a cavity?",
+      "expected": [
+        "brick-veneer-vs-double-brick"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How do I tell if render is failing?",
+      "expected": [
+        "outside-walls-windows-render-and-cladding"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What should I check on timber windows?",
+      "expected": [
+        "outside-walls-windows-render-and-cladding"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How do I tell if a ceiling is sagging?",
+      "expected": [
+        "inside-the-house-ceilings-walls-floors-and-doors"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What do sloping floors mean in an old house?",
+      "expected": [
+        "inside-the-house-ceilings-walls-floors-and-doors",
+        "subfloors-stumps-and-restumping"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What should I check in a 1930s house?",
+      "expected": [
+        "interwar-homes-1920s-40s"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What should I look for in a 2005 house?",
+      "expected": [
+        "modern-homes-2000s-on"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What should I know about a Victorian terrace?",
+      "expected": [
+        "period-homes-pre-1920s"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What are common issues in a 1990s brick veneer home?",
+      "expected": [
+        "homes-1980s-90s",
+        "brick-veneer-vs-double-brick"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What do I check in a building report summary?",
+      "expected": [
+        "how-to-read-a-building-and-pest-report"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How long does a building inspection take?",
+      "expected": [
+        "building-and-pest-inspection-cost",
+        "how-to-choose-a-building-and-pest-inspector",
+        "building-inspection-before-auction",
+        "how-to-read-a-building-and-pest-report"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "Do I need a pest inspection for an apartment?",
+      "expected": [
+        "buying-an-apartment-strata",
+        "building-and-pest-inspection-cost"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What should I ask the owners corporation manager before buying?",
+      "expected": [
+        "reading-your-owners-corporation-report",
+        "buying-an-apartment-strata"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What are the red flags in strata records?",
+      "expected": [
+        "reading-your-owners-corporation-report",
+        "strata-risks-for-owners"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How do I prepare a house for storm season?",
+      "expected": [
+        "preparing-your-home-for-extreme-weather"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What documents should I keep after a renovation?",
+      "expected": [
+        "keeping-a-record-of-your-home",
+        "planning-a-renovation"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "Can poor maintenance void a home insurance claim?",
+      "expected": [
+        "home-condition-and-insurance"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What is in a vendor statement in Victoria?",
+      "expected": [
+        "reading-a-section-32"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What happens during the cooling off period in Queensland?",
+      "expected": [
+        "cooling-off-period-by-state"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What maintenance does a house need each year?",
+      "expected": [
+        "the-maintenance-that-prevents-the-big-bills"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What should I repair before putting my house on the market?",
+      "expected": [
+        "selling-your-home"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How do I work out how old my house is?",
+      "expected": [
+        "when-was-my-house-built"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "Which defects are typical in homes of each era?",
+      "expected": [
+        "red-flags-by-era"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "Do I need a building permit to renovate a bathroom?",
+      "expected": [
+        "planning-a-renovation",
+        "bathroom-waterproofing-and-leaking-showers"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "What does a heritage overlay mean for replacing windows?",
+      "expected": [
+        "living-in-a-heritage-overlay"
+      ]
+    },
+    {
+      "group": "second-look",
+      "query": "How do I tell if a bathroom has been waterproofed properly?",
+      "expected": [
+        "bathroom-waterproofing-and-leaking-showers"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "My balcony railing is wobbly",
+      "expected": [
+        "decks-balconies-and-balustrades"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "Lights dimming when the kettle is on",
+      "expected": [
+        "switchboards-wiring-and-safety-switches"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "Paint blistering on the weatherboards",
+      "expected": [
+        "weatherboard-homes",
+        "outside-walls-windows-render-and-cladding"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "Mortar crumbling between the bricks",
+      "expected": [
+        "outside-walls-windows-render-and-cladding",
+        "damp-and-moisture-in-your-home",
+        "brick-veneer-vs-double-brick",
+        "period-homes-pre-1920s",
+        "cracks-structural-or-cosmetic"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "Puddles under the house after rain",
+      "expected": [
+        "site-drainage-and-stormwater",
+        "subfloors-stumps-and-restumping",
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "The kitchen floor is squeaky",
+      "expected": [
+        "inside-the-house-ceilings-walls-floors-and-doors",
+        "subfloors-stumps-and-restumping"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "Doors are jamming in summer",
+      "expected": [
+        "cracks-structural-or-cosmetic",
+        "inside-the-house-ceilings-walls-floors-and-doors",
+        "subfloors-stumps-and-restumping"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "The bathroom smells musty",
+      "expected": [
+        "damp-and-moisture-in-your-home",
+        "bathroom-waterproofing-and-leaking-showers",
+        "insulation-ventilation-and-condensation"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "The gutter is sagging",
+      "expected": [
+        "roofs-tiles-metal-and-leaks",
+        "the-maintenance-that-prevents-the-big-bills"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "The retaining wall is tilting",
+      "expected": [
+        "retaining-walls"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "The ceiling is drooping",
+      "expected": [
+        "inside-the-house-ceilings-walls-floors-and-doors"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "Draughty windows in an old house",
+      "expected": [
+        "insulation-ventilation-and-condensation",
+        "outside-walls-windows-render-and-cladding"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "Roof tiles dislodged after a storm",
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "Mildew on the bathroom ceiling",
+      "expected": [
+        "damp-and-moisture-in-your-home",
+        "bathroom-waterproofing-and-leaking-showers",
+        "insulation-ventilation-and-condensation"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "Does my switchboard need an RCD?",
+      "expected": [
+        "switchboards-wiring-and-safety-switches"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "Steamy windows every morning",
+      "expected": [
+        "insulation-ventilation-and-condensation",
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "Floorboards are springy near the wall",
+      "expected": [
+        "subfloors-stumps-and-restumping",
+        "inside-the-house-ceilings-walls-floors-and-doors"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "The brick wall is bulging",
+      "expected": [
+        "cracks-structural-or-cosmetic",
+        "outside-walls-windows-render-and-cladding",
+        "brick-veneer-vs-double-brick"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "Verandah posts are rotten at the base",
+      "expected": [
+        "decks-balconies-and-balustrades",
+        "weatherboard-homes",
+        "subfloors-stumps-and-restumping",
+        "outside-walls-windows-render-and-cladding",
+        "period-homes-pre-1920s"
+      ]
+    },
+    {
+      "group": "noticed",
+      "query": "Soggy ground beside the house",
+      "expected": [
+        "site-drainage-and-stormwater",
+        "damp-and-moisture-in-your-home"
+      ]
+    }
+  ],
+  "boundary": [
+    {
+      "query": "Could this cracked wall collapse?",
+      "expected": [
+        "cracks-structural-or-cosmetic"
+      ]
+    },
+    {
+      "query": "Is my deck safe to stand on?",
+      "expected": [
+        "decks-balconies-and-balustrades"
+      ]
+    },
+    {
+      "query": "Will council approve my extension?",
+      "expected": [
+        "planning-a-renovation"
+      ]
+    },
+    {
+      "query": "Is this retaining wall compliant?",
+      "expected": [
+        "retaining-walls"
+      ]
+    },
+    {
+      "query": "How much will it cost to restump my house?",
+      "expected": [
+        "subfloors-stumps-and-restumping"
+      ]
+    },
+    {
+      "query": "What is my house worth?",
+      "expected": []
+    },
+    {
+      "query": "Should I buy this house?",
+      "expected": []
+    },
+    {
+      "query": "Is $8,000 a fair price for a roof restoration?",
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "query": "Which building inspector should I use in Melbourne?",
+      "expected": [
+        "how-to-choose-a-building-and-pest-inspector"
+      ]
+    },
+    {
+      "query": "Does my insurance cover termite damage?",
+      "expected": [
+        "home-condition-and-insurance",
+        "termites-in-australian-homes"
+      ]
+    },
+    {
+      "query": "Is my landlord liable for mould?",
+      "expected": [
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "query": "Is this Section 32 legally valid?",
+      "expected": [
+        "reading-a-section-32"
+      ]
+    },
+    {
+      "query": "Is the wiring in this house safe?",
+      "expected": [
+        "switchboards-wiring-and-safety-switches"
+      ]
+    },
+    {
+      "query": "Does this crack mean the foundations have failed?",
+      "expected": [
+        "cracks-structural-or-cosmetic"
+      ]
+    },
+    {
+      "query": "How much does restumping cost?",
+      "expected": [
+        "subfloors-stumps-and-restumping"
+      ]
+    },
+    {
+      "query": "What does a new roof cost?",
+      "expected": [
+        "roofs-tiles-metal-and-leaks"
+      ]
+    },
+    {
+      "query": "Is this asbestos sheet safe to drill?",
+      "expected": [
+        "asbestos-in-the-home"
+      ]
+    },
+    {
+      "query": "Will my insurer cover storm damage to this roof?",
+      "expected": [
+        "home-condition-and-insurance",
+        "roofs-tiles-metal-and-leaks",
+        "preparing-your-home-for-extreme-weather"
+      ]
+    }
+  ],
+  "outside": [
+    "How do I fix cracks in my phone screen?",
+    "Why is my sourdough starter mouldy?",
+    "What is the roof rack load limit for a Subaru?",
+    "How do I waterproof hiking boots?",
+    "Best waterproofing spray for a tent",
+    "How do I restore a leaking fountain pen?",
+    "What is a switchboard operator?",
+    "History of telephone switchboards",
+    "How does a smoke alarm work in a submarine?",
+    "What is insulation resistance testing in transformers?",
+    "How do I ventilate a chicken coop?",
+    "Deck of cards probability",
+    "How do I shuffle a deck of cards?",
+    "What is the balcony scene in Romeo and Juliet?",
+    "What is drainage in surgery?",
+    "How does lymphatic drainage massage work?",
+    "What is a stump speech?",
+    "Cricket stumps dimensions",
+    "What are floor exercises in gymnastics?",
+    "What is a ceiling effect in statistics?",
+    "What is a glass ceiling?",
+    "What is the debt ceiling?",
+    "What is a firewall in networking?",
+    "How do I render a video in Premiere?",
+    "What is cladding in fibre optics?",
+    "What is a window function in SQL?",
+    "How do sliding window algorithms work?",
+    "What is a roof in rock climbing?",
+    "What is foundation in makeup?",
+    "Best foundation for oily skin",
+    "What is a safe temperature for a hot water bottle?",
+    "How do I descale a kettle?",
+    "What is a gas giant planet?",
+    "What is the heating curve of water in chemistry?",
+    "What is the interwar period in European history?",
+    "What happened in the postwar economic boom?",
+    "Explain modern art movements",
+    "What is strata title in Singapore?",
+    "What is the cooling off period for a car purchase in the UK?",
+    "Cooling off period for door to door sales",
+    "What should I check before buying a house in Texas?",
+    "How do auctions work on eBay?",
+    "What is pest control for roses?",
+    "How do I get rid of aphids?",
+    "How do I read a contract for sale of a business?",
+    "What is a seller disclosure in California?",
+    "What records does a company need to keep?",
+    "How should I keep records for a small business tax return?",
+    "Home loan pre-approval process",
+    "Which is the cheapest home insurer?",
+    "How do I prepare my car for extreme weather?",
+    "How do I prepare for a job interview?",
+    "Why do my knuckles crack?",
+    "What causes cracks in a glacier?",
+    "What causes cracked heels?",
+    "How do I fix a cracked iPad?",
+    "Rising Damp TV series cast",
+    "Who wrote the song Brick House?",
+    "Double brick Lego technique",
+    "Electrical wiring diagram for a caravan",
+    "How do I rewire a guitar?",
+    "Plumbing a reef aquarium",
+    "How do termites digest cellulose in a laboratory?",
+    "What is a retaining wall in a video game level?",
+    "How do I waterproof a boat deck?",
+    "What is a damp squib?",
+    "Asbestos mining history in Canada",
+    "What is a heritage breed of chicken?",
+    "How do I maintain a sourdough starter?",
+    "What is a subfloor in a data centre?",
+    "Weatherboard cathedral history in England",
+    "What is roof pitch in a tent design?",
+    "How do gutters work in comic book layout?",
+    "What is a safety switch on a chainsaw?",
+    "What is render time in Blender?",
+    "How does a balustrade work on a cruise ship?",
+    "What does strata mean in a database?",
+    "Section 32 of the Mental Health Act",
+    "Period drama recommendations",
+    "How do I check the plumbing in a caravan?",
+    "Is my laptop battery safe?",
+    "What is the best mould for resin casting?",
+    "How do I stop condensation in a tent?",
+    "How do I insulate a van?",
+    "How to read a building in SimCity",
+    "What is a crack in a windscreen repair kit?",
+    "How do I fix a leaking tap on a camping trailer?",
+    "What is damp heat in Chinese medicine?",
+    "How do I clean mould off a leather jacket?",
+    "What is the roof of the mouth called?",
+    "Why does my car roof leak?",
+    "How do I waterproof a phone?",
+    "How are termite mounds built in the savanna?",
+    "What is asbestosis treatment?",
+    "How does a circuit breaker work in a stock exchange?",
+    "How do I wire a three-pin plug in the UK?",
+    "What is plumbing in ice hockey slang?",
+    "What is a retaining ring on a camera lens?",
+    "How do I build a deck in Magic the Gathering?",
+    "What is the best deck stain for a boat?",
+    "How do fire alarms work in an aircraft?",
+    "What is gas safety on an oil rig?",
+    "How do I insulate a dog kennel?",
+    "What is a drainage basin in geography?",
+    "How do stormwater futures trade?",
+    "What weatherboard thickness suits a model railway?",
+    "What is brick tea?",
+    "What is a double brick in a board game?",
+    "How do I render an image in Photoshop?",
+    "What is a ceiling fan direction for summer?",
+    "What are floor traders?",
+    "What happened in the 1930s Great Depression?",
+    "What cars were popular in 2005?",
+    "Victorian era fashion for women",
+    "What were the 1990s grunge bands?",
+    "How do I read a pathology report?",
+    "How long does a vehicle inspection take in NSW?",
+    "How do I inspect a used bicycle?",
+    "What is an owners corporation in the Philippines?",
+    "What are red flags in a relationship?",
+    "How do I prepare for storm season in Florida?",
+    "What documents should I keep for a visa application?",
+    "Does car insurance cover hail damage?",
+    "What is in a vendor contract for software?",
+    "What is the cooling off period for a gym membership?",
+    "What maintenance does a swimming pool pump need?",
+    "What should I repair before selling my car?",
+    "How do I work out how old my dog is?",
+    "Which defects are typical in a used laptop?",
+    "Do I need a permit to fly a drone?",
+    "What does heritage listing mean for a ship?",
+    "How do I waterproof a tattoo?",
+    "What is settlement in a divorce?",
+    "What is a building society?",
+    "What is a pest analysis in marketing?",
+    "How do I check a tyre for cracks?",
+    "Is a cracked tooth an emergency?",
+    "What is a wet room in a submarine?",
+    "How do stumps work in baseball?",
+    "What is a balcony seat at the opera?",
+    "What causes rust on a bike chain?",
+    "How do I remove mould from a tent?",
+    "What is a slab of beer?",
+    "How do I test a smoke machine for a concert?",
+    "What is rising damp in a wine cellar in France?",
+    "wobbly tooth in a child",
+    "sagging skin treatment",
+    "lean protein meals",
+    "peeling skin after sunburn",
+    "bubbling pasta sauce",
+    "flickering TV screen",
+    "foggy glasses with a mask",
+    "rotten tomatoes score",
+    "creaky knees when climbing stairs",
+    "drafty email reply",
+    "draft beer on tap",
+    "mouldy bread",
+    "jammed printer",
+    "my car smells musty",
+    "crumbling cookie recipe",
+    "how to tie a bow tie",
+    "bouncy castle hire",
+    "springy mattress review",
+    "spongy brake pedal",
+    "puddle jumping games",
+    "tilting train technology",
+    "squeaky shoes fix",
+    "steamed dumplings",
+    "misty mountains hiking",
+    "stuck zipper on a jacket",
+    "odour in my fridge",
+    "belly fat exercises",
+    "dim sum restaurants",
+    "slipping clutch symptoms",
+    "shaky hands causes",
+    "foggy windscreen in the car",
+    "mildew on a tent",
+    "rotting fruit flies",
+    "bubbling fish tank filter",
+    "flaky pastry recipe",
+    "powdery mildew on roses",
+    "eroded riverbank",
+    "sagging couch cushions",
+    "leaning tower of Pisa",
+    "bowing to an audience"
+  ]
+}
