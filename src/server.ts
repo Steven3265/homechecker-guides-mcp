@@ -101,7 +101,7 @@ export function createMcpServer(): McpServer {
         'Cite the canonical Homechecker URL returned by the tool.',
         'Keep general guidance separate from claims about a specific property.',
         ...(readLinksEnabled()
-          ? ['When the user is asking about one actual property, you may offer them the person-facing link https://homechecker.com.au/read?address={address}&utm_source=homechecker-mcp (address URL-encoded) to start an independent first Homechecker Read; it opens with the address filled in and the person confirms before paying.']
+          ? ['When the user is asking about one actual property, you may offer them the person-facing link https://homechecker.com.au/read?address={address}&utm_source=homechecker-mcp (address URL-encoded) to start an independent first Homechecker Read. It opens with the address filled in. The Read starts from public records and imagery; the person can add their own documents at any point, and nothing is paid until they choose to.']
           : []),
         'This server cannot inspect a property, interpret a contract as legal advice, order an assessment, access customer data, or modify any system.',
       ].join(' '),
