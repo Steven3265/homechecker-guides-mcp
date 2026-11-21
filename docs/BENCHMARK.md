@@ -126,3 +126,93 @@ ordinary word the winning guide happens not to use ("kettle", "underfoot",
 "every morning"). That is the limit of matching words. Add new unseen
 questions to the everyday file rather than fixing these one by one, and add
 to `NOTICED` only words the guides have a different name for.
+
+## 21 November 2026: what the question means
+
+An outside review ran 14 live scenarios against the connected ChatGPT plugin
+the morning the everyday pass went live. Replayed here, its findings held, and
+showed causes it could not see from outside.
+
+**Negation.** "I'm NOT buying an apartment. I'm buying a detached house with
+damp, not strata" put the three strata guides first and the damp guide fifth,
+with or without `propertyType: house`. Two causes: the question was read as
+an apartment question (the type detector saw "apartment"), and the property
+type filter was a 12-point nudge against scores near 240. `readQuestion` now
+removes the kinds of property a question rules out ("not an apartment",
+"rather than a townhouse", "not strata") before it is searched or judged.
+Only kinds of property are read this way: a negated finding ("no safety
+switch", "isn't waterproofed") is a finding and keeps its words. A house
+filter now rules out the three apartment-only guides; an apartment filter
+stays a nudge, because an apartment block is still a building of its era
+and construction, and the era and brick guides are tagged for houses. The
+type detector also matches whole words only ("unit" is not in "community").
+
+**Multi-issue questions.** "The roof leaks, there is mould on the ceiling and
+some timber decay" found the right guides and was labelled weak, because
+without "house" or "home" in it one guide had to explain the whole question.
+A question about the building with three subject words or more may now be
+answered across the top three, as a question that says "house" always could.
+
+**Other strength fixes.** Words for a kind of home ("townhouse", "detached")
+count as covered by a guide written for that kind or for every kind. Another
+form of a word counts ("disclose" and "disclosure"). Size and direction words
+("big", "running down") are framing. "Sunk" and "subsided" join the noticed
+words.
+
+**Misspellings.** A misspelt word is read as the guide word it was meant to
+be before the search runs: "sectoin", "statment", "termit", "asbestoss",
+"waterproffing". Only the guides' own subject words (titles, questions,
+topics, headings) are recovered, and only from a typing slip: a letter
+dropped, added or swapped with its neighbour, or changed in a word of eight
+letters or more. That keeps "leather" from becoming "later" and "police"
+from becoming "policy". Sounds-alike spellings ("secshun thirty too") are
+not recovered.
+
+**General buying questions.** "What should I check before making an offer
+on a home?" was labelled strong on a scattered set (why buyers skip the
+checks, decks, buying an apartment). A question made only of buying words,
+with at most a place, now leads with the how-to-buy guides, adds the named
+state's guide ("in Victoria" brings Section 32), and gives the why guides
+first when it asks why.
+
+**Old homes.** "What should I look out for when buying an old house?" was
+labelled strong on walls, asbestos and plumbing. A question whose only
+subject is a home's age ("old", "older", "character") now leads with the two
+guides written across every era: red flags by era, and what a home needs by
+decade. An age in years ("a 50 year old house") is read as a construction
+year and reaches that era's own guide.
+
+### Measured
+
+The review's scenarios that should be strong are the `review` group. The
+`third-look` group (25 questions, with 21 traps for the same fixes) was
+written after the fixes and not used to make them. The `old-home` group (13
+questions, with 8 traps such as "an old car" and "older dogs") was used to
+build the era routing, so it is not unseen.
+
+| | Live this morning | After |
+|---|---|---|
+| Suite positives labelled strong | 79/96 | 83/96 |
+| Everyday questions answered | 194/278 (69.8%) | 238/278 (85.6%) |
+| review | 4/10 | 10/10 |
+| third-look (unseen) | 9/25 | 19/25 |
+| old-home | 5/13 | 13/13 |
+| Everyday negatives labelled strong | 0/237 | 0/237 |
+| Suite and filtered negatives labelled strong | 0/436 | 0/436 |
+| 3,600 foreign-setting probes labelled strong | 0 | 0 |
+
+Two of the review's results stay weak, as they should: a Section 32 question
+under an NSW filter (the NSW contract guide is the nearest answer, not the
+answer), and the sounds-alike spelling.
+
+The Homechecker engine's calibration lookups were replayed for both kinds of
+Read: 106 lookups each, strong 86 to 94 for houses and 86 to 95 for
+apartments, none lost. The live version handed a strata guide to a house
+lookup once; it no longer can.
+
+### What is left
+
+"Squeaky floorboards" returns nothing: no guide says anything about squeaks
+or creaks. The fix is a line in the floors section of the inside-the-house
+guide; the noticed words already map squeaky and creaky to the words it
+would use.

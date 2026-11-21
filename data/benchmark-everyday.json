@@ -1,5 +1,5 @@
 {
-  "description": "Everyday phrasing: questions asked the way people and assistants ask them, not the way the guides are titled. positives must mostly be answered strongly with an expected guide in the top three; boundary questions ask for a verdict, price or recommendation and must never be strong; outside questions belong to another subject and must never be strong. The second-look group was written after the gate was tuned and was not used to tune it. The noticed group (what people see, feel and smell, in their own words) was written after the noticed-words lexicon and was not used to build it.",
+  "description": "Everyday phrasing: questions asked the way people and assistants ask them, not the way the guides are titled. positives must mostly be answered strongly with an expected guide in the top three; boundary questions ask for a verdict, price or recommendation and must never be strong; outside questions belong to another subject and must never be strong. The second-look group was written after the gate was tuned and was not used to tune it. The noticed group (what people see, feel and smell, in their own words) was written after the noticed-words lexicon and was not used to build it. The review group is the outside review of 21 November 2026, run against the connected ChatGPT plugin; the third-look group was written after the fixes for it and was not used to make them. Questions with filters carry them. The old-home group (questions about a home's age) was used to build the era routing, so it is not unseen.",
   "positives": [
     {
       "group": "terse",
@@ -1698,6 +1698,434 @@
         "site-drainage-and-stormwater",
         "damp-and-moisture-in-your-home"
       ]
+    },
+    {
+      "group": "review",
+      "query": "Buying a 1970s brick veneer house in Victoria with cracking in the walls and damp patches. What should I check?",
+      "expected": [
+        "brick-veneer-vs-double-brick",
+        "postwar-homes-1950s-70s",
+        "cracks-structural-or-cosmetic",
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "review",
+      "query": "Buying an apartment in Sydney NSW. Worried about strata levies and waterproofing defects. What should I look at?",
+      "expected": [
+        "strata-risks-for-owners",
+        "buying-an-apartment-strata",
+        "reading-your-owners-corporation-report"
+      ]
+    },
+    {
+      "group": "review",
+      "query": "What should I know about a double brick house in Perth?",
+      "expected": [
+        "brick-veneer-vs-double-brick"
+      ]
+    },
+    {
+      "group": "review",
+      "query": "what shuold i look for in a sectoin 32 vendor statment victoria",
+      "expected": [
+        "reading-a-section-32"
+      ]
+    },
+    {
+      "group": "review",
+      "query": "I'm NOT buying an apartment. I'm buying a detached house with damp, not strata.",
+      "expected": [
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "review",
+      "query": "The roof leaks, there is mould on the ceiling and some timber decay. What does that point to?",
+      "expected": [
+        "roofs-tiles-metal-and-leaks",
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "review",
+      "query": "I am buying a townhouse in Queensland. What does the seller have to disclose?",
+      "expected": [
+        "seller-disclosure-qld"
+      ]
+    },
+    {
+      "group": "review",
+      "query": "There's a big crack running down the wall near the door, is that bad?",
+      "expected": [
+        "cracks-structural-or-cosmetic"
+      ]
+    },
+    {
+      "group": "review",
+      "query": "The auction is in Melbourne this Saturday. What should I check on the house, the Section 32 and the building report before I bid?",
+      "expected": [
+        "auction-day-due-diligence",
+        "building-inspection-before-auction",
+        "reading-a-section-32"
+      ]
+    },
+    {
+      "group": "review",
+      "query": "What should I check before making an offer on a home?",
+      "expected": [
+        "why-read-a-home-before-you-buy",
+        "auction-day-due-diligence",
+        "building-inspection-before-auction",
+        "what-is-a-property-condition-report",
+        "desktop-vs-physical-report",
+        "why-a-desktop-read-comes-first",
+        "red-flags-by-era"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "It's a freestanding house, not a unit. The bathroom floor is soft near the shower.",
+      "expected": [
+        "bathroom-waterproofing-and-leaking-showers",
+        "subfloors-stumps-and-restumping",
+        "inside-the-house-ceilings-walls-floors-and-doors"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "Not an apartment: a weatherboard house with peeling paint and soft boards.",
+      "expected": [
+        "weatherboard-homes",
+        "outside-walls-windows-render-and-cladding"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "We're buying a house rather than a townhouse. What does rising damp look like?",
+      "expected": [
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "Not looking at strata. Old house, sagging ceiling in the lounge.",
+      "expected": [
+        "inside-the-house-ceilings-walls-floors-and-doors"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "I'm not buying a house, it's an apartment. How do I read the owners corporation records?",
+      "expected": [
+        "reading-your-owners-corporation-report",
+        "buying-an-apartment-strata"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "Gutters overflow, the downpipes are rusted and water pools along the side of the house",
+      "expected": [
+        "roofs-tiles-metal-and-leaks",
+        "site-drainage-and-stormwater"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "Cracked tiles in the shower, a musty smell and paint peeling off the bathroom ceiling",
+      "expected": [
+        "bathroom-waterproofing-and-leaking-showers",
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "Old switchboard with ceramic fuses, no safety switch and some flickering lights",
+      "expected": [
+        "switchboards-wiring-and-safety-switches"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "Termite damage in the subfloor and some stumps have sunk",
+      "expected": [
+        "termites-in-australian-homes",
+        "subfloors-stumps-and-restumping"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "The deck is wobbly, the balustrade is low and some boards are rotten",
+      "expected": [
+        "decks-balconies-and-balustrades"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "Brickwork cracking above the windows and rusty lintels",
+      "expected": [
+        "outside-walls-windows-render-and-cladding",
+        "cracks-structural-or-cosmetic"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "Hot water system leaking, low water pressure and old galvanised pipes",
+      "expected": [
+        "plumbing-hot-water-and-leaks"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "asbestoss in eaves",
+      "expected": [
+        "asbestos-in-the-home"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "termit damage under the house",
+      "expected": [
+        "termites-in-australian-homes"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "subfloor ventilaton",
+      "expected": [
+        "subfloors-stumps-and-restumping",
+        "insulation-ventilation-and-condensation",
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "restumpimg an old house",
+      "expected": [
+        "subfloors-stumps-and-restumping"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "bathroom waterproffing",
+      "expected": [
+        "bathroom-waterproofing-and-leaking-showers"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "condensaton in the bedroom",
+      "expected": [
+        "insulation-ventilation-and-condensation",
+        "damp-and-moisture-in-your-home"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "owners corporaton report",
+      "expected": [
+        "reading-your-owners-corporation-report"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "cooling of period victoria",
+      "expected": [
+        "cooling-off-period-by-state"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "What should I check before I buy my first home?",
+      "expected": [
+        "auction-day-due-diligence",
+        "building-inspection-before-auction",
+        "building-and-pest-inspection-cost",
+        "how-to-choose-a-building-and-pest-inspector",
+        "how-to-read-a-building-and-pest-report",
+        "what-is-a-property-condition-report",
+        "desktop-vs-physical-report",
+        "cooling-off-period-by-state",
+        "why-read-a-home-before-you-buy",
+        "why-buyers-skip-the-checks",
+        "why-a-desktop-read-comes-first",
+        "why-homes-do-not-announce-their-problems"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "What do I need to check before making an offer in Brisbane?",
+      "expected": [
+        "seller-disclosure-qld",
+        "auction-day-due-diligence",
+        "building-inspection-before-auction",
+        "building-and-pest-inspection-cost",
+        "how-to-choose-a-building-and-pest-inspector",
+        "how-to-read-a-building-and-pest-report",
+        "what-is-a-property-condition-report",
+        "desktop-vs-physical-report",
+        "cooling-off-period-by-state",
+        "why-read-a-home-before-you-buy",
+        "why-buyers-skip-the-checks",
+        "why-a-desktop-read-comes-first",
+        "why-homes-do-not-announce-their-problems"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "What should I look at before signing a contract for a house in NSW?",
+      "expected": [
+        "reading-a-contract-for-sale-nsw",
+        "auction-day-due-diligence",
+        "building-inspection-before-auction",
+        "building-and-pest-inspection-cost",
+        "how-to-choose-a-building-and-pest-inspector",
+        "how-to-read-a-building-and-pest-report",
+        "what-is-a-property-condition-report",
+        "desktop-vs-physical-report",
+        "cooling-off-period-by-state",
+        "why-read-a-home-before-you-buy",
+        "why-buyers-skip-the-checks",
+        "why-a-desktop-read-comes-first",
+        "why-homes-do-not-announce-their-problems"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "What should I check before I put in an offer?",
+      "expected": [
+        "auction-day-due-diligence",
+        "building-inspection-before-auction",
+        "building-and-pest-inspection-cost",
+        "how-to-choose-a-building-and-pest-inspector",
+        "how-to-read-a-building-and-pest-report",
+        "what-is-a-property-condition-report",
+        "desktop-vs-physical-report",
+        "cooling-off-period-by-state",
+        "why-read-a-home-before-you-buy",
+        "why-buyers-skip-the-checks",
+        "why-a-desktop-read-comes-first",
+        "why-homes-do-not-announce-their-problems"
+      ]
+    },
+    {
+      "group": "third-look",
+      "query": "What are the main things to check before buying a property in Melbourne?",
+      "expected": [
+        "reading-a-section-32",
+        "auction-day-due-diligence",
+        "building-inspection-before-auction",
+        "building-and-pest-inspection-cost",
+        "how-to-choose-a-building-and-pest-inspector",
+        "how-to-read-a-building-and-pest-report",
+        "what-is-a-property-condition-report",
+        "desktop-vs-physical-report",
+        "cooling-off-period-by-state",
+        "why-read-a-home-before-you-buy",
+        "why-buyers-skip-the-checks",
+        "why-a-desktop-read-comes-first",
+        "why-homes-do-not-announce-their-problems"
+      ]
+    },
+    {
+      "group": "old-home",
+      "query": "What should I look out for when buying an old house?",
+      "expected": [
+        "red-flags-by-era",
+        "what-your-home-needs-by-decade"
+      ]
+    },
+    {
+      "group": "old-home",
+      "query": "What should be checked in an older home before buying?",
+      "expected": [
+        "red-flags-by-era",
+        "what-your-home-needs-by-decade"
+      ]
+    },
+    {
+      "group": "old-home",
+      "query": "What goes wrong with old houses?",
+      "expected": [
+        "red-flags-by-era",
+        "what-your-home-needs-by-decade"
+      ]
+    },
+    {
+      "group": "old-home",
+      "query": "Common problems in older homes",
+      "expected": [
+        "red-flags-by-era",
+        "what-your-home-needs-by-decade"
+      ]
+    },
+    {
+      "group": "old-home",
+      "query": "Buying an older house in Melbourne, what should I check?",
+      "expected": [
+        "red-flags-by-era",
+        "what-your-home-needs-by-decade"
+      ]
+    },
+    {
+      "group": "old-home",
+      "query": "What should I know before buying a period home?",
+      "expected": [
+        "period-homes-pre-1920s"
+      ]
+    },
+    {
+      "group": "old-home",
+      "query": "What are the red flags in an old house?",
+      "expected": [
+        "red-flags-by-era",
+        "what-your-home-needs-by-decade"
+      ]
+    },
+    {
+      "group": "old-home",
+      "query": "What does an old house need?",
+      "expected": [
+        "red-flags-by-era",
+        "what-your-home-needs-by-decade"
+      ]
+    },
+    {
+      "group": "old-home",
+      "query": "Things to check when buying a character home",
+      "expected": [
+        "red-flags-by-era",
+        "what-your-home-needs-by-decade"
+      ]
+    },
+    {
+      "group": "old-home",
+      "query": "What should I check before buying a 1920s house?",
+      "expected": [
+        "interwar-homes-1920s-40s"
+      ]
+    },
+    {
+      "group": "old-home",
+      "query": "What should I check before buying a house built in the 1960s?",
+      "expected": [
+        "postwar-homes-1950s-70s"
+      ]
+    },
+    {
+      "group": "old-home",
+      "query": "buying a 100 year old house",
+      "expected": [
+        "interwar-homes-1920s-40s",
+        "period-homes-pre-1920s"
+      ]
+    },
+    {
+      "group": "old-home",
+      "query": "what to look for in a 50 year old house",
+      "expected": [
+        "postwar-homes-1950s-70s"
+      ]
     }
   ],
   "boundary": [
@@ -1806,6 +2234,25 @@
         "home-condition-and-insurance",
         "roofs-tiles-metal-and-leaks",
         "preparing-your-home-for-extreme-weather"
+      ]
+    },
+    {
+      "query": "Is my house safe to live in?",
+      "expected": []
+    },
+    {
+      "query": "How much should I offer for this house?",
+      "expected": []
+    },
+    {
+      "query": "Should I buy this house or the one next door?",
+      "expected": []
+    },
+    {
+      "query": "Is it a bad idea to buy an old house?",
+      "expected": [
+        "red-flags-by-era",
+        "what-your-home-needs-by-decade"
       ]
     }
   ],
@@ -1994,6 +2441,36 @@
     "eroded riverbank",
     "sagging couch cushions",
     "leaning tower of Pisa",
-    "bowing to an audience"
+    "bowing to an audience",
+    "I'm not buying a car, I need to fix a cracked windscreen",
+    "not an apartment, a tent with condensation",
+    "Not a house: a houseboat with a leaking deck",
+    "What should I check before buying a used car?",
+    "What should I check before making an offer on a business?",
+    "What should I check before buying shares?",
+    "What should I check before I buy a laptop?",
+    "What to check before bidding on eBay",
+    "before buying a puppy what should I check",
+    "asbestoss mining history",
+    "termit mounds in the outback",
+    "condensaton on a cold beer glass",
+    "waterproffing a tent",
+    "ventilaton in a submarine",
+    "The fridge leaks, the oven is broken and the dishwasher smells",
+    "My car has rust, a cracked windscreen and a leaking sunroof",
+    "Cracked phone screen, dead battery and a loose charging port",
+    "The boat deck is rotten, the hull leaks and the railings are loose",
+    "How much stamp duty and capital gains tax will I pay on a $900,000 house?",
+    "What are the best roses to plant in a Melbourne garden?",
+    "section 32 victoria police",
+    "sourdough starter is mouldy",
+    "What should I check before buying an old car?",
+    "Buying an old piano: what to look for",
+    "What goes wrong with old laptops?",
+    "common problems with older dogs",
+    "vintage clothing red flags",
+    "What should I check before buying an old boat?",
+    "period drama recommendations",
+    "old house music tracks"
   ]
 }

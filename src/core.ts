@@ -88,6 +88,7 @@ const NOTICED: Record<string, string> = {
   bulge: 'bulging bowing', bulges: 'bulging bowing', bulged: 'bulging bowing', belly: 'bulging bowing sagging',
   sag: 'sagging dip', sags: 'sagging sag dip', sagged: 'sagging sag dip', droop: 'sagging sag', droops: 'sagging sag', drooping: 'sagging sag',
   dips: 'dip sagging', dipping: 'dip sagging',
+  sunk: 'sunken settled subsidence', sank: 'sunken settled subsidence', subsided: 'subsidence settled sunken', subsiding: 'subsidence settled sunken',
   slipping: 'slipped displaced', slid: 'slipped displaced', dislodged: 'slipped displaced', shifted: 'displaced slipped',
   rot: 'decay decayed', rots: 'rot decay decayed', rotten: 'rot decay decayed', rotting: 'rot decay decayed', rotted: 'rot decay decayed',
   leans: 'leaning lean', tilt: 'leaning lean', tilts: 'leaning lean', tilting: 'leaning lean', tilted: 'leaning lean',
@@ -324,7 +325,12 @@ function detectConstructionYear(query: string): number | undefined {
   ) ?? q.match(
     /\b(18\d{2}|19\d{2}|20\d{2})\s+(?:house|home|apartment|unit)(?!\s+(?:price|prices|market|loan|sales?))\b/,
   );
-  if (!match?.[1]) return undefined;
+  if (!match?.[1]) {
+    // "A 100 year old house", "a 50-year-old home": the age, as a year.
+    const age = q.match(/\b(\d{2,3}) (?:years?|yrs?) old (?:house|houses|home|homes|weatherboard|place|property|building)\b/);
+    const years = age?.[1] ? Number(age[1]) : NaN;
+    return years >= 10 && years <= 200 ? new Date().getUTCFullYear() - years : undefined;
+  }
   const year = Number(match[1]);
   return Number.isInteger(year) ? year : undefined;
 }
@@ -360,11 +366,104 @@ function detectEra(query: string): string | undefined {
 }
 
 function detectPropertyType(query: string): string | undefined {
+  // Whole words only: "unit" is not in "community", "house" is not in "warehouse".
   const q = normalize(query);
-  if (/apartment|strata|body corporate|owners corporation/.test(q)) return 'apartment';
-  if (/townhouse|villa|unit/.test(q)) return 'townhouse or unit';
-  if (/house|weatherboard|brick veneer|double brick/.test(q)) return 'house';
+  if (/\b(?:apartments?|strata|body corporate|owners corporations?)\b/.test(q)) return 'apartment';
+  if (/\b(?:townhouses?|villas?|units?)\b/.test(q)) return 'townhouse or unit';
+  if (/\b(?:houses?|weatherboards?|brick veneer|double brick)\b/.test(q)) return 'house';
   return undefined;
+}
+
+// ── What the question rules out ─────────────────────────────────────────
+//
+// "I'm not buying an apartment, I'm buying a house with damp, not strata"
+// names apartments and strata only to rule them out. Read word by word, the
+// question is about strata. Only the kind of property is read this way: a
+// negated building finding ("no safety switch", "isn't waterproofed",
+// "not draining") is a finding, and keeps its words.
+const PROPERTY_KIND_WORDS = 'apartments?|units?|flats?|strata(?: title)?|body corporate|owners corporations?|townhouses?|villas?|(?:detached |freestanding )?houses?';
+const EXCLUSION = new RegExp(
+  `\\b(?:not|never|isn t|aren t|wasn t|no longer|rather than|instead of|other than|except|excluding)\\s+` +
+  `(?:(?:buying|looking at|looking for|looking to buy|interested in|considering|asking about|talking about|about|in|into|an?|the|my|our|for|any)\\s+){0,3}` +
+  `((?:${PROPERTY_KIND_WORDS})(?:\\s+(?:or|and|nor)\\s+(?:an?\\s+)?(?:${PROPERTY_KIND_WORDS}))*)\\b`,
+  'g',
+);
+
+type PropertyKind = 'apartment' | 'house' | 'townhouse or unit';
+function kindOf(words: string): PropertyKind[] {
+  const out = new Set<PropertyKind>();
+  if (/\b(?:apartments?|flats?|strata|body corporate|owners corporations?)\b/.test(words)) out.add('apartment');
+  if (/\b(?:townhouses?|villas?|units?)\b/.test(words)) out.add('townhouse or unit');
+  if (/\bhouses?\b/.test(words)) out.add('house');
+  return [...out];
+}
+
+/**
+ * The guide word a misspelling was meant to be ("sectoin" for section,
+ * "statment" for statement, "termities" for termites), or nothing.
+ *
+ * Only the guides' own subject words are recovered: words in their titles,
+ * questions, topics and headings, so "leather" is never read as "later". The
+ * misspelt word must be one no guide uses, of five letters or more, with the
+ * same first letter, and one slip away (two for nine letters or more; a swap
+ * of neighbouring letters is one slip). Sounds-alike spellings ("secshun")
+ * are too far from the word to recover this way.
+ */
+let headWords: Map<string, number> | undefined;
+function guideHeadWords(): Map<string, number> {
+  if (headWords) return headWords;
+  const frequency = new Map<string, number>();
+  for (const guide of guides) {
+    const head = [guide.title, guide.question, guide.topics.join(' '), ...guide.sections.map((section) => section.heading)].join(' ');
+    for (const token of new Set(rawTokens(head))) frequency.set(token, (frequency.get(token) ?? 0) + 1);
+  }
+  headWords = frequency;
+  return frequency;
+}
+
+const spellingCache = new Map<string, string | null>();
+function spellingOf(token: string): string | undefined {
+  const cached = spellingCache.get(token);
+  if (cached !== undefined) return cached ?? undefined;
+  let best: string | undefined;
+  // Judged on the word as written: "asbestoss" is not a plural of "asbestos".
+  if (token.length >= 5 && !/\d/.test(token) && !corpusDocumentFrequency().has(token) && !guideHeadWords().has(token)) {
+    const max = token.length >= 9 ? 2 : 1;
+    let bestDistance = max + 1;
+    let bestFrequency = 0;
+    for (const [word, frequency] of guideHeadWords()) {
+      if (word[0] !== token[0] || word.length < 5 || STOP_WORDS.has(word) || Math.abs(word.length - token.length) > max) continue;
+      const distance = editDistance(token, word, max);
+      if (distance > max || !isTypingSlip(token, word)) continue;
+      if (distance < bestDistance || (distance === bestDistance && frequency > bestFrequency)) {
+        best = word;
+        bestDistance = distance;
+        bestFrequency = frequency;
+      }
+    }
+  }
+  spellingCache.set(token, best ?? null);
+  return best;
+}
+
+/** The question with the kinds of property it rules out taken away, and those kinds. */
+export function readQuestion(asked: string): { query: string; excludedKinds: PropertyKind[] } {
+  // Misspellings first, so a misspelt word is read as the word it was meant to be.
+  let corrected = false;
+  const spelled = normalize(asked).split(' ').map((token) => {
+    const word = spellingOf(token);
+    if (word) corrected = true;
+    return word ?? token;
+  }).join(' ');
+  const query = corrected ? spelled : asked;
+  const normalized = normalize(query);
+  const excluded = new Set<PropertyKind>();
+  const stripped = normalized.replace(EXCLUSION, (_whole, kinds: string) => {
+    for (const kind of kindOf(kinds)) excluded.add(kind);
+    return ' ';
+  }).replace(/\s+/g, ' ').trim();
+  if (excluded.size === 0 || rawTokens(stripped).length < 2) return { query, excludedKinds: [] };
+  return { query: stripped, excludedKinds: [...excluded] };
 }
 
 function metadataMatches(values: string[], wanted?: string): boolean {
@@ -405,6 +504,45 @@ function scoreSection(section: GuideRecord['sections'][number], terms: string[],
     score += Math.min(countOccurrences(section.markdown, term), 3) * 1.5;
   }
   return score;
+}
+
+const CITY_WORDS = new Set(['melbourne', 'sydney', 'brisbane', 'perth', 'adelaide', 'hobart', 'darwin', 'canberra', 'geelong', 'newcastle', 'wollongong']);
+const GENERAL_BUYING_CLUSTERS = new Set(['how-to-buy', 'why', 'state-rules']);
+const GENERAL_BUYING_HOW = 60;
+const GENERAL_BUYING_WHY = 15;
+// Words a general buying question is made of. Anything else is a subject.
+const GENERAL_BUYING_WORDS = new Set([
+  'check', 'checks', 'checking', 'checked', 'offer', 'offers', 'making', 'make', 'put', 'buy', 'buying', 'purchase', 'purchasing', 'bid', 'bidding',
+  'home', 'homes', 'house', 'houses', 'property', 'properties', 'place', 'before', 'first', 'time', 'buyer', 'buyers', 'look', 'looking',
+  'need', 'know', 'things', 'thing', 'should', 'must', 'important', 'most', 'main', 'key', 'what', 'which', 'when', 'how', 'australia',
+  'australian', 'commit', 'committing', 'signing', 'deciding', 'decide',
+]);
+// A question about an old home in general ("what should I look out for when
+// buying an old house?", "common problems in older homes") is answered by
+// the guides written across every era. One that names an era or a decade
+// reaches that era's guide on its own.
+const ERA_WIDE_GUIDES = new Set(['red-flags-by-era', 'what-your-home-needs-by-decade']);
+const AGE_WORDS = new Set(['old', 'older', 'oldest', 'ageing', 'aging', 'aged', 'character', 'vintage', 'year', 'years']);
+const OLD_HOME_WORDS = new Set(['red', 'flags', 'flag', 'wrong', 'goes', 'go', 'problems', 'problem', 'common', 'defects', 'issues', 'watch', 'out', 'idea']);
+/** A question whose only subject is a home's age: "an old house", "a 100 year old house". */
+function isAgeOnlyQuestion(query: string): boolean {
+  const q = normalize(query);
+  if (!/\b(?:old|older|oldest|ageing|aging|character|vintage)\b/.test(q)) return false;
+  if (!/\b(?:homes?|houses?|property|properties|place|weatherboards?)\b/.test(q)) return false;
+  return contentTokensInOrder(query).every((token) => /^\d+$/.test(token) ||
+    GENERAL_BUYING_WORDS.has(token) || FRAMING_WORDS.has(token) || AGE_WORDS.has(token) || OLD_HOME_WORDS.has(token) || PLACE_WORDS.has(token) || CITY_WORDS.has(token));
+}
+
+/** The same, naming no era: the guides across every era answer it. */
+function isOldHomeQuestion(query: string): boolean {
+  return detectEra(query) === undefined && isAgeOnlyQuestion(query);
+}
+
+function isGeneralBuyingQuestion(query: string): boolean {
+  const q = normalize(query);
+  if (!/\b(?:buy|buying|purchase|purchasing|offer|bid|bidding)\b/.test(q)) return false;
+  // A state or city is a setting, not a subject: the state guides answer it alongside.
+  return contentTokensInOrder(query).every((token) => GENERAL_BUYING_WORDS.has(token) || FRAMING_WORDS.has(token) || PLACE_WORDS.has(token) || CITY_WORDS.has(token));
 }
 
 function scoreGuide(guide: GuideRecord, options: SearchOptions, terms: string[], inferredJurisdictions?: string[]): { score: number; matchedTerms: string[] } {
@@ -468,6 +606,19 @@ function scoreGuide(guide: GuideRecord, options: SearchOptions, terms: string[],
     else score -= 12;
   }
   if (options.cluster && guide.cluster?.id === options.cluster) score += 14;
+  // A general buying question names no building matter, document or state:
+  // "what should I check before making an offer on a home?". The guides on
+  // how to buy, and why to look first, answer it; a building guide that
+  // happens to say "offer" does not.
+  if (isOldHomeQuestion(options.query) && ERA_WIDE_GUIDES.has(guide.slug)) score += GENERAL_BUYING_HOW;
+  else if (isGeneralBuyingQuestion(options.query)) {
+    // A question that asks why gets the guides on why first.
+    const asksWhy = /^why\b/.test(query);
+    if (guide.cluster?.id === 'how-to-buy') score += asksWhy ? GENERAL_BUYING_WHY : GENERAL_BUYING_HOW;
+    else if (guide.cluster?.id === 'why') score += asksWhy ? GENERAL_BUYING_HOW : GENERAL_BUYING_WHY;
+    // With a state named, that state's own rules belong with them.
+    else if (guide.cluster?.id === 'state-rules' && jurisdictions.some((jurisdiction) => guide.jurisdiction.includes(jurisdiction))) score += GENERAL_BUYING_HOW;
+  }
   // Insurance intent: when the question is about what to tell an insurer,
   // the insurance guide is the authority and building-element guides support it.
   if (/\b(?:insurer|insurers|insurance|insurability)\b/.test(query) && guide.topics.includes('insurance')) score += 24;
@@ -979,6 +1130,9 @@ const FRAMING_WORDS = new Set([
   'stop', 'consider', 'considering', 'related', 'told', 'require', 'requires', 'type', 'types', 'full', 'ready',
   'quickly', 'slowly', 'already', 'ahead', 'practical', 'looking', 'wrong', 'right', 'start', 'whether', 'why',
   'hire', 'hiring', 'hired',
+  // size and direction, as people describe what they see ("a big crack running down the wall")
+  'big', 'bigger', 'small', 'smaller', 'huge', 'tiny', 'little', 'bit', 'large', 'running', 'runs', 'run', 'down', 'up',
+  'along', 'across', 'point', 'points', 'mean', 'means', 'tell', 'tells',
 ]);
 
 const COMMON_SHARE = 0.5;
@@ -990,6 +1144,7 @@ const SUBJECT_COVERAGE_SINGLE = 0.78;
 const SUBJECT_COVERAGE_WOVEN = 0.7;
 const RARE_GUIDES = 5;
 const STRANGER_SUPPORT = 0.6;
+const MULTI_ISSUE_WORDS = 3;
 const CONTEXT_BODY_MENTIONS = 2;
 
 function guideFullText(guide: GuideRecord): string {
@@ -1057,11 +1212,23 @@ function looksMisspelled(token: string): boolean {
   if (max > 0) {
     for (const word of corpusDocumentFrequency().keys()) {
       if (word[0] !== token[0] || word.length < 5) continue;
-      if (editDistance(token, word, max) <= max) { found = true; break; }
+      if (editDistance(token, word, max) <= max && isTypingSlip(token, word)) { found = true; break; }
     }
   }
   misspellingCache.set(token, found);
   return found;
+}
+
+/**
+ * A slip a person makes typing, not another word: a letter dropped, added or
+ * swapped with its neighbour. A changed letter in a short word is usually a
+ * different word ("police" and "policy"), so it counts only from eight letters.
+ */
+function isTypingSlip(token: string, word: string): boolean {
+  if (token.length >= 8 || token.length !== word.length) return true;
+  const differ: number[] = [];
+  for (let index = 0; index < token.length; index += 1) if (token[index] !== word[index]) differ.push(index);
+  return differ.length === 2 && differ[1] === differ[0]! + 1 && token[differ[0]!] === word[differ[1]!] && token[differ[1]!] === word[differ[0]!];
 }
 
 /** A word no guide uses in any form, misspellings aside. */
@@ -1092,8 +1259,35 @@ function bodyMentions(token: string, result: GuideSearchResult): number {
   return [...new Set([...wordForms(token), ...saidAs(token)])].reduce((sum, form) => sum + (counts.get(form) ?? 0), 0);
 }
 
+// Words for a kind of home. A guide written for that kind, or for every kind,
+// covers the word ("a townhouse in Queensland", "a detached house").
+const KIND_WORDS: Record<string, PropertyKind | 'any'> = {
+  detached: 'house', freestanding: 'house', townhouse: 'townhouse or unit', townhouses: 'townhouse or unit',
+  villa: 'townhouse or unit', villas: 'townhouse or unit', unit: 'townhouse or unit', units: 'townhouse or unit',
+  apartment: 'apartment', apartments: 'apartment', flat: 'apartment', flats: 'apartment',
+};
+function kindSupport(token: string, result: GuideSearchResult): number {
+  const kind = KIND_WORDS[token];
+  if (!kind) return 0;
+  if (result.propertyTypes.some((value) => normalize(value) === 'all residential property')) return 0.8;
+  return result.propertyTypes.some((value) => kindOf(normalize(value)).includes(kind as PropertyKind)) ? 0.8 : 0;
+}
+
+/**
+ * The same word in another part of speech: "disclose" and "disclosure",
+ * "inspect" and "inspection", "renovate" and "renovation". Only for words of
+ * five letters or more, and only one step away.
+ */
+function familyForms(token: string): string[] {
+  if (token.length < 5) return [];
+  const root = token.replace(/(?:ation|ition|ion|ure|ment|ing|ed|es|e|s)$/, '');
+  if (root.length < 4) return [];
+  return [...new Set([root, `${root}e`, `${root}ure`, `${root}ion`, `${root}ation`, `${root}ment`, `${root}ing`, `${root}ed`, `${root}s`])].filter((form) => form !== token);
+}
+
 function subjectSupport(query: string, token: string, result: GuideSearchResult, readBody: boolean): number {
-  const authority = tokenSupportedByResult(query, token, result, false);
+  let authority = Math.max(tokenSupportedByResult(query, token, result, false), kindSupport(token, result));
+  if (authority < 0.8) for (const form of familyForms(token)) authority = Math.max(authority, Math.min(0.8, tokenSupportedByResult(query, form, result, false)));
   if (!readBody || authority >= BODY_REPEAT_SUPPORT) return authority;
   const mentions = bodyMentions(token, result);
   if (mentions >= BODY_REPEAT) return Math.max(authority, BODY_REPEAT_SUPPORT);
@@ -1220,8 +1414,9 @@ function lacksDedicatedStateAuthority(query: string, results: GuideSearchResult[
  */
 export type WeakReason = 'finance' | 'determination' | 'recommendation' | 'price' | 'context' | 'state' | 'coverage' | 'phrase' | 'relevance';
 
-export function weakReason(query: string, results: GuideSearchResult[], context?: SearchContext): WeakReason | undefined {
+export function weakReason(asked: string, results: GuideSearchResult[], context?: SearchContext): WeakReason | undefined {
   if (results.length === 0) return undefined;
+  const query = readQuestion(asked).query;
 
   const claims = requestedClaims(query);
   if (FINANCIAL_ADVICE_PATTERN.test(normalize(query))) return 'finance';
@@ -1259,6 +1454,14 @@ export function weakReason(query: string, results: GuideSearchResult[], context?
   // on either reading. A misspelling of a word the guides do use is let by.
   if (subjectTokens(query).some(unknownToCorpus)) return 'coverage';
 
+  // A general buying question, answered by the guides on how to buy, is
+  // answered: its only subject is buying, and those guides are about nothing else.
+  if (isGeneralBuyingQuestion(query) && GENERAL_BUYING_CLUSTERS.has(results[0]!.cluster?.id ?? '')) return undefined;
+  if (isOldHomeQuestion(query) && ERA_WIDE_GUIDES.has(results[0]!.slug)) return undefined;
+  // An age given as years ("a 100 year old house"), answered by that era's own guide.
+  const ageEra = detectEra(query);
+  if (ageEra && isAgeOnlyQuestion(query) && results[0]!.slug === CONSTRUCTION_ERA_GUIDE[ageEra]) return undefined;
+
   // First reading: the question against what the guides say they are about.
   const coverage = authorityCoverage(query, results, !canWeave);
   const exactAuthoredMatch = includesTerm(results[0]!.question, query) || includesTerm(results[0]!.title, query);
@@ -1276,8 +1479,13 @@ export function weakReason(query: string, results: GuideSearchResult[], context?
   // The body is read only for a question about the building itself. Contract,
   // auction and disclosure wording turns up in too many other senses
   // ("business days", "exercise the right") to be taken from running text.
-  if (subjectCoverage(query, results, !canWeave, physical) < (canWeave ? SUBJECT_COVERAGE_WOVEN : SUBJECT_COVERAGE_SINGLE)) return 'coverage';
-  if (hasStrangerWord(query, results, !canWeave, physical)) return 'coverage';
+  // A question that names several building matters ("the roof leaks, there is
+  // mould on the ceiling and some timber decay") is answered by several guides
+  // together, as a question that says "house" is. Enough subject words about
+  // the building may be woven across the top three.
+  const woven = canWeave || (physical && subjectTokens(query).length >= MULTI_ISSUE_WORDS);
+  if (subjectCoverage(query, results, !woven, physical) < (woven ? SUBJECT_COVERAGE_WOVEN : SUBJECT_COVERAGE_SINGLE)) return 'coverage';
+  if (hasStrangerWord(query, results, !woven, physical)) return 'coverage';
   // Without a residential word, two guide words side by side can still mean
   // something else ("glass ceiling"). For a subject that short the guide must
   // name both words itself, or use them together as the question does.
@@ -1298,8 +1506,9 @@ export function weakReason(query: string, results: GuideSearchResult[], context?
  */
 export type GuidanceLimit = 'determination' | 'price' | 'recommendation';
 
-export function guidanceLimit(query: string, results: GuideSearchResult[], context?: SearchContext): GuidanceLimit | undefined {
-  const reason = weakReason(query, results, context);
+export function guidanceLimit(asked: string, results: GuideSearchResult[], context?: SearchContext): GuidanceLimit | undefined {
+  const reason = weakReason(asked, results, context);
+  const query = readQuestion(asked).query;
   if (reason !== 'determination' && reason !== 'price' && reason !== 'recommendation') return undefined;
   const physical = hasBuildingCue(query) || results[0]!.cluster?.id === 'read-building';
   if (!physical && !hasAffirmativeResidentialContext(query) && residentialDomainEvidence(query) < 1) return undefined;
@@ -1348,11 +1557,26 @@ function hasStructuredRetrievalSignal(query: string, results: GuideSearchResult[
   return authorityCoverage(query, results, !canWeave) >= (canWeave ? 0.58 : 0.78);
 }
 
-export function searchGuides(options: SearchOptions): GuideSearchResult[] {
-  const limit = Math.max(1, Math.min(options.limit ?? 5, 10));
-  const query = options.query.trim();
-  if (!query) return [];
-  if (isFinanceOnlyQuery(query)) return [];
+export function searchGuides(requested: SearchOptions): GuideSearchResult[] {
+  const limit = Math.max(1, Math.min(requested.limit ?? 5, 10));
+  if (!requested.query.trim()) return [];
+  if (isFinanceOnlyQuery(requested.query.trim())) return [];
+  const read = readQuestion(requested.query.trim());
+  const options: SearchOptions = { ...requested, query: read.query };
+  const query = read.query;
+  // A guide written only for a kind of property the question rules out is
+  // not returned. A house filter also rules out the guides written only for
+  // apartments: strata records and levies cannot apply to a freestanding house.
+  // The other way round stays a nudge, not a rule: an apartment block is still
+  // a building of its era and construction, and the era and brick guides
+  // (tagged for houses) still describe it. Townhouses can be either.
+  const filtered = requested.propertyType ? kindOf(normalize(requested.propertyType)) : [];
+  const ruledOut = new Set<PropertyKind>(read.excludedKinds);
+  if (filtered.length === 1 && filtered[0] === 'house') ruledOut.add('apartment');
+  const kindRuledOut = (guide: GuideRecord) => {
+    const kinds = guide.propertyTypes.flatMap((value) => kindOf(normalize(value)));
+    return kinds.length > 0 && guide.propertyTypes.every((value) => normalize(value) !== 'all residential property') && kinds.every((kind) => ruledOut.has(kind));
+  };
   const terms = expandedTerms(query);
   const jurisdictions = jurisdictionsForSearch(options);
   const { jurisdiction: _requestedJurisdiction, ...optionsWithoutJurisdiction } = options;
@@ -1362,6 +1586,7 @@ export function searchGuides(options: SearchOptions): GuideSearchResult[] {
 
   const candidates = guides.filter((guide) => {
     if (!(options.includePillar ?? false) && guide.pillar) return false;
+    if (ruledOut.size > 0 && kindRuledOut(guide)) return false;
     if (options.cluster && guide.cluster?.id !== options.cluster) return false;
     if (jurisdictions.length > 0 && !(
       guide.jurisdiction.includes('Australia') ||

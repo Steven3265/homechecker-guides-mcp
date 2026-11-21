@@ -974,3 +974,111 @@ test('the same words about something else stay weak', () => {
     assert.ok(results.length === 0 || isWeakMatch(query, results), `accepted: ${query}`);
   }
 });
+
+// ── Reading what the question means (the review of 21 November 2026) ───────
+
+test('a kind of property the question rules out does not lead the results', () => {
+  const query = "I'm NOT buying an apartment. I'm buying a detached house with damp, not strata.";
+  for (const filters of [{}, { propertyType: 'house' }]) {
+    const results = searchGuides({ query, limit: 5, ...filters });
+    assert.equal(results[0]?.slug, 'damp-and-moisture-in-your-home', JSON.stringify(filters));
+    assert.ok(!results.some((r) => ['buying-an-apartment-strata', 'strata-risks-for-owners', 'reading-your-owners-corporation-report'].includes(r.slug)), JSON.stringify(filters));
+    assert.equal(isWeakMatch(query, results, filters), false, JSON.stringify(filters));
+  }
+  const apartment = searchGuides({ query: "I'm not buying a house, it's an apartment. How do I read the owners corporation records?", limit: 3 });
+  assert.equal(apartment[0]?.slug, 'reading-your-owners-corporation-report');
+});
+
+test('a negated building finding keeps its words', () => {
+  for (const [query, slug] of [
+    ['The shower is not waterproofed', 'bathroom-waterproofing-and-leaking-showers'],
+    ['There is no safety switch on the switchboard', 'switchboards-wiring-and-safety-switches'],
+  ]) {
+    assert.equal(searchGuides({ query, limit: 3 })[0]?.slug, slug, query);
+  }
+});
+
+test('a house filter rules out the apartment-only guides; an apartment filter keeps the era and brick guides', () => {
+  const strata = ['buying-an-apartment-strata', 'strata-risks-for-owners', 'reading-your-owners-corporation-report'];
+  const house = searchGuides({ query: 'strata levies and owners corporation records', limit: 10, propertyType: 'house' });
+  assert.ok(!house.some((r) => strata.includes(r.slug)));
+  const apartment = searchGuides({ query: 'what goes wrong with 1960s brick buildings', limit: 10, propertyType: 'apartment' });
+  assert.ok(apartment.some((r) => r.slug === 'postwar-homes-1950s-70s'));
+});
+
+test('a question that names several building matters may be answered by several guides', () => {
+  for (const query of [
+    'The roof leaks, there is mould on the ceiling and some timber decay. What does that point to?',
+    'Gutters overflow, the downpipes are rusted and water pools along the side of the house',
+    'Termite damage in the subfloor and some stumps have sunk',
+  ]) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.equal(isWeakMatch(query, results), false, query);
+  }
+  for (const query of [
+    'The fridge leaks, the oven is broken and the dishwasher smells',
+    'My car has rust, a cracked windscreen and a leaking sunroof',
+    'The boat deck is rotten, the hull leaks and the railings are loose',
+  ]) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.ok(results.length === 0 || isWeakMatch(query, results), `accepted: ${query}`);
+  }
+});
+
+test('ordinary typing slips reach the guide; real words are never read as slips', () => {
+  for (const [query, slug] of [
+    ['what shuold i look for in a sectoin 32 vendor statment victoria', 'reading-a-section-32'],
+    ['asbestoss in eaves', 'asbestos-in-the-home'],
+    ['termit damage under the house', 'termites-in-australian-homes'],
+    ['bathroom waterproffing', 'bathroom-waterproofing-and-leaking-showers'],
+    ['weatherbord rot', 'weatherboard-homes'],
+  ]) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.equal(results[0]?.slug, slug, query);
+    assert.equal(isWeakMatch(query, results), false, query);
+  }
+  for (const query of ['section 32 victoria police', 'How do I clean mould off a leather jacket?', 'sourdough starter is mouldy', 'asbestoss mining history', 'waterproffing a tent']) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.ok(results.length === 0 || isWeakMatch(query, results), `accepted: ${query}`);
+  }
+});
+
+test('a general buying question leads with the guides on how to buy', () => {
+  const howToBuy = new Set(['how-to-buy', 'why', 'state-rules']);
+  for (const query of ['What should I check before making an offer on a home?', 'What should I check before buying a house?', 'What should I check before I put in an offer?']) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.ok(results.every((r) => howToBuy.has(r.cluster?.id ?? '')), `${query}: ${results.map((r) => r.slug).join(', ')}`);
+    assert.equal(isWeakMatch(query, results), false, query);
+  }
+  assert.equal(searchGuides({ query: 'What should I check before buying a house in Victoria?', limit: 1 })[0]?.slug, 'reading-a-section-32');
+  for (const query of ['What should I check before buying a used car?', 'What should I check before making an offer on a business?', 'What should I check before I buy a laptop?']) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.ok(results.length === 0 || isWeakMatch(query, results), `accepted: ${query}`);
+  }
+});
+
+test('a kind of home, and another form of a word, count as the guide covering it', () => {
+  for (const [query, slug] of [
+    ['I am buying a townhouse in Queensland. What does the seller have to disclose?', 'seller-disclosure-qld'],
+    ["There's a big crack running down the wall near the door, is that bad?", 'cracks-structural-or-cosmetic'],
+  ]) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.equal(results[0]?.slug, slug, query);
+    assert.equal(isWeakMatch(query, results), false, query);
+  }
+});
+
+test('a question about an old home in general leads with the guides across every era', () => {
+  const eraWide = ['red-flags-by-era', 'what-your-home-needs-by-decade'];
+  for (const query of ['What should I look out for when buying an old house?', 'Common problems in older homes', 'What should be checked in an older home before buying?']) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.ok(eraWide.includes(results[0]?.slug), `${query}: ${results.map((r) => r.slug).join(', ')}`);
+    assert.equal(isWeakMatch(query, results), false, query);
+  }
+  // An age in years reaches that era's own guide.
+  assert.equal(searchGuides({ query: 'what to look for in a 50 year old house', limit: 1 })[0]?.slug, 'postwar-homes-1950s-70s');
+  for (const query of ['What should I check before buying an old car?', 'What goes wrong with old laptops?', 'common problems with older dogs', 'old house music tracks']) {
+    const results = searchGuides({ query, limit: 3 });
+    assert.ok(results.length === 0 || isWeakMatch(query, results), `accepted: ${query}`);
+  }
+});
