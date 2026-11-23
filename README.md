@@ -85,7 +85,7 @@ See [`docs/PROTOCOL-SUPPORT.md`](docs/PROTOCOL-SUPPORT.md), [`docs/RELEASE-1.2.3
 - **A bundled content snapshot:** rebuilt from Homechecker's public guide export at `https://homechecker.com.au/guides/export.json`. The repository needs no runtime access to the portal codebase.
 - **A browser-triggered refresh workflow:** Actions → **Refresh guides snapshot** regenerates, tests and opens a pull request. No local environment is required.
 - **Canonical model-facing links:** MCP-rendered text and `canonicalUrl` fields always use the clean Homechecker canonical URL. REST/WebMCP responses may add a separate `referralUrl` for attribution (`homechecker-rest` / `homechecker-webmcp`) without changing the URL an assistant is instructed to cite.
-- **Privacy-minimised operational telemetry:** application telemetry records operational fields such as MCP method, tool name, query length, coarse filters, counts, match strength, outcome and duration where applicable. Raw questions, session identifiers, IP addresses and identifying request-header values are not intentionally logged by the application. See `docs/SECURITY.md`.
+- **Privacy-minimised operational telemetry:** application telemetry records operational fields such as MCP method, tool name, query length, coarse filters, counts, match strength, the published guide and section identifiers read, outcome and duration where applicable. Raw questions, session identifiers, IP addresses and identifying request-header values are not intentionally logged by the application. See `docs/SECURITY.md`.
 - **Tests and retrieval evaluation:** snapshot integrity, core search, release metadata, protocol, HTTP-adapter and official MCP conformance checks plus 199 retrieval cases, including an 85-query open-world collision suite.
 
 ## Tools
@@ -233,6 +233,7 @@ Application-level operational telemetry is deliberately minimised. It may record
 - the MCP protocol method;
 - tool name;
 - query length rather than query text;
+- the published guide and section identifiers read, logged only once they match a published guide;
 - coarse filters;
 - result counts;
 - match strength;

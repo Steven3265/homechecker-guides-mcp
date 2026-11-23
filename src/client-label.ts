@@ -3,7 +3,13 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 // Coarse, privacy-minimised client family for usage telemetry. Only a short
 // label is ever logged, never the raw User-Agent string, which can carry
 // version and platform detail useful for fingerprinting.
+//
+// Homechecker's own traffic is labelled first, so it can be told apart from
+// outside use: 'engine' for the Read engine's guide calibration, 'internal'
+// for the live check and benchmark scripts.
 const CLIENT_PATTERNS: Array<[RegExp, string]> = [
+  [/homechecker-engine/, 'engine'],
+  [/homechecker-live-check|homechecker-benchmark/, 'internal'],
   [/claude|anthropic/, 'claude'],
   [/openai|chatgpt/, 'chatgpt'],
   [/cursor/, 'cursor'],

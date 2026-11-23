@@ -62,7 +62,7 @@ export default function handler(req: IncomingMessage, res: ServerResponse): void
       sessionIdentifiersLoggedByApplication: false,
       identifyingRequestHeadersLoggedByApplication: false,
       protocolMethodHeaderLoggedByApplication: true,
-      operationalTelemetry: 'Mcp-Method protocol method, tool name, query length, filters, counts, match strength, outcome and duration where applicable',
+      operationalTelemetry: 'Mcp-Method protocol method, tool name, query length, filters, counts, match strength, published guide and section identifiers read, outcome and duration where applicable',
     },
     boundaries: [
       'General guidance only; does not inspect or assess a specific property.',

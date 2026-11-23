@@ -42,6 +42,8 @@ function textAndStructured(structuredContent: Record<string, unknown>, text: str
 // capture it without corrupting the stdio protocol channel. Raw search text,
 // headers, addresses and client identifiers are never logged; only a coarse
 // client family (for example "claude" or "chatgpt") derived from User-Agent.
+// A guide slug or section id is logged only once it resolves to the published
+// corpus, so a caller's own wording never reaches the log through those fields.
 function logUse(tool: string, detail: Record<string, unknown>): void {
   try {
     const client = currentClient();
@@ -214,7 +216,21 @@ export function createMcpServer(): McpServer {
     },
     async ({ slug, format, sectionIds }) => {
       const guide = getGuide(slug);
-      logUse('get_guide', { slug, format, found: Boolean(guide) });
+      // Which sections are read shows what assistants actually rely on. Only
+      // ids that exist in the guide are logged, capped at the contract's 12;
+      // an empty request for sections means the whole guide.
+      const requestedIds = sectionIds ?? [];
+      const readIds = guide && format === 'sections'
+        ? guide.sections.filter((section) => requestedIds.includes(section.id)).map((section) => section.id).slice(0, 12)
+        : [];
+      logUse('get_guide', {
+        ...(guide ? { slug: guide.slug } : {}),
+        format,
+        found: Boolean(guide),
+        ...(guide && format === 'sections'
+          ? { sections: requestedIds.length ? readIds : 'all', sectionCount: requestedIds.length ? readIds.length : guide.sections.length }
+          : {}),
+      });
       if (!guide) {
         return {
           content: [{ type: 'text', text: `No published Homechecker guide was found for slug "${slug}".` }],

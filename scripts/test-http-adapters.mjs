@@ -195,6 +195,8 @@ assert.equal(clientLabel('Cursor/1.4.2 (darwin arm64)'), 'cursor');
 assert.equal(clientLabel('python-httpx/0.28.1'), 'python');
 assert.equal(clientLabel('Mozilla/5.0 (Macintosh) Safari/605.1.15'), 'browser');
 assert.equal(clientLabel('SomeNewAgent/2.0 PRIVATE_MARKER'), 'other');
+assert.equal(clientLabel('homechecker-engine/1.0 node'), 'engine');
+assert.equal(clientLabel('homechecker-live-check/1.0'), 'internal');
 assert.equal(clientLabel(''), 'unknown');
 assert.equal(clientLabel(null), 'unknown');
 assert.equal(currentClient(), undefined);

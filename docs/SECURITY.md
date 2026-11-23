@@ -36,7 +36,9 @@ The bundled snapshot is rebuilt from `https://homechecker.com.au/guides/export.j
 
 ## Usage telemetry
 
-Each tool call writes one JSON line (`evt: "tool_call"`) containing the tool name, query length or requested guide slug, coarse profile fields (state, property type, era, buying stage), result counts and a timestamp. Raw search text is not logged. The platform's function logs capture these lines under the platform's standard log retention.
+Each tool call writes one JSON line (`evt: "tool_call"`) containing the tool name, query length, coarse profile fields (state, property type, era, buying stage), result counts and a timestamp. For `get_guide` it also records the guide slug and, when sections are requested, the section ids read; both are logged only once they resolve to a published guide, so a caller's own wording never reaches the log through them. Raw search text is not logged. The platform's function logs capture these lines under the platform's standard log retention.
+
+The coarse client family also separates Homechecker's own traffic from outside use: `engine` for the Homechecker Read engine's guide calibration and `internal` for the live check and benchmark scripts, each identified by its own User-Agent.
 
 Each HTTP request to the MCP endpoint also writes one line (`evt: "mcp_request"`) with the method named in the routing header, a coarse client family, the status and the duration. When a request is refused, the line adds the JSON-RPC error code, a clipped error message and the protocol revision the client declared, so that the cause of a refusal can be identified; no request body or other header is recorded.
 
