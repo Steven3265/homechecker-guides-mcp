@@ -508,6 +508,11 @@ function scoreSection(section: GuideRecord['sections'][number], terms: string[],
 
 const CITY_WORDS = new Set(['melbourne', 'sydney', 'brisbane', 'perth', 'adelaide', 'hobart', 'darwin', 'canberra', 'geelong', 'newcastle', 'wollongong']);
 const GENERAL_BUYING_CLUSTERS = new Set(['how-to-buy', 'why', 'state-rules']);
+// The guides about the building itself: its parts and signs ('read-building'),
+// and its age and construction ('know-your-house', split out of
+// 'read-building' in November 2026). A question answered by either is a
+// question about the building.
+const BUILDING_CLUSTERS = new Set(['read-building', 'know-your-house']);
 const GENERAL_BUYING_HOW = 60;
 const GENERAL_BUYING_WHY = 15;
 // Words a general buying question is made of. Anything else is a subject.
@@ -1474,7 +1479,7 @@ export function weakReason(asked: string, results: GuideSearchResult[], context?
   // question with no residential or building word of its own never gets here.
   // A question is about the building itself when it names a building matter,
   // or when the guide that answers it is one of the building-fabric guides.
-  const physical = hasBuildingCue(query) || results[0]!.cluster?.id === 'read-building';
+  const physical = hasBuildingCue(query) || BUILDING_CLUSTERS.has(results[0]!.cluster?.id ?? '');
   if (!canWeave && !physical && residentialDomainEvidence(query) < 1) return first;
   // The body is read only for a question about the building itself. Contract,
   // auction and disclosure wording turns up in too many other senses
@@ -1510,7 +1515,7 @@ export function guidanceLimit(asked: string, results: GuideSearchResult[], conte
   const reason = weakReason(asked, results, context);
   const query = readQuestion(asked).query;
   if (reason !== 'determination' && reason !== 'price' && reason !== 'recommendation') return undefined;
-  const physical = hasBuildingCue(query) || results[0]!.cluster?.id === 'read-building';
+  const physical = hasBuildingCue(query) || BUILDING_CLUSTERS.has(results[0]!.cluster?.id ?? '');
   if (!physical && !hasAffirmativeResidentialContext(query) && residentialDomainEvidence(query) < 1) return undefined;
   // Judged on what the guides say they are about, never their running text,
   // and only when the question names a real subject: a building matter, or a
