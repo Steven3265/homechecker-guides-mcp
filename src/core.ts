@@ -1684,6 +1684,19 @@ function stripChecklistFormatting(text: string): string {
 function authoredActionText(text: string): string | undefined {
   const clean = stripChecklistFormatting(text);
   if (!clean) return undefined;
+  // A one- or two-word label followed by a capitalised sentence ("Start: The
+  // build date…", "Look closer: Plans…", "Test: Only a laboratory…") is a
+  // summary plate's heading and caption, not an instruction, even when the
+  // label is a verb. Judge such an item by its sentence: keep it if it is
+  // itself an action or a question, otherwise it is not a check. A label run
+  // on in lower case ("Confirm identity: seller, address…") is left alone.
+  const labelled = /^([^:?.!]{1,30}):\s+([A-Z].*)$/.exec(clean);
+  if (labelled && labelled[1]!.trim().split(/[\s/]+/).filter((w) => /[a-z]/i.test(w)).length <= 2) {
+    const detail = labelled[2]!.trim();
+    if (ACTION_VERBS.test(detail)) return detail;
+    if (/^(?:did|does|do|is|are|can|could|will|would|what|which|how|where|when|who)\b/i.test(detail) && detail.endsWith('?')) return detail;
+    return undefined;
+  }
   if (ACTION_VERBS.test(clean)) return clean;
   const colon = clean.indexOf(':');
   if (colon > 0 && colon < 90) {
