@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-24T04:12:18.918Z",
+  "generatedAt": "2026-11-24T05:25:17.812Z",
   "source": {
     "name": "Homechecker guide registry",
     "origin": "https://homechecker.com.au/guides/export.json",
@@ -17,8 +17,8 @@
   "clusters": [
     {
       "id": "why",
-      "label": "Why it matters",
-      "chip": "Why",
+      "label": "Start here",
+      "chip": "Start here",
       "blurb": "Buying or owning a home is emotional and the process can feel daunting. Start here for the reasoning behind the checks, so the rest of the guides make sense.",
       "slugs": [
         "why-read-a-home-before-you-buy",
@@ -30,8 +30,8 @@
     {
       "id": "know-your-house",
       "label": "Know your house",
-      "chip": "Your house",
-      "blurb": "Explore how your home was built and what its history can help explain.",
+      "chip": "Know your house",
+      "blurb": "What your home is, from its age and how it was built, and what homes like it tend to need.",
       "slugs": [
         "when-was-my-house-built",
         "brick-veneer-vs-double-brick",
@@ -49,9 +49,43 @@
       ]
     },
     {
+      "id": "read-building",
+      "label": "Parts of the building",
+      "chip": "Parts of the building",
+      "blurb": "Roof, walls, wet areas, subfloor, services and outdoors: what to check in each part of the building.",
+      "slugs": [
+        "roofs-tiles-metal-and-leaks",
+        "bathroom-waterproofing-and-leaking-showers",
+        "subfloors-stumps-and-restumping",
+        "switchboards-wiring-and-safety-switches",
+        "plumbing-hot-water-and-leaks",
+        "site-drainage-and-stormwater",
+        "retaining-walls",
+        "decks-balconies-and-balustrades",
+        "smoke-alarms-and-fire-safety-at-home",
+        "heating-cooling-and-gas-safety",
+        "insulation-ventilation-and-condensation",
+        "outside-walls-windows-render-and-cladding",
+        "inside-the-house-ceilings-walls-floors-and-doors"
+      ]
+    },
+    {
+      "id": "signs-problems",
+      "label": "Signs and problems",
+      "chip": "Signs and problems",
+      "blurb": "Seen a crack or damp, or suspect termites or asbestos? What it could be, and the next useful check.",
+      "slugs": [
+        "cracks-structural-or-cosmetic",
+        "damp-and-moisture-in-your-home",
+        "termites-in-australian-homes",
+        "asbestos-in-the-home",
+        "building-biologist-cost"
+      ]
+    },
+    {
       "id": "how-to-buy",
-      "label": "How to buy",
-      "chip": "Buy well",
+      "label": "Buying a home",
+      "chip": "Buying a home",
       "blurb": "Sequence the checks, understand their limits and be ready before your offer becomes binding.",
       "slugs": [
         "building-inspection-before-auction",
@@ -66,8 +100,8 @@
     },
     {
       "id": "state-rules",
-      "label": "Documents and state rules",
-      "chip": "Documents",
+      "label": "Contracts by state",
+      "chip": "Contracts by state",
       "blurb": "Read the disclosure bundle for the right jurisdiction, then arrange the physical and specialist checks the property warrants.",
       "slugs": [
         "reading-a-section-32",
@@ -76,36 +110,9 @@
       ]
     },
     {
-      "id": "read-building",
-      "label": "Read the building",
-      "chip": "Building",
-      "blurb": "Follow the signs, understand the possible causes and choose the next useful check.",
-      "slugs": [
-        "cracks-structural-or-cosmetic",
-        "damp-and-moisture-in-your-home",
-        "roofs-tiles-metal-and-leaks",
-        "bathroom-waterproofing-and-leaking-showers",
-        "subfloors-stumps-and-restumping",
-        "asbestos-in-the-home",
-        "termites-in-australian-homes",
-        "switchboards-wiring-and-safety-switches",
-        "plumbing-hot-water-and-leaks",
-        "site-drainage-and-stormwater",
-        "retaining-walls",
-        "decks-balconies-and-balustrades",
-        "smoke-alarms-and-fire-safety-at-home",
-        "heating-cooling-and-gas-safety",
-        "insulation-ventilation-and-condensation",
-        "outside-walls-windows-render-and-cladding",
-        "inside-the-house-ceilings-walls-floors-and-doors",
-        "building-biologist-cost",
-        "living-in-a-heritage-overlay"
-      ]
-    },
-    {
       "id": "shared-buildings",
       "label": "Apartments and shared buildings",
-      "chip": "Shared",
+      "chip": "Apartments and shared buildings",
       "blurb": "Read both purchases: your lot, and your share of the common property, records and future costs.",
       "slugs": [
         "buying-an-apartment-strata",
@@ -115,8 +122,8 @@
     },
     {
       "id": "own-change",
-      "label": "Own, maintain and change",
-      "chip": "Ownership",
+      "label": "Owning and changing",
+      "chip": "Owning and changing",
       "blurb": "Keep useful records, maintain the fabric safely and plan works without over-promising what condition can prove.",
       "slugs": [
         "keeping-a-record-of-your-home",
@@ -124,6 +131,7 @@
         "home-condition-and-insurance",
         "preparing-your-home-for-extreme-weather",
         "planning-a-renovation",
+        "living-in-a-heritage-overlay",
         "selling-your-home"
       ]
     }
@@ -328,8 +336,8 @@
       "readingTimeMin": 18,
       "cluster": {
         "id": "state-rules",
-        "label": "Documents and state rules",
-        "chip": "Documents",
+        "label": "Contracts by state",
+        "chip": "Contracts by state",
         "blurb": "Read the disclosure bundle for the right jurisdiction, then arrange the physical and specialist checks the property warrants."
       },
       "topics": [
@@ -638,8 +646,8 @@
       "readingTimeMin": 11,
       "cluster": {
         "id": "state-rules",
-        "label": "Documents and state rules",
-        "chip": "Documents",
+        "label": "Contracts by state",
+        "chip": "Contracts by state",
         "blurb": "Read the disclosure bundle for the right jurisdiction, then arrange the physical and specialist checks the property warrants."
       },
       "topics": [
@@ -829,8 +837,8 @@
       "readingTimeMin": 14,
       "cluster": {
         "id": "state-rules",
-        "label": "Documents and state rules",
-        "chip": "Documents",
+        "label": "Contracts by state",
+        "chip": "Contracts by state",
         "blurb": "Read the disclosure bundle for the right jurisdiction, then arrange the physical and specialist checks the property warrants."
       },
       "topics": [
@@ -1102,8 +1110,8 @@
       "readingTimeMin": 12,
       "cluster": {
         "id": "how-to-buy",
-        "label": "How to buy",
-        "chip": "Buy well",
+        "label": "Buying a home",
+        "chip": "Buying a home",
         "blurb": "Sequence the checks, understand their limits and be ready before your offer becomes binding."
       },
       "topics": [
@@ -1366,8 +1374,8 @@
       "readingTimeMin": 11,
       "cluster": {
         "id": "how-to-buy",
-        "label": "How to buy",
-        "chip": "Buy well",
+        "label": "Buying a home",
+        "chip": "Buying a home",
         "blurb": "Sequence the checks, understand their limits and be ready before your offer becomes binding."
       },
       "topics": [
@@ -1642,8 +1650,8 @@
       "readingTimeMin": 14,
       "cluster": {
         "id": "how-to-buy",
-        "label": "How to buy",
-        "chip": "Buy well",
+        "label": "Buying a home",
+        "chip": "Buying a home",
         "blurb": "Sequence the checks, understand their limits and be ready before your offer becomes binding."
       },
       "topics": [
@@ -1952,8 +1960,8 @@
       "readingTimeMin": 14,
       "cluster": {
         "id": "how-to-buy",
-        "label": "How to buy",
-        "chip": "Buy well",
+        "label": "Buying a home",
+        "chip": "Buying a home",
         "blurb": "Sequence the checks, understand their limits and be ready before your offer becomes binding."
       },
       "topics": [
@@ -2266,8 +2274,8 @@
       "readingTimeMin": 12,
       "cluster": {
         "id": "how-to-buy",
-        "label": "How to buy",
-        "chip": "Buy well",
+        "label": "Buying a home",
+        "chip": "Buying a home",
         "blurb": "Sequence the checks, understand their limits and be ready before your offer becomes binding."
       },
       "topics": [
@@ -2483,8 +2491,8 @@
       "readingTimeMin": 13,
       "cluster": {
         "id": "how-to-buy",
-        "label": "How to buy",
-        "chip": "Buy well",
+        "label": "Buying a home",
+        "chip": "Buying a home",
         "blurb": "Sequence the checks, understand their limits and be ready before your offer becomes binding."
       },
       "topics": [
@@ -2735,10 +2743,10 @@
       "wordCount": 2097,
       "readingTimeMin": 12,
       "cluster": {
-        "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "id": "signs-problems",
+        "label": "Signs and problems",
+        "chip": "Signs and problems",
+        "blurb": "Seen a crack or damp, or suspect termites or asbestos? What it could be, and the next useful check."
       },
       "topics": [
         "damp and moisture",
@@ -3035,8 +3043,8 @@
       "readingTimeMin": 12,
       "cluster": {
         "id": "how-to-buy",
-        "label": "How to buy",
-        "chip": "Buy well",
+        "label": "Buying a home",
+        "chip": "Buying a home",
         "blurb": "Sequence the checks, understand their limits and be ready before your offer becomes binding."
       },
       "topics": [
@@ -3288,8 +3296,8 @@
       "readingTimeMin": 11,
       "cluster": {
         "id": "how-to-buy",
-        "label": "How to buy",
-        "chip": "Buy well",
+        "label": "Buying a home",
+        "chip": "Buying a home",
         "blurb": "Sequence the checks, understand their limits and be ready before your offer becomes binding."
       },
       "topics": [
@@ -3518,8 +3526,8 @@
       "cluster": {
         "id": "know-your-house",
         "label": "Know your house",
-        "chip": "Your house",
-        "blurb": "Explore how your home was built and what its history can help explain."
+        "chip": "Know your house",
+        "blurb": "What your home is, from its age and how it was built, and what homes like it tend to need."
       },
       "topics": [
         "renovation and alterations",
@@ -3772,8 +3780,8 @@
       "cluster": {
         "id": "know-your-house",
         "label": "Know your house",
-        "chip": "Your house",
-        "blurb": "Explore how your home was built and what its history can help explain."
+        "chip": "Know your house",
+        "blurb": "What your home is, from its age and how it was built, and what homes like it tend to need."
       },
       "topics": [
         "apartments and strata",
@@ -4104,10 +4112,10 @@
       "wordCount": 4570,
       "readingTimeMin": 26,
       "cluster": {
-        "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "id": "signs-problems",
+        "label": "Signs and problems",
+        "chip": "Signs and problems",
+        "blurb": "Seen a crack or damp, or suspect termites or asbestos? What it could be, and the next useful check."
       },
       "topics": [
         "renovation and alterations",
@@ -4400,7 +4408,7 @@
       "cluster": {
         "id": "shared-buildings",
         "label": "Apartments and shared buildings",
-        "chip": "Shared",
+        "chip": "Apartments and shared buildings",
         "blurb": "Read both purchases: your lot, and your share of the common property, records and future costs."
       },
       "topics": [
@@ -4653,8 +4661,8 @@
       "readingTimeMin": 17,
       "cluster": {
         "id": "own-change",
-        "label": "Own, maintain and change",
-        "chip": "Ownership",
+        "label": "Owning and changing",
+        "chip": "Owning and changing",
         "blurb": "Keep useful records, maintain the fabric safely and plan works without over-promising what condition can prove."
       },
       "topics": [
@@ -4964,12 +4972,11 @@
       "readingTimeMin": 14,
       "cluster": {
         "id": "own-change",
-        "label": "Own, maintain and change",
-        "chip": "Ownership",
+        "label": "Owning and changing",
+        "chip": "Owning and changing",
         "blurb": "Keep useful records, maintain the fabric safely and plan works without over-promising what condition can prove."
       },
       "topics": [
-        "maintenance",
         "renovation and alterations",
         "roofing",
         "insurance",
@@ -5270,8 +5277,8 @@
       "cluster": {
         "id": "know-your-house",
         "label": "Know your house",
-        "chip": "Your house",
-        "blurb": "Explore how your home was built and what its history can help explain."
+        "chip": "Know your house",
+        "blurb": "What your home is, from its age and how it was built, and what homes like it tend to need."
       },
       "topics": [
         "renovation and alterations",
@@ -5546,8 +5553,8 @@
       "readingTimeMin": 15,
       "cluster": {
         "id": "own-change",
-        "label": "Own, maintain and change",
-        "chip": "Ownership",
+        "label": "Owning and changing",
+        "chip": "Owning and changing",
         "blurb": "Keep useful records, maintain the fabric safely and plan works without over-promising what condition can prove."
       },
       "topics": [
@@ -5842,7 +5849,7 @@
       "cluster": {
         "id": "shared-buildings",
         "label": "Apartments and shared buildings",
-        "chip": "Shared",
+        "chip": "Apartments and shared buildings",
         "blurb": "Read both purchases: your lot, and your share of the common property, records and future costs."
       },
       "topics": [
@@ -6106,10 +6113,10 @@
       "wordCount": 2809,
       "readingTimeMin": 16,
       "cluster": {
-        "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "id": "signs-problems",
+        "label": "Signs and problems",
+        "chip": "Signs and problems",
+        "blurb": "Seen a crack or damp, or suspect termites or asbestos? What it could be, and the next useful check."
       },
       "topics": [
         "damp and moisture",
@@ -6356,12 +6363,11 @@
       "readingTimeMin": 12,
       "cluster": {
         "id": "own-change",
-        "label": "Own, maintain and change",
-        "chip": "Ownership",
+        "label": "Owning and changing",
+        "chip": "Owning and changing",
         "blurb": "Keep useful records, maintain the fabric safely and plan works without over-promising what condition can prove."
       },
       "topics": [
-        "maintenance",
         "renovation and alterations",
         "heritage and planning",
         "insurance",
@@ -6602,8 +6608,8 @@
       "cluster": {
         "id": "know-your-house",
         "label": "Know your house",
-        "chip": "Your house",
-        "blurb": "Explore how your home was built and what its history can help explain."
+        "chip": "Know your house",
+        "blurb": "What your home is, from its age and how it was built, and what homes like it tend to need."
       },
       "topics": [
         "renovation and alterations",
@@ -6889,8 +6895,8 @@
       "cluster": {
         "id": "know-your-house",
         "label": "Know your house",
-        "chip": "Your house",
-        "blurb": "Explore how your home was built and what its history can help explain."
+        "chip": "Know your house",
+        "blurb": "What your home is, from its age and how it was built, and what homes like it tend to need."
       },
       "topics": [
         "renovation and alterations",
@@ -7204,7 +7210,7 @@
       "cluster": {
         "id": "shared-buildings",
         "label": "Apartments and shared buildings",
-        "chip": "Shared",
+        "chip": "Apartments and shared buildings",
         "blurb": "Read both purchases: your lot, and your share of the common property, records and future costs."
       },
       "topics": [
@@ -7418,14 +7424,13 @@
       "readingTimeMin": 11,
       "cluster": {
         "id": "own-change",
-        "label": "Own, maintain and change",
-        "chip": "Ownership",
+        "label": "Owning and changing",
+        "chip": "Owning and changing",
         "blurb": "Keep useful records, maintain the fabric safely and plan works without over-promising what condition can prove."
       },
       "topics": [
         "contract and disclosure",
         "apartments and strata",
-        "maintenance",
         "records and evidence",
         "cost and budgeting",
         "construction era",
@@ -7646,8 +7651,8 @@
       "cluster": {
         "id": "know-your-house",
         "label": "Know your house",
-        "chip": "Your house",
-        "blurb": "Explore how your home was built and what its history can help explain."
+        "chip": "Know your house",
+        "blurb": "What your home is, from its age and how it was built, and what homes like it tend to need."
       },
       "topics": [
         "renovation and alterations",
@@ -7948,8 +7953,8 @@
       "cluster": {
         "id": "know-your-house",
         "label": "Know your house",
-        "chip": "Your house",
-        "blurb": "Explore how your home was built and what its history can help explain."
+        "chip": "Know your house",
+        "blurb": "What your home is, from its age and how it was built, and what homes like it tend to need."
       },
       "topics": [
         "apartments and strata",
@@ -8265,12 +8270,11 @@
       "readingTimeMin": 13,
       "cluster": {
         "id": "own-change",
-        "label": "Own, maintain and change",
-        "chip": "Ownership",
+        "label": "Owning and changing",
+        "chip": "Owning and changing",
         "blurb": "Keep useful records, maintain the fabric safely and plan works without over-promising what condition can prove."
       },
       "topics": [
-        "maintenance",
         "roofing",
         "insurance",
         "records and evidence",
@@ -8533,8 +8537,8 @@
       "cluster": {
         "id": "know-your-house",
         "label": "Know your house",
-        "chip": "Your house",
-        "blurb": "Explore how your home was built and what its history can help explain."
+        "chip": "Know your house",
+        "blurb": "What your home is, from its age and how it was built, and what homes like it tend to need."
       },
       "topics": [
         "renovation and alterations",
@@ -8872,8 +8876,8 @@
       "cluster": {
         "id": "know-your-house",
         "label": "Know your house",
-        "chip": "Your house",
-        "blurb": "Explore how your home was built and what its history can help explain."
+        "chip": "Know your house",
+        "blurb": "What your home is, from its age and how it was built, and what homes like it tend to need."
       },
       "topics": [
         "renovation and alterations",
@@ -9134,8 +9138,8 @@
       "cluster": {
         "id": "know-your-house",
         "label": "Know your house",
-        "chip": "Your house",
-        "blurb": "Explore how your home was built and what its history can help explain."
+        "chip": "Know your house",
+        "blurb": "What your home is, from its age and how it was built, and what homes like it tend to need."
       },
       "topics": [
         "renovation and alterations",
@@ -9378,8 +9382,8 @@
       "cluster": {
         "id": "know-your-house",
         "label": "Know your house",
-        "chip": "Your house",
-        "blurb": "Explore how your home was built and what its history can help explain."
+        "chip": "Know your house",
+        "blurb": "What your home is, from its age and how it was built, and what homes like it tend to need."
       },
       "topics": [
         "cracking and movement",
@@ -9678,8 +9682,8 @@
       "cluster": {
         "id": "know-your-house",
         "label": "Know your house",
-        "chip": "Your house",
-        "blurb": "Explore how your home was built and what its history can help explain."
+        "chip": "Know your house",
+        "blurb": "What your home is, from its age and how it was built, and what homes like it tend to need."
       },
       "topics": [
         "renovation and alterations",
@@ -9962,8 +9966,8 @@
       "cluster": {
         "id": "know-your-house",
         "label": "Know your house",
-        "chip": "Your house",
-        "blurb": "Explore how your home was built and what its history can help explain."
+        "chip": "Know your house",
+        "blurb": "What your home is, from its age and how it was built, and what homes like it tend to need."
       },
       "topics": [
         "renovation and alterations",
@@ -10198,10 +10202,10 @@
       "wordCount": 2121,
       "readingTimeMin": 12,
       "cluster": {
-        "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "id": "own-change",
+        "label": "Owning and changing",
+        "chip": "Owning and changing",
+        "blurb": "Keep useful records, maintain the fabric safely and plan works without over-promising what condition can prove."
       },
       "topics": [
         "heritage and planning",
@@ -10212,7 +10216,7 @@
       ],
       "eras": [],
       "buyingStages": [
-        "general guidance"
+        "ownership"
       ],
       "sections": [
         {
@@ -10448,9 +10452,9 @@
       "readingTimeMin": 23,
       "cluster": {
         "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "label": "Parts of the building",
+        "chip": "Parts of the building",
+        "blurb": "Roof, walls, wet areas, subfloor, services and outdoors: what to check in each part of the building."
       },
       "topics": [
         "maintenance",
@@ -10754,9 +10758,9 @@
       "readingTimeMin": 14,
       "cluster": {
         "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "label": "Parts of the building",
+        "chip": "Parts of the building",
+        "blurb": "Roof, walls, wet areas, subfloor, services and outdoors: what to check in each part of the building."
       },
       "topics": [
         "apartments and strata",
@@ -11017,9 +11021,9 @@
       "readingTimeMin": 17,
       "cluster": {
         "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "label": "Parts of the building",
+        "chip": "Parts of the building",
+        "blurb": "Roof, walls, wet areas, subfloor, services and outdoors: what to check in each part of the building."
       },
       "topics": [
         "renovation and alterations",
@@ -11276,10 +11280,10 @@
       "wordCount": 2409,
       "readingTimeMin": 14,
       "cluster": {
-        "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "id": "signs-problems",
+        "label": "Signs and problems",
+        "chip": "Signs and problems",
+        "blurb": "Seen a crack or damp, or suspect termites or asbestos? What it could be, and the next useful check."
       },
       "topics": [
         "renovation and alterations",
@@ -11528,10 +11532,10 @@
       "wordCount": 2477,
       "readingTimeMin": 14,
       "cluster": {
-        "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "id": "signs-problems",
+        "label": "Signs and problems",
+        "chip": "Signs and problems",
+        "blurb": "Seen a crack or damp, or suspect termites or asbestos? What it could be, and the next useful check."
       },
       "topics": [
         "renovation and alterations",
@@ -11813,9 +11817,9 @@
       "readingTimeMin": 13,
       "cluster": {
         "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "label": "Parts of the building",
+        "chip": "Parts of the building",
+        "blurb": "Roof, walls, wet areas, subfloor, services and outdoors: what to check in each part of the building."
       },
       "topics": [
         "renovation and alterations",
@@ -12048,9 +12052,9 @@
       "readingTimeMin": 15,
       "cluster": {
         "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "label": "Parts of the building",
+        "chip": "Parts of the building",
+        "blurb": "Roof, walls, wet areas, subfloor, services and outdoors: what to check in each part of the building."
       },
       "topics": [
         "renovation and alterations",
@@ -12297,9 +12301,9 @@
       "readingTimeMin": 15,
       "cluster": {
         "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "label": "Parts of the building",
+        "chip": "Parts of the building",
+        "blurb": "Roof, walls, wet areas, subfloor, services and outdoors: what to check in each part of the building."
       },
       "topics": [
         "cracking and movement",
@@ -12545,9 +12549,9 @@
       "readingTimeMin": 13,
       "cluster": {
         "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "label": "Parts of the building",
+        "chip": "Parts of the building",
+        "blurb": "Roof, walls, wet areas, subfloor, services and outdoors: what to check in each part of the building."
       },
       "topics": [
         "renovation and alterations",
@@ -12761,9 +12765,9 @@
       "readingTimeMin": 13,
       "cluster": {
         "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "label": "Parts of the building",
+        "chip": "Parts of the building",
+        "blurb": "Roof, walls, wet areas, subfloor, services and outdoors: what to check in each part of the building."
       },
       "topics": [
         "roofing",
@@ -13004,9 +13008,9 @@
       "readingTimeMin": 14,
       "cluster": {
         "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "label": "Parts of the building",
+        "chip": "Parts of the building",
+        "blurb": "Roof, walls, wet areas, subfloor, services and outdoors: what to check in each part of the building."
       },
       "topics": [
         "apartments and strata",
@@ -13252,9 +13256,9 @@
       "readingTimeMin": 14,
       "cluster": {
         "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "label": "Parts of the building",
+        "chip": "Parts of the building",
+        "blurb": "Roof, walls, wet areas, subfloor, services and outdoors: what to check in each part of the building."
       },
       "topics": [
         "roofing",
@@ -13478,9 +13482,9 @@
       "readingTimeMin": 14,
       "cluster": {
         "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "label": "Parts of the building",
+        "chip": "Parts of the building",
+        "blurb": "Roof, walls, wet areas, subfloor, services and outdoors: what to check in each part of the building."
       },
       "topics": [
         "damp and moisture",
@@ -13724,9 +13728,9 @@
       "readingTimeMin": 15,
       "cluster": {
         "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "label": "Parts of the building",
+        "chip": "Parts of the building",
+        "blurb": "Roof, walls, wet areas, subfloor, services and outdoors: what to check in each part of the building."
       },
       "topics": [
         "apartments and strata",
@@ -14011,9 +14015,9 @@
       "readingTimeMin": 13,
       "cluster": {
         "id": "read-building",
-        "label": "Read the building",
-        "chip": "Building",
-        "blurb": "Follow the signs, understand the possible causes and choose the next useful check."
+        "label": "Parts of the building",
+        "chip": "Parts of the building",
+        "blurb": "Roof, walls, wet areas, subfloor, services and outdoors: what to check in each part of the building."
       },
       "topics": [
         "cracking and movement",
@@ -14251,8 +14255,8 @@
       "readingTimeMin": 13,
       "cluster": {
         "id": "why",
-        "label": "Why it matters",
-        "chip": "Why",
+        "label": "Start here",
+        "chip": "Start here",
         "blurb": "Buying or owning a home is emotional and the process can feel daunting. Start here for the reasoning behind the checks, so the rest of the guides make sense."
       },
       "topics": [
@@ -14548,8 +14552,8 @@
       "readingTimeMin": 9,
       "cluster": {
         "id": "why",
-        "label": "Why it matters",
-        "chip": "Why",
+        "label": "Start here",
+        "chip": "Start here",
         "blurb": "Buying or owning a home is emotional and the process can feel daunting. Start here for the reasoning behind the checks, so the rest of the guides make sense."
       },
       "topics": [
@@ -14715,8 +14719,8 @@
       "readingTimeMin": 8,
       "cluster": {
         "id": "why",
-        "label": "Why it matters",
-        "chip": "Why",
+        "label": "Start here",
+        "chip": "Start here",
         "blurb": "Buying or owning a home is emotional and the process can feel daunting. Start here for the reasoning behind the checks, so the rest of the guides make sense."
       },
       "topics": [
@@ -14915,8 +14919,8 @@
       "readingTimeMin": 10,
       "cluster": {
         "id": "why",
-        "label": "Why it matters",
-        "chip": "Why",
+        "label": "Start here",
+        "chip": "Start here",
         "blurb": "Buying or owning a home is emotional and the process can feel daunting. Start here for the reasoning behind the checks, so the rest of the guides make sense."
       },
       "topics": [
