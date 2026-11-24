@@ -508,11 +508,12 @@ function scoreSection(section: GuideRecord['sections'][number], terms: string[],
 
 const CITY_WORDS = new Set(['melbourne', 'sydney', 'brisbane', 'perth', 'adelaide', 'hobart', 'darwin', 'canberra', 'geelong', 'newcastle', 'wollongong']);
 const GENERAL_BUYING_CLUSTERS = new Set(['how-to-buy', 'why', 'state-rules']);
-// The guides about the building itself: its parts and signs ('read-building'),
-// and its age and construction ('know-your-house', split out of
-// 'read-building' in November 2026). A question answered by either is a
+// The guides about the building itself: its parts ('read-building'), the
+// signs and problems it shows ('signs-problems': cracks, damp, termites,
+// asbestos), and its age and construction ('know-your-house'), split out of
+// 'read-building' in November 2026. A question answered by any of them is a
 // question about the building.
-const BUILDING_CLUSTERS = new Set(['read-building', 'know-your-house']);
+const BUILDING_CLUSTERS = new Set(['read-building', 'signs-problems', 'know-your-house']);
 const GENERAL_BUYING_HOW = 60;
 const GENERAL_BUYING_WHY = 15;
 // Words a general buying question is made of. Anything else is a subject.

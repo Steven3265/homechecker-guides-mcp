@@ -2,7 +2,7 @@ import * as z from 'zod/v4';
 import { READ_LINK_NOTE } from './identity.js';
 import { readLinksEnabled } from './client-label.js';
 
-export const CLUSTER_IDS = ['why', 'know-your-house', 'how-to-buy', 'state-rules', 'read-building', 'shared-buildings', 'own-change'] as const;
+export const CLUSTER_IDS = ['why', 'know-your-house', 'how-to-buy', 'state-rules', 'read-building', 'signs-problems', 'shared-buildings', 'own-change'] as const;
 export type ClusterId = (typeof CLUSTER_IDS)[number];
 export type MatchStrength = 'none' | 'weak' | 'strong';
 // Mirrors GuidanceLimit in core.ts; kept here so the contract has no dependency on the corpus.
