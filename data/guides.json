@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T06:56:00.306Z",
+  "generatedAt": "2026-11-25T20:40:40.330Z",
   "source": {
     "name": "Homechecker guide registry",
     "origin": "https://homechecker.com.au/guides/export.json",
@@ -64,7 +64,6 @@
         "bathroom-waterproofing-and-leaking-showers",
         "subfloors-stumps-and-restumping",
         "switchboards-wiring-and-safety-switches",
-        "parts-of-a-house",
         "plumbing-hot-water-and-leaks",
         "site-drainage-and-stormwater",
         "retaining-walls",
@@ -86,7 +85,6 @@
         "monitoring-cracks",
         "damp-and-moisture-in-your-home",
         "termites-in-australian-homes",
-        "signs-around-the-house",
         "asbestos-in-the-home",
         "building-biologist-cost"
       ]
@@ -140,11 +138,21 @@
         "the-maintenance-that-prevents-the-big-bills",
         "home-condition-and-insurance",
         "preparing-your-home-for-extreme-weather",
-        "how-long-things-last",
         "planning-a-renovation",
         "renovating-an-old-house",
         "living-in-a-heritage-overlay",
         "selling-your-home"
+      ]
+    },
+    {
+      "id": "look-it-up",
+      "label": "Look it up",
+      "chip": "Look it up",
+      "blurb": "The words, the signs and the timing, gathered from every guide. Find the thing you are after, then follow it to where it is explained.",
+      "slugs": [
+        "parts-of-a-house",
+        "signs-around-the-house",
+        "how-long-things-last"
       ]
     }
   ],
@@ -16840,10 +16848,10 @@
       "wordCount": 2396,
       "readingTimeMin": 14,
       "cluster": {
-        "id": "read-building",
-        "label": "Parts of the building",
-        "chip": "Parts of the building",
-        "blurb": "Roof, walls, wet areas, subfloor, services and outdoors: what to check in each part of the building."
+        "id": "look-it-up",
+        "label": "Look it up",
+        "chip": "Look it up",
+        "blurb": "The words, the signs and the timing, gathered from every guide. Find the thing you are after, then follow it to where it is explained."
       },
       "topics": [
         "damp and moisture",
@@ -16979,10 +16987,10 @@
       "wordCount": 2452,
       "readingTimeMin": 14,
       "cluster": {
-        "id": "signs-problems",
-        "label": "Signs and problems",
-        "chip": "Signs and problems",
-        "blurb": "Seen a crack or damp, or suspect termites or asbestos? What it could be, and the next useful check."
+        "id": "look-it-up",
+        "label": "Look it up",
+        "chip": "Look it up",
+        "blurb": "The words, the signs and the timing, gathered from every guide. Find the thing you are after, then follow it to where it is explained."
       },
       "topics": [
         "weather and resilience",
@@ -17109,10 +17117,10 @@
       "wordCount": 1546,
       "readingTimeMin": 9,
       "cluster": {
-        "id": "own-change",
-        "label": "Owning and changing",
-        "chip": "Owning and changing",
-        "blurb": "Keep useful records, maintain the fabric safely and plan works without over-promising what condition can prove."
+        "id": "look-it-up",
+        "label": "Look it up",
+        "chip": "Look it up",
+        "blurb": "The words, the signs and the timing, gathered from every guide. Find the thing you are after, then follow it to where it is explained."
       },
       "topics": [
         "roofing"
@@ -17122,7 +17130,7 @@
       ],
       "eras": [],
       "buyingStages": [
-        "ownership"
+        "general guidance"
       ],
       "sections": [
         {
